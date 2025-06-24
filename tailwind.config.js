@@ -19,6 +19,21 @@ export default {
         'sans': ['Inter', 'system-ui', 'sans-serif'],
         'serif': ['Playfair Display', 'Georgia', 'serif'],
       },
+      keyframes: {
+        confettiFall: {
+          '0%': {
+            transform: 'translateY(0) rotate(0deg)',
+            opacity: '1',
+          },
+          '100%': {
+            transform: 'translateY(100vh) rotate(720deg)',
+            opacity: '0',
+          },
+        },
+      },
+      animation: {
+        confetti: 'confettiFall 3s ease-out forwards',
+      },
     },
   },
   plugins: [],

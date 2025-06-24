@@ -54,11 +54,6 @@ const AddProfileModal: React.FC<AddProfileModalProps> = ({
       {/* Modal */}
       <div className="flex min-h-screen items-center justify-center p-4">
         <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full p-6 sm:p-8">
-          {/* Step indicator */}
-          <div className="text-center text-sm text-gray-500 mb-6">
-            Step {currentStep} of {totalSteps}
-          </div>
-
           {/* Close button */}
           <button
             onClick={onClose}
