@@ -74,18 +74,21 @@ const LandingPage: React.FC = () => {
   };
 
   const handleAddProfileClose = () => {
-    // Navigate to dashboard empty state (for now just close)
+    // Navigate to dashboard empty state
     setIsAddProfileModalOpen(false);
+    navigate('/dashboard', { state: { showEmptyState: true } });
   };
 
   const handleAddPersonalInfoClose = () => {
-    // Navigate to dashboard empty state (for now just close)
+    // Since they've completed profile, show non-empty dashboard
     setIsAddPersonalInfoModalOpen(false);
+    navigate('/dashboard', { state: { firstName: profileData.firstName } });
   };
 
   const handleAddAcademicInfoClose = () => {
-    // Navigate to dashboard empty state (for now just close)
+    // Since they've completed profile, show non-empty dashboard
     setIsAddAcademicInfoModalOpen(false);
+    navigate('/dashboard', { state: { firstName: profileData.firstName } });
   };
 
   const handleSchoolInfoContinue = (data: { major?: string; degree?: string; graduationYear?: string }) => {
@@ -100,8 +103,9 @@ const LandingPage: React.FC = () => {
   };
 
   const handleAddSchoolInfoClose = () => {
-    // Navigate to dashboard empty state (for now just close)
+    // Since they've completed profile, show non-empty dashboard
     setIsAddSchoolInfoModalOpen(false);
+    navigate('/dashboard', { state: { firstName: profileData.firstName } });
   };
 
   const handleCongratulationsContinue = () => {

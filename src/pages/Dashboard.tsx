@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import AddProfileModal from '../components/AddProfileModal';
+import AddPersonalInfoModal from '../components/AddPersonalInfoModal';
+import AddAcademicInfoModal from '../components/AddAcademicInfoModal';
+import AddSchoolInfoModal from '../components/AddSchoolInfoModal';
+import CongratulationsModal from '../components/CongratulationsModal';
 
 interface LocationState {
   firstName?: string;
+  showEmptyState?: boolean;
 }
 
 interface Scholarship {
@@ -16,11 +22,25 @@ interface Scholarship {
 
 const Dashboard: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const state = location.state as LocationState;
   const firstName = state?.firstName || 'Student';
+  const showEmptyState = state?.showEmptyState || false;
   
   const [filter, setFilter] = useState('all');
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  
+  // Modal states for sign-up flow
+  const [isAddProfileModalOpen, setIsAddProfileModalOpen] = useState(false);
+  const [isAddPersonalInfoModalOpen, setIsAddPersonalInfoModalOpen] = useState(false);
+  const [isAddAcademicInfoModalOpen, setIsAddAcademicInfoModalOpen] = useState(false);
+  const [isAddSchoolInfoModalOpen, setIsAddSchoolInfoModalOpen] = useState(false);
+  const [isCongratulationsModalOpen, setIsCongratulationsModalOpen] = useState(false);
+  
+  // Form data states
+  const [profileData, setProfileData] = useState({ firstName: '', birthday: '' });
+  const [personalInfoData, setPersonalInfoData] = useState({ gender: '', nationality: '', cityState: '' });
+  const [academicInfoData, setAcademicInfoData] = useState({ gradeLevel: '', schoolType: '', gpa: '' });
 
   // Mock data for scholarships
   const scholarships: Scholarship[] = [
@@ -52,7 +72,7 @@ const Dashboard: React.FC = () => {
 
   const stats = {
     numberOfMatches: 47,
-    amountInMatches: '$125,000'
+    amountInMatches: '$125K'
   };
 
   const renderMatchStrength = (strength: number) => {
@@ -74,6 +94,88 @@ const Dashboard: React.FC = () => {
     );
   };
 
+  // Modal handlers
+  const handleStartAnsweringQuestions = () => {
+    setIsAddProfileModalOpen(true);
+  };
+
+  const handleProfileContinue = (data: { firstName: string; birthday: string }) => {
+    setProfileData(data);
+    setIsAddProfileModalOpen(false);
+    setIsAddPersonalInfoModalOpen(true);
+  };
+
+  const handlePersonalInfoContinue = (data: { gender?: string; nationality?: string; cityState?: string }) => {
+    setPersonalInfoData({ 
+      gender: data.gender || '', 
+      nationality: data.nationality || '', 
+      cityState: data.cityState || '' 
+    });
+    setIsAddPersonalInfoModalOpen(false);
+    setIsAddAcademicInfoModalOpen(true);
+  };
+
+  const handleAcademicInfoContinue = (data: { gradeLevel?: string; schoolType?: string; gpa?: string }) => {
+    setAcademicInfoData({ 
+      gradeLevel: data.gradeLevel || '', 
+      schoolType: data.schoolType || '', 
+      gpa: data.gpa || '' 
+    });
+    setIsAddAcademicInfoModalOpen(false);
+    setIsAddSchoolInfoModalOpen(true);
+  };
+
+  const handleSchoolInfoContinue = (data: { major?: string; degree?: string; graduationYear?: string }) => {
+    console.log('School info data:', data);
+    setIsAddSchoolInfoModalOpen(false);
+    setIsCongratulationsModalOpen(true);
+  };
+
+  const handleCongratulationsContinue = () => {
+    setIsCongratulationsModalOpen(false);
+    // Reload the page with the user's data
+    navigate('/dashboard', { state: { firstName: profileData.firstName } });
+  };
+
+  // Modal close handlers
+  const handleAddProfileClose = () => {
+    setIsAddProfileModalOpen(false);
+  };
+
+  const handleAddPersonalInfoClose = () => {
+    setIsAddPersonalInfoModalOpen(false);
+    // Since they've completed profile, show non-empty dashboard
+    navigate('/dashboard', { state: { firstName: profileData.firstName } });
+  };
+
+  const handleAddAcademicInfoClose = () => {
+    setIsAddAcademicInfoModalOpen(false);
+    // Since they've completed profile, show non-empty dashboard
+    navigate('/dashboard', { state: { firstName: profileData.firstName } });
+  };
+
+  const handleAddSchoolInfoClose = () => {
+    setIsAddSchoolInfoModalOpen(false);
+    // Since they've completed profile, show non-empty dashboard
+    navigate('/dashboard', { state: { firstName: profileData.firstName } });
+  };
+
+  // Previous handlers
+  const handlePersonalInfoPrevious = () => {
+    setIsAddPersonalInfoModalOpen(false);
+    setIsAddProfileModalOpen(true);
+  };
+
+  const handleAcademicInfoPrevious = () => {
+    setIsAddAcademicInfoModalOpen(false);
+    setIsAddPersonalInfoModalOpen(true);
+  };
+
+  const handleSchoolInfoPrevious = () => {
+    setIsAddSchoolInfoModalOpen(false);
+    setIsAddAcademicInfoModalOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-protected-bg">
       {/* Header */}
@@ -88,34 +190,68 @@ const Dashboard: React.FC = () => {
                 <a href="#" className="text-gray-600 hover:text-gray-900">Contact Us</a>
               </nav>
             </div>
-            <div className="w-10 h-10 bg-gray-400 rounded-full" /> {/* Profile placeholder */}
+            <div className="flex items-center space-x-4">
+              {/* Dev Reset Button - Remove in production */}
+              <button
+                onClick={() => window.location.href = '/preview'}
+                className="px-4 py-2 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+              >
+                Reset Session
+              </button>
+              <div className="w-10 h-10 bg-gray-400 rounded-full" /> {/* Profile placeholder */}
+            </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Overview Section */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-serif font-bold text-vault-blue mb-2">
-            Hi {firstName}! 🎓
-          </h1>
-          <p className="text-gray-600">
-            Here's a brief overview of your personalized matches.
-          </p>
-        </div>
+        {showEmptyState ? (
+          /* Empty State */
+          <div className="flex flex-col items-center justify-center min-h-[60vh]">
+            <div className="w-48 h-48 bg-gray-200 rounded-lg flex items-center justify-center mb-8">
+              <svg className="w-24 h-24 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <p className="text-xl text-gray-600 mb-8">
+              Oops! We can't show you your personalized matches until you answer some questions.
+            </p>
+            <button
+              onClick={handleStartAnsweringQuestions}
+              className="px-8 py-3 bg-info-blue text-white rounded-md font-semibold hover:bg-opacity-90 transition-all"
+            >
+              Start Answering Questions
+            </button>
+          </div>
+        ) : (
+          <>
+            {/* Overview Section */}
+            <div className="flex items-center mb-12">
+              <div className="flex-1 max-w-md">
+                <h1 className="text-3xl font-serif font-bold text-vault-blue mb-2">
+                  Hi {firstName}! 🎓
+                </h1>
+                <p className="text-gray-600">
+                  Here's a brief overview of your personalized matches.
+                </p>
+              </div>
 
-        {/* Stats */}
-        <div className="flex space-x-8 mb-12">
-          <div className="bg-white rounded-full w-40 h-40 flex flex-col items-center justify-center shadow-md">
-            <div className="text-3xl font-bold text-vault-blue">{stats.numberOfMatches}</div>
-            <div className="text-sm text-gray-600 text-center mt-2">Number<br />of<br />Matches</div>
-          </div>
-          <div className="bg-white rounded-full w-40 h-40 flex flex-col items-center justify-center shadow-md">
-            <div className="text-3xl font-bold text-vault-blue">{stats.amountInMatches}</div>
-            <div className="text-sm text-gray-600 text-center mt-2">Amount<br />in<br />Matches</div>
-          </div>
-        </div>
+              {/* Stats - Centered */}
+              <div className="flex-1 flex justify-center space-x-8">
+                <div className="bg-white rounded-full w-40 h-40 flex flex-col items-center justify-center shadow-md">
+                  <div className="text-3xl font-bold text-vault-blue">{stats.numberOfMatches}</div>
+                  <div className="text-sm text-gray-600 text-center mt-2">Number<br />of<br />Matches</div>
+                </div>
+                <div className="bg-white rounded-full w-40 h-40 flex flex-col items-center justify-center shadow-md">
+                  <div className="text-3xl font-bold text-vault-blue">{stats.amountInMatches}</div>
+                  <div className="text-sm text-gray-600 text-center mt-2">Amount<br />in<br />Matches</div>
+                </div>
+              </div>
+
+              {/* Spacer for filter alignment */}
+              <div className="w-48"></div>
+            </div>
 
         {/* Feed Section */}
         <div className="relative">
@@ -221,16 +357,59 @@ const Dashboard: React.FC = () => {
                 Unlock Your Full Potential! 🚀
               </h3>
               <p className="text-gray-700 mb-6 max-w-2xl mx-auto">
-                You have 44 more scholarships waiting for you! Subscribe to ScholarTrail Premium 
+                You have 44 more scholarships waiting for you! Subscribe to ScholarTrail 
                 to access all your matches and maximize your funding opportunities.
               </p>
               <button className="px-8 py-3 bg-trust-pink text-white rounded-md font-semibold hover:bg-opacity-90 transform hover:scale-105 transition-all">
-                Upgrade to Premium
+                Become a Member
               </button>
             </div>
           </div>
         </div>
+          </>
+        )}
       </main>
+
+      {/* Sign-up Modals */}
+      <AddProfileModal
+        isOpen={isAddProfileModalOpen}
+        onClose={handleAddProfileClose}
+        onContinue={handleProfileContinue}
+        currentStep={1}
+        totalSteps={4}
+      />
+
+      <AddPersonalInfoModal
+        isOpen={isAddPersonalInfoModalOpen}
+        onClose={handleAddPersonalInfoClose}
+        onContinue={handlePersonalInfoContinue}
+        onPrevious={handlePersonalInfoPrevious}
+        currentStep={2}
+        totalSteps={4}
+      />
+
+      <AddAcademicInfoModal
+        isOpen={isAddAcademicInfoModalOpen}
+        onClose={handleAddAcademicInfoClose}
+        onContinue={handleAcademicInfoContinue}
+        onPrevious={handleAcademicInfoPrevious}
+        currentStep={3}
+        totalSteps={4}
+      />
+
+      <AddSchoolInfoModal
+        isOpen={isAddSchoolInfoModalOpen}
+        onClose={handleAddSchoolInfoClose}
+        onContinue={handleSchoolInfoContinue}
+        onPrevious={handleSchoolInfoPrevious}
+        currentStep={4}
+        totalSteps={4}
+      />
+
+      <CongratulationsModal
+        isOpen={isCongratulationsModalOpen}
+        onContinue={handleCongratulationsContinue}
+      />
     </div>
   );
 };
