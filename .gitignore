@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local debug scripts
+debug-network.js
+reset-network.sh
