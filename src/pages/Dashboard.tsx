@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import AddProfileModal from '../components/AddProfileModal';
 import AddPersonalInfoModal from '../components/AddPersonalInfoModal';
 import AddAcademicInfoModal from '../components/AddAcademicInfoModal';
 import AddSchoolInfoModal from '../components/AddSchoolInfoModal';
 import CongratulationsModal from '../components/CongratulationsModal';
+import PaywallModal from '../components/PaywallModal';
 
 interface LocationState {
   firstName?: string;
@@ -29,6 +30,8 @@ const Dashboard: React.FC = () => {
   
   const [filter, setFilter] = useState('all');
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
+  const settingsDropdownRef = useRef<HTMLDivElement>(null);
   
   // Modal states for sign-up flow
   const [isAddProfileModalOpen, setIsAddProfileModalOpen] = useState(false);
@@ -36,6 +39,7 @@ const Dashboard: React.FC = () => {
   const [isAddAcademicInfoModalOpen, setIsAddAcademicInfoModalOpen] = useState(false);
   const [isAddSchoolInfoModalOpen, setIsAddSchoolInfoModalOpen] = useState(false);
   const [isCongratulationsModalOpen, setIsCongratulationsModalOpen] = useState(false);
+  const [isPaywallModalOpen, setIsPaywallModalOpen] = useState(false);
   
   // Form data states
   const [profileData, setProfileData] = useState({ firstName: '', birthday: '' });
@@ -74,6 +78,23 @@ const Dashboard: React.FC = () => {
     numberOfMatches: 47,
     amountInMatches: '$125K'
   };
+
+  // Click outside handler for settings dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (settingsDropdownRef.current && !settingsDropdownRef.current.contains(event.target as Node)) {
+        setShowSettingsDropdown(false);
+      }
+    };
+
+    if (showSettingsDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showSettingsDropdown]);
 
   const renderMatchStrength = (strength: number) => {
     return (
@@ -176,6 +197,42 @@ const Dashboard: React.FC = () => {
     setIsAddAcademicInfoModalOpen(true);
   };
 
+  // Paywall handlers
+  const handleBecomeMember = () => {
+    setIsPaywallModalOpen(true);
+  };
+
+  const handlePaywallClose = () => {
+    setIsPaywallModalOpen(false);
+  };
+
+  const handlePaywallPurchase = () => {
+    // In a real app, this would process the payment
+    console.log('Processing membership purchase...');
+    setIsPaywallModalOpen(false);
+    // Could show a success message or update user status
+  };
+
+  // Settings handlers
+  const handleSettingsClick = (action: string) => {
+    setShowSettingsDropdown(false);
+    switch (action) {
+      case 'edit-profile':
+        console.log('Navigate to Edit Profile');
+        break;
+      case 'edit-account':
+        console.log('Navigate to Edit Account');
+        break;
+      case 'faqs':
+        console.log('Navigate to FAQs');
+        break;
+      case 'logout':
+        // Reset session by navigating to landing page
+        window.location.href = '/preview';
+        break;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-protected-bg">
       {/* Header */}
@@ -191,14 +248,49 @@ const Dashboard: React.FC = () => {
               </nav>
             </div>
             <div className="flex items-center space-x-4">
-              {/* Dev Reset Button - Remove in production */}
-              <button
-                onClick={() => window.location.href = '/preview'}
-                className="px-4 py-2 text-sm bg-red-500 text-white rounded hover:bg-red-600"
-              >
-                Reset Session
-              </button>
-              <div className="w-10 h-10 bg-gray-400 rounded-full" /> {/* Profile placeholder */}
+              {/* Settings Dropdown */}
+              <div className="relative" ref={settingsDropdownRef}>
+                <button
+                  onClick={() => setShowSettingsDropdown(!showSettingsDropdown)}
+                  className="w-10 h-10 bg-gray-400 rounded-full hover:bg-gray-500 transition-colors flex items-center justify-center"
+                >
+                  <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </button>
+                
+                {showSettingsDropdown && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                    <div className="py-1">
+                      <button
+                        onClick={() => handleSettingsClick('edit-profile')}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Edit Profile
+                      </button>
+                      <button
+                        onClick={() => handleSettingsClick('edit-account')}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Edit Account
+                      </button>
+                      <button
+                        onClick={() => handleSettingsClick('faqs')}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        FAQs
+                      </button>
+                      <hr className="my-1 border-gray-200" />
+                      <button
+                        onClick={() => handleSettingsClick('logout')}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -318,10 +410,22 @@ const Dashboard: React.FC = () => {
                   <div className="flex-grow">
                     <div className="flex justify-between items-start">
                       <div className="flex-grow">
-                        <h3 className="text-xl font-semibold text-vault-blue mb-2">
+                        <h3 
+                          className="text-xl font-semibold text-vault-blue mb-2 cursor-pointer hover:text-info-blue transition-colors"
+                          onClick={() => {
+                            const slug = scholarship.name.toLowerCase().replace(/\s+/g, '-');
+                            navigate(`/scholarship/${slug}`);
+                          }}
+                        >
                           {scholarship.name}
                         </h3>
-                        <p className="text-gray-600 mb-4">
+                        <p 
+                          className="text-gray-600 mb-4 cursor-pointer hover:text-gray-800 transition-colors"
+                          onClick={() => {
+                            const slug = scholarship.name.toLowerCase().replace(/\s+/g, '-');
+                            navigate(`/scholarship/${slug}`);
+                          }}
+                        >
                           {scholarship.description.length > 100 
                             ? scholarship.description.substring(0, 100) + '...'
                             : scholarship.description
@@ -339,8 +443,16 @@ const Dashboard: React.FC = () => {
                     </div>
                     
                     {/* Actions */}
-                    <div className="flex items-center space-x-6 mt-4">
-                      <button className="text-info-blue hover:underline">View More</button>
+                    <div className="flex items-center justify-end space-x-6 mt-4">
+                      <button 
+                        onClick={() => {
+                          const slug = scholarship.name.toLowerCase().replace(/\s+/g, '-');
+                          navigate(`/scholarship/${slug}`);
+                        }}
+                        className="text-info-blue hover:underline"
+                      >
+                        View More
+                      </button>
                       <button className="text-info-blue hover:underline">Save</button>
                       <button className="px-6 py-2 bg-info-blue text-white rounded-md hover:bg-opacity-90">
                         Apply
@@ -360,7 +472,10 @@ const Dashboard: React.FC = () => {
                 You have 44 more scholarships waiting for you! Subscribe to ScholarTrail 
                 to access all your matches and maximize your funding opportunities.
               </p>
-              <button className="px-8 py-3 bg-trust-pink text-white rounded-md font-semibold hover:bg-opacity-90 transform hover:scale-105 transition-all">
+              <button 
+                onClick={handleBecomeMember}
+                className="px-8 py-3 bg-trust-pink text-white rounded-md font-semibold hover:bg-opacity-90 transform hover:scale-105 transition-all"
+              >
                 Become a Member
               </button>
             </div>
@@ -409,6 +524,12 @@ const Dashboard: React.FC = () => {
       <CongratulationsModal
         isOpen={isCongratulationsModalOpen}
         onContinue={handleCongratulationsContinue}
+      />
+
+      <PaywallModal
+        isOpen={isPaywallModalOpen}
+        onClose={handlePaywallClose}
+        onPurchase={handlePaywallPurchase}
       />
     </div>
   );
