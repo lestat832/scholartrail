@@ -6,6 +6,7 @@ import PersonaTabs from '../components/PersonaTabs';
 import Footer from '../components/Footer';
 import SignUpModal from '../components/SignUpModal';
 import SignUpOptionsModal from '../components/SignUpOptionsModal';
+import SignInModal from '../components/SignInModal';
 import AddProfileModal from '../components/AddProfileModal';
 import AddPersonalInfoModal from '../components/AddPersonalInfoModal';
 import AddAcademicInfoModal from '../components/AddAcademicInfoModal';
@@ -16,6 +17,7 @@ const LandingPage: React.FC = () => {
   const navigate = useNavigate();
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
   const [isSignUpOptionsModalOpen, setIsSignUpOptionsModalOpen] = useState(false);
+  const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
   const [isAddProfileModalOpen, setIsAddProfileModalOpen] = useState(false);
   const [isAddPersonalInfoModalOpen, setIsAddPersonalInfoModalOpen] = useState(false);
   const [isAddAcademicInfoModalOpen, setIsAddAcademicInfoModalOpen] = useState(false);
@@ -23,8 +25,6 @@ const LandingPage: React.FC = () => {
   const [isCongratulationsModalOpen, setIsCongratulationsModalOpen] = useState(false);
   const [selectedUserType, setSelectedUserType] = useState<'student' | 'parent' | 'educator'>('student');
   const [profileData, setProfileData] = useState({ firstName: '', birthday: '' });
-  const [personalInfoData, setPersonalInfoData] = useState({ gender: '', nationality: '', cityState: '' });
-  const [academicInfoData, setAcademicInfoData] = useState({ gradeLevel: '', schoolType: '', gpa: '' });
 
   const handleUserTypeSelected = (userType: 'student' | 'parent' | 'educator') => {
     setSelectedUserType(userType);
@@ -43,12 +43,7 @@ const LandingPage: React.FC = () => {
     setIsAddPersonalInfoModalOpen(true);
   };
 
-  const handlePersonalInfoContinue = (data: { gender?: string; nationality?: string; cityState?: string }) => {
-    setPersonalInfoData({ 
-      gender: data.gender || '', 
-      nationality: data.nationality || '', 
-      cityState: data.cityState || '' 
-    });
+  const handlePersonalInfoContinue = (_data: { gender?: string; nationality?: string; cityState?: string }) => {
     setIsAddPersonalInfoModalOpen(false);
     setIsAddAcademicInfoModalOpen(true);
   };
@@ -58,12 +53,7 @@ const LandingPage: React.FC = () => {
     setIsAddProfileModalOpen(true);
   };
 
-  const handleAcademicInfoContinue = (data: { gradeLevel?: string; schoolType?: string; gpa?: string }) => {
-    setAcademicInfoData({ 
-      gradeLevel: data.gradeLevel || '', 
-      schoolType: data.schoolType || '', 
-      gpa: data.gpa || '' 
-    });
+  const handleAcademicInfoContinue = (_data: { gradeLevel?: string; schoolType?: string; gpa?: string }) => {
     setIsAddAcademicInfoModalOpen(false);
     setIsAddSchoolInfoModalOpen(true);
   };
@@ -113,9 +103,30 @@ const LandingPage: React.FC = () => {
     navigate('/dashboard', { state: { firstName: profileData.firstName } });
   };
 
+  const handleSignIn = () => {
+    // Close sign in modal and navigate to dashboard
+    setIsSignInModalOpen(false);
+    navigate('/dashboard', { state: { firstName: 'User' } });
+  };
+
+  const handleSwitchToSignUp = () => {
+    // Close sign in modal and open sign up modal
+    setIsSignInModalOpen(false);
+    setIsSignUpModalOpen(true);
+  };
+
+  const handleSwitchToSignIn = () => {
+    // Close sign up options modal and open sign in modal
+    setIsSignUpOptionsModalOpen(false);
+    setIsSignInModalOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-white font-sans">
-      <Header onSignUpClick={() => setIsSignUpModalOpen(true)} />
+      <Header 
+        onSignUpClick={() => setIsSignUpModalOpen(true)} 
+        onLoginClick={() => setIsSignInModalOpen(true)}
+      />
       <main>
         <Hero />
         <PersonaTabs />
@@ -133,6 +144,7 @@ const LandingPage: React.FC = () => {
         onClose={() => setIsSignUpOptionsModalOpen(false)}
         userType={selectedUserType}
         onEmailContinue={handleEmailContinue}
+        onLogin={handleSwitchToSignIn}
       />
 
       <AddProfileModal
@@ -173,6 +185,13 @@ const LandingPage: React.FC = () => {
       <CongratulationsModal
         isOpen={isCongratulationsModalOpen}
         onContinue={handleCongratulationsContinue}
+      />
+      
+      <SignInModal
+        isOpen={isSignInModalOpen}
+        onClose={() => setIsSignInModalOpen(false)}
+        onSignIn={handleSignIn}
+        onRegister={handleSwitchToSignUp}
       />
     </div>
   );

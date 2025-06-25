@@ -6,6 +6,9 @@ import AddAcademicInfoModal from '../components/AddAcademicInfoModal';
 import AddSchoolInfoModal from '../components/AddSchoolInfoModal';
 import CongratulationsModal from '../components/CongratulationsModal';
 import PaywallModal from '../components/PaywallModal';
+import SaveScholarshipModal from '../components/SaveScholarshipModal';
+import RedirectModal from '../components/RedirectModal';
+import DidYouApplyModal from '../components/DidYouApplyModal';
 
 interface LocationState {
   firstName?: string;
@@ -33,6 +36,20 @@ const Dashboard: React.FC = () => {
   const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
   const settingsDropdownRef = useRef<HTMLDivElement>(null);
   
+  // Saved scholarships state
+  const [savedScholarships, setSavedScholarships] = useState<Set<string>>(new Set());
+  const [newSavedCount, setNewSavedCount] = useState(0);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  
+  // Applied scholarships state
+  const [appliedScholarships, setAppliedScholarships] = useState<Set<string>>(new Set());
+  const [newAppliedCount, setNewAppliedCount] = useState(0);
+  
+  // Apply modals state
+  const [showRedirectModal, setShowRedirectModal] = useState(false);
+  const [showDidYouApplyModal, setShowDidYouApplyModal] = useState(false);
+  const [applyingScholarship, setApplyingScholarship] = useState<Scholarship | null>(null);
+  
   // Modal states for sign-up flow
   const [isAddProfileModalOpen, setIsAddProfileModalOpen] = useState(false);
   const [isAddPersonalInfoModalOpen, setIsAddPersonalInfoModalOpen] = useState(false);
@@ -41,10 +58,87 @@ const Dashboard: React.FC = () => {
   const [isCongratulationsModalOpen, setIsCongratulationsModalOpen] = useState(false);
   const [isPaywallModalOpen, setIsPaywallModalOpen] = useState(false);
   
+  // Load saved and applied scholarships from localStorage on mount
+  useEffect(() => {
+    // Load saved scholarships
+    const saved = localStorage.getItem('savedScholarships');
+    if (saved) {
+      setSavedScholarships(new Set(JSON.parse(saved)));
+    }
+    const lastAccessedSaved = localStorage.getItem('lastAccessedSaved');
+    const currentSavedCount = saved ? JSON.parse(saved).length : 0;
+    const lastSavedCount = lastAccessedSaved ? parseInt(lastAccessedSaved) : 0;
+    setNewSavedCount(currentSavedCount - lastSavedCount);
+    
+    // Load applied scholarships
+    const applied = localStorage.getItem('appliedScholarships');
+    if (applied) {
+      setAppliedScholarships(new Set(JSON.parse(applied)));
+    }
+    const lastAccessedApplied = localStorage.getItem('lastAccessedApplied');
+    const currentAppliedCount = applied ? JSON.parse(applied).length : 0;
+    const lastAppliedCount = lastAccessedApplied ? parseInt(lastAccessedApplied) : 0;
+    setNewAppliedCount(currentAppliedCount - lastAppliedCount);
+  }, []);
+  
   // Form data states
   const [profileData, setProfileData] = useState({ firstName: '', birthday: '' });
-  const [personalInfoData, setPersonalInfoData] = useState({ gender: '', nationality: '', cityState: '' });
-  const [academicInfoData, setAcademicInfoData] = useState({ gradeLevel: '', schoolType: '', gpa: '' });
+  
+  // Save scholarship handler
+  const handleSaveScholarship = (scholarshipId: string) => {
+    const updatedSaved = new Set(savedScholarships);
+    updatedSaved.add(scholarshipId);
+    setSavedScholarships(updatedSaved);
+    
+    // Update localStorage
+    localStorage.setItem('savedScholarships', JSON.stringify(Array.from(updatedSaved)));
+    
+    // Update new saved count
+    setNewSavedCount(prev => prev + 1);
+    
+    // Show congratulations modal
+    setShowSaveModal(true);
+  };
+  
+  // Handle save modal close
+  const handleSaveModalClose = () => {
+    setShowSaveModal(false);
+  };
+  
+  // Apply handlers
+  const handleApplyScholarship = (scholarship: Scholarship) => {
+    setApplyingScholarship(scholarship);
+    setShowRedirectModal(true);
+  };
+  
+  const handleRedirectContinue = () => {
+    setShowRedirectModal(false);
+    // For demo purposes, show the "Did You Apply" modal
+    setShowDidYouApplyModal(true);
+  };
+  
+  const handleDidYouApplyYes = () => {
+    if (applyingScholarship) {
+      // Add to applied scholarships
+      const updatedApplied = new Set(appliedScholarships);
+      updatedApplied.add(applyingScholarship.id);
+      setAppliedScholarships(updatedApplied);
+      
+      // Update localStorage
+      localStorage.setItem('appliedScholarships', JSON.stringify(Array.from(updatedApplied)));
+      
+      // Update new applied count
+      setNewAppliedCount(prev => prev + 1);
+    }
+    
+    setShowDidYouApplyModal(false);
+    setApplyingScholarship(null);
+  };
+  
+  const handleDidYouApplyNo = () => {
+    setShowDidYouApplyModal(false);
+    setApplyingScholarship(null);
+  };
 
   // Mock data for scholarships
   const scholarships: Scholarship[] = [
@@ -126,22 +220,12 @@ const Dashboard: React.FC = () => {
     setIsAddPersonalInfoModalOpen(true);
   };
 
-  const handlePersonalInfoContinue = (data: { gender?: string; nationality?: string; cityState?: string }) => {
-    setPersonalInfoData({ 
-      gender: data.gender || '', 
-      nationality: data.nationality || '', 
-      cityState: data.cityState || '' 
-    });
+  const handlePersonalInfoContinue = (_data: { gender?: string; nationality?: string; cityState?: string }) => {
     setIsAddPersonalInfoModalOpen(false);
     setIsAddAcademicInfoModalOpen(true);
   };
 
-  const handleAcademicInfoContinue = (data: { gradeLevel?: string; schoolType?: string; gpa?: string }) => {
-    setAcademicInfoData({ 
-      gradeLevel: data.gradeLevel || '', 
-      schoolType: data.schoolType || '', 
-      gpa: data.gpa || '' 
-    });
+  const handleAcademicInfoContinue = (_data: { gradeLevel?: string; schoolType?: string; gpa?: string }) => {
     setIsAddAcademicInfoModalOpen(false);
     setIsAddSchoolInfoModalOpen(true);
   };
@@ -227,6 +311,12 @@ const Dashboard: React.FC = () => {
         console.log('Navigate to FAQs');
         break;
       case 'logout':
+        // Clear all scholarship-related data from localStorage
+        localStorage.removeItem('savedScholarships');
+        localStorage.removeItem('appliedScholarships');
+        localStorage.removeItem('lastAccessedSaved');
+        localStorage.removeItem('lastAccessedApplied');
+        
         // Reset session by navigating to landing page
         window.location.href = '/preview';
         break;
@@ -373,16 +463,38 @@ const Dashboard: React.FC = () => {
                       All
                     </button>
                     <button
-                      onClick={() => { setFilter('saved'); setShowFilterDropdown(false); }}
-                      className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                      onClick={() => { 
+                        setFilter('saved'); 
+                        setShowFilterDropdown(false);
+                        // Reset new saved count when accessing saved filter
+                        localStorage.setItem('lastAccessedSaved', savedScholarships.size.toString());
+                        setNewSavedCount(0);
+                      }}
+                      className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center justify-between"
                     >
-                      Saved
+                      <span>Saved</span>
+                      {newSavedCount > 0 && (
+                        <span className="bg-trust-pink text-white text-xs px-2 py-0.5 rounded-full">
+                          {newSavedCount}
+                        </span>
+                      )}
                     </button>
                     <button
-                      onClick={() => { setFilter('applied'); setShowFilterDropdown(false); }}
-                      className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                      onClick={() => { 
+                        setFilter('applied'); 
+                        setShowFilterDropdown(false);
+                        // Reset new applied count when accessing applied filter
+                        localStorage.setItem('lastAccessedApplied', appliedScholarships.size.toString());
+                        setNewAppliedCount(0);
+                      }}
+                      className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center justify-between"
                     >
-                      Applied
+                      <span>Applied</span>
+                      {newAppliedCount > 0 && (
+                        <span className="bg-trust-pink text-white text-xs px-2 py-0.5 rounded-full">
+                          {newAppliedCount}
+                        </span>
+                      )}
                     </button>
                     <button
                       onClick={() => { setFilter('archived'); setShowFilterDropdown(false); }}
@@ -398,7 +510,13 @@ const Dashboard: React.FC = () => {
 
           {/* Scholarship List */}
           <div className="space-y-4">
-            {scholarships.map((scholarship) => (
+            {scholarships
+              .filter(scholarship => {
+                if (filter === 'saved') return savedScholarships.has(scholarship.id);
+                if (filter === 'applied') return appliedScholarships.has(scholarship.id);
+                return true; // For now, show all for other filters
+              })
+              .map((scholarship) => (
               <div key={scholarship.id} className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex items-start space-x-6">
                   {/* Match Strength */}
@@ -453,10 +571,38 @@ const Dashboard: React.FC = () => {
                       >
                         View More
                       </button>
-                      <button className="text-info-blue hover:underline">Save</button>
-                      <button className="px-6 py-2 bg-info-blue text-white rounded-md hover:bg-opacity-90">
-                        Apply
-                      </button>
+                      
+                      {/* Save Status/Button */}
+                      <div className="min-w-[60px] text-center">
+                        {savedScholarships.has(scholarship.id) ? (
+                          <span className={`text-verified-green ${filter === 'saved' ? 'opacity-60' : ''}`}>
+                            Saved ✓
+                          </span>
+                        ) : (
+                          <button 
+                            onClick={() => handleSaveScholarship(scholarship.id)}
+                            className="text-info-blue hover:underline"
+                          >
+                            Save
+                          </button>
+                        )}
+                      </div>
+                      
+                      {/* Apply Status/Button */}
+                      <div className="min-w-[82px] text-center">
+                        {appliedScholarships.has(scholarship.id) ? (
+                          <span className={`text-verified-green ${filter === 'applied' ? 'opacity-60' : ''}`}>
+                            Applied ✓
+                          </span>
+                        ) : (
+                          <button 
+                            onClick={() => handleApplyScholarship(scholarship)}
+                            className="px-6 py-2 bg-info-blue text-white rounded-md hover:bg-opacity-90"
+                          >
+                            Apply
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -530,6 +676,24 @@ const Dashboard: React.FC = () => {
         isOpen={isPaywallModalOpen}
         onClose={handlePaywallClose}
         onPurchase={handlePaywallPurchase}
+      />
+      
+      <SaveScholarshipModal
+        isOpen={showSaveModal}
+        onClose={handleSaveModalClose}
+      />
+      
+      <RedirectModal
+        isOpen={showRedirectModal}
+        onClose={() => setShowRedirectModal(false)}
+        onContinue={handleRedirectContinue}
+      />
+      
+      <DidYouApplyModal
+        isOpen={showDidYouApplyModal}
+        onYes={handleDidYouApplyYes}
+        onNo={handleDidYouApplyNo}
+        scholarshipName={applyingScholarship?.name || ''}
       />
     </div>
   );

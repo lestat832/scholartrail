@@ -2,9 +2,10 @@ import React from 'react';
 
 interface HeaderProps {
   onSignUpClick?: () => void;
+  onLoginClick?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onSignUpClick }) => {
+const Header: React.FC<HeaderProps> = ({ onSignUpClick, onLoginClick }) => {
   return (
     <header className="bg-white shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -29,7 +30,10 @@ const Header: React.FC<HeaderProps> = ({ onSignUpClick }) => {
 
           {/* Auth Buttons */}
           <div className="flex items-center space-x-4">
-            <button className="text-privacy-teal hover:text-opacity-80 font-medium border border-privacy-teal px-4 py-2 rounded-md transition-all hover:bg-privacy-teal hover:bg-opacity-10">
+            <button 
+              onClick={onLoginClick}
+              className="text-privacy-teal hover:text-opacity-80 font-medium border border-privacy-teal px-4 py-2 rounded-md transition-all hover:bg-privacy-teal hover:bg-opacity-10"
+            >
               Login
             </button>
             <button 

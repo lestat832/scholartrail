@@ -1,29 +1,28 @@
 import React, { useState, useEffect } from 'react';
 
-interface SignUpOptionsModalProps {
+interface SignInModalProps {
   isOpen: boolean;
   onClose: () => void;
-  userType: 'student' | 'parent' | 'educator';
-  onEmailContinue: () => void;
-  onLogin?: () => void;
+  onSignIn: () => void;
+  onRegister: () => void;
 }
 
-const SignUpOptionsModal: React.FC<SignUpOptionsModalProps> = ({ isOpen, onClose, userType, onEmailContinue, onLogin }) => {
+const SignInModal: React.FC<SignInModalProps> = ({ isOpen, onClose, onSignIn, onRegister }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleContinue = () => {
     if (email && password) {
-      // In a real app, this would handle email signup
-      console.log('Email signup:', { email, password, userType });
-      onEmailContinue();
+      // In a real app, this would handle authentication
+      console.log('Sign in:', { email, password });
+      onSignIn();
     }
   };
 
-  const handleSocialSignUp = (provider: 'apple' | 'google') => {
+  const handleSocialSignIn = (provider: 'apple' | 'google') => {
     // In a real app, this would handle OAuth
-    console.log(`${provider} signup for ${userType}`);
-    onClose();
+    console.log(`${provider} sign in`);
+    onSignIn();
   };
 
   // Close modal on Escape key
@@ -67,30 +66,29 @@ const SignUpOptionsModal: React.FC<SignUpOptionsModalProps> = ({ isOpen, onClose
           {/* Header */}
           <div className="text-center mb-8">
             <h2 className="text-3xl font-serif font-bold text-vault-blue mb-3">
-              Create Free Account
+              Welcome Back
             </h2>
             <p className="text-neutral-gray">
-              Start matching with scholarships in minutes.<br />
-              No ads. No spam. Ever.
+              Continue Matching with Scholarships
             </p>
           </div>
 
-          {/* Sign Up Options */}
+          {/* Sign In Options */}
           <div className="space-y-3 mb-6">
             {/* Apple Sign In */}
             <button
-              onClick={() => handleSocialSignUp('apple')}
+              onClick={() => handleSocialSignIn('apple')}
               className="w-full bg-black text-white font-medium py-3 px-4 rounded-md hover:bg-gray-900 transition-all flex items-center justify-center space-x-2"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/>
               </svg>
-              <span>Sign Up with Apple</span>
+              <span>Sign In with Apple</span>
             </button>
 
             {/* Google Sign In */}
             <button
-              onClick={() => handleSocialSignUp('google')}
+              onClick={() => handleSocialSignIn('google')}
               className="w-full bg-white text-gray-700 font-medium py-3 px-4 rounded-md border border-gray-300 hover:bg-gray-50 transition-all flex items-center justify-center space-x-2"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -99,7 +97,7 @@ const SignUpOptionsModal: React.FC<SignUpOptionsModalProps> = ({ isOpen, onClose
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
-              <span>Sign Up with Google</span>
+              <span>Sign In with Google</span>
             </button>
           </div>
 
@@ -134,49 +132,24 @@ const SignUpOptionsModal: React.FC<SignUpOptionsModalProps> = ({ isOpen, onClose
               />
             </div>
 
-            {/* Legal Text */}
-            <p className="text-sm text-neutral-gray text-center mb-6">
-              By clicking "Continue," you agree to ScholarTrail's{' '}
-              <a href="#" className="text-info-blue hover:underline">
-                Term of Service
-              </a>{' '}
-              and{' '}
-              <a href="#" className="text-info-blue hover:underline">
-                Privacy Policy
-              </a>
-              .
-            </p>
-
-            {/* Action Buttons */}
-            <div className="flex space-x-3">
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex-1 py-3 px-6 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-50 transition-all"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="flex-1 py-3 px-6 bg-trust-pink text-white rounded-md font-medium hover:bg-opacity-90 transition-all"
-              >
-                Continue
-              </button>
-            </div>
+            {/* Continue Button */}
+            <button
+              type="submit"
+              className="w-full py-3 px-6 bg-trust-pink text-white rounded-md font-medium hover:bg-opacity-90 transition-all"
+            >
+              Continue
+            </button>
           </form>
 
-          {/* Login Link */}
+          {/* Register Link */}
           <div className="text-center mt-6">
             <span className="text-sm text-neutral-gray">
-              Already A Member?{' '}
+              Not Yet A Member?{' '}
               <button
-                onClick={() => {
-                  onClose();
-                  if (onLogin) onLogin();
-                }}
+                onClick={onRegister}
                 className="text-info-blue hover:underline font-medium"
               >
-                Login
+                Register
               </button>
             </span>
           </div>
@@ -186,4 +159,4 @@ const SignUpOptionsModal: React.FC<SignUpOptionsModalProps> = ({ isOpen, onClose
   );
 };
 
-export default SignUpOptionsModal;
+export default SignInModal;
