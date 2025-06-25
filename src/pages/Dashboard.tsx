@@ -9,6 +9,7 @@ import PaywallModal from '../components/PaywallModal';
 import SaveScholarshipModal from '../components/SaveScholarshipModal';
 import RedirectModal from '../components/RedirectModal';
 import DidYouApplyModal from '../components/DidYouApplyModal';
+import MemberCongratulationsModal from '../components/MemberCongratulationsModal';
 
 interface LocationState {
   firstName?: string;
@@ -50,6 +51,15 @@ const Dashboard: React.FC = () => {
   const [showDidYouApplyModal, setShowDidYouApplyModal] = useState(false);
   const [applyingScholarship, setApplyingScholarship] = useState<Scholarship | null>(null);
   
+  // Paid member state
+  const [isPaidMember, setIsPaidMember] = useState(false);
+  
+  // Pagination state
+  const [displayedScholarships, setDisplayedScholarships] = useState<Scholarship[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const SCHOLARSHIPS_PER_PAGE = 25;
+  
   // Modal states for sign-up flow
   const [isAddProfileModalOpen, setIsAddProfileModalOpen] = useState(false);
   const [isAddPersonalInfoModalOpen, setIsAddPersonalInfoModalOpen] = useState(false);
@@ -57,6 +67,7 @@ const Dashboard: React.FC = () => {
   const [isAddSchoolInfoModalOpen, setIsAddSchoolInfoModalOpen] = useState(false);
   const [isCongratulationsModalOpen, setIsCongratulationsModalOpen] = useState(false);
   const [isPaywallModalOpen, setIsPaywallModalOpen] = useState(false);
+  const [isMemberCongratulationsModalOpen, setIsMemberCongratulationsModalOpen] = useState(false);
   
   // Load saved and applied scholarships from localStorage on mount
   useEffect(() => {
@@ -76,9 +87,15 @@ const Dashboard: React.FC = () => {
       setAppliedScholarships(new Set(JSON.parse(applied)));
     }
     const lastAccessedApplied = localStorage.getItem('lastAccessedApplied');
-    const currentAppliedCount = applied ? JSON.parse(applied).length : 0;
+    const currentAppliedCount = applied ? JSON.parse(saved).length : 0;
     const lastAppliedCount = lastAccessedApplied ? parseInt(lastAccessedApplied) : 0;
     setNewAppliedCount(currentAppliedCount - lastAppliedCount);
+    
+    // Load paid member status
+    const paidStatus = localStorage.getItem('isPaidMember');
+    if (paidStatus === 'true') {
+      setIsPaidMember(true);
+    }
   }, []);
   
   // Form data states
@@ -140,38 +157,120 @@ const Dashboard: React.FC = () => {
     setApplyingScholarship(null);
   };
 
-  // Mock data for scholarships
-  const scholarships: Scholarship[] = [
-    {
-      id: '1',
-      name: 'Merit Excellence Scholarship',
-      description: 'Awarded to high-achieving students demonstrating exceptional academic performance and leadership.',
-      deadline: 'March 15, 2025',
-      amount: '$10,000',
-      matchStrength: 5
-    },
-    {
-      id: '2',
-      name: 'STEM Innovation Grant',
-      description: 'Supporting students pursuing degrees in Science, Technology, Engineering, or Mathematics fields.',
-      deadline: 'April 1, 2025',
-      amount: '$15,000',
-      matchStrength: 4
-    },
-    {
-      id: '3',
-      name: 'Community Leadership Award',
-      description: 'For students who have made significant contributions to their local communities through volunteer work.',
-      deadline: 'February 28, 2025',
-      amount: '$5,000',
-      matchStrength: 4
+  // Generate mock scholarship data
+  const generateScholarships = (): Scholarship[] => {
+    const scholarshipTemplates = [
+      { name: 'Merit Excellence Scholarship', desc: 'Awarded to high-achieving students demonstrating exceptional academic performance and leadership.', amount: '$10,000' },
+      { name: 'STEM Innovation Grant', desc: 'Supporting students pursuing degrees in Science, Technology, Engineering, or Mathematics fields.', amount: '$15,000' },
+      { name: 'Community Leadership Award', desc: 'For students who have made significant contributions to their local communities through volunteer work.', amount: '$5,000' },
+      { name: 'Future Leaders Scholarship', desc: 'Recognizing students who show exceptional promise in leadership and community engagement.', amount: '$8,000' },
+      { name: 'Arts & Humanities Grant', desc: 'Supporting creative students pursuing degrees in arts, literature, music, or humanities.', amount: '$7,500' },
+      { name: 'First Generation College Fund', desc: 'Helping first-generation college students achieve their dreams of higher education.', amount: '$12,000' },
+      { name: 'Women in Technology Award', desc: 'Empowering women pursuing careers in technology and computer science fields.', amount: '$20,000' },
+      { name: 'Environmental Sustainability Grant', desc: 'For students dedicated to environmental conservation and sustainable development.', amount: '$6,000' },
+      { name: 'Healthcare Heroes Scholarship', desc: 'Supporting future healthcare professionals including nurses, doctors, and medical researchers.', amount: '$18,000' },
+      { name: 'Entrepreneurship Initiative Fund', desc: 'Backing student entrepreneurs with innovative business ideas and social ventures.', amount: '$25,000' },
+      { name: 'Athletic Achievement Award', desc: 'Recognizing student-athletes who excel both on the field and in the classroom.', amount: '$9,000' },
+      { name: 'International Student Grant', desc: 'Supporting international students pursuing undergraduate or graduate degrees in the US.', amount: '$11,000' },
+      { name: 'Rural Community Scholarship', desc: 'Helping students from rural communities access quality higher education opportunities.', amount: '$7,000' },
+      { name: 'Diversity & Inclusion Award', desc: 'Promoting diversity in higher education through financial support for underrepresented students.', amount: '$13,000' },
+      { name: 'Research Excellence Grant', desc: 'Funding undergraduate and graduate students conducting innovative research projects.', amount: '$16,000' }
+    ];
+    
+    const months = ['January', 'February', 'March', 'April', 'May', 'June'];
+    const years = ['2025', '2026'];
+    
+    const allScholarships: Scholarship[] = [];
+    let id = 1;
+    
+    // Generate multiple variations of each scholarship
+    for (let round = 0; round < 4; round++) {
+      for (const template of scholarshipTemplates) {
+        const monthIndex = Math.floor(Math.random() * months.length);
+        const yearIndex = Math.floor(Math.random() * years.length);
+        const day = Math.floor(Math.random() * 28) + 1;
+        
+        allScholarships.push({
+          id: String(id++),
+          name: round > 0 ? `${template.name} ${round + 1}` : template.name,
+          description: template.desc,
+          deadline: `${months[monthIndex]} ${day}, ${years[yearIndex]}`,
+          amount: template.amount,
+          matchStrength: Math.floor(Math.random() * 3) + 3 // 3-5
+        });
+      }
     }
-  ];
+    
+    return allScholarships;
+  };
+  
+  const allScholarships = generateScholarships();
 
   const stats = {
-    numberOfMatches: 47,
-    amountInMatches: '$125K'
+    numberOfMatches: isPaidMember ? allScholarships.length : 47,
+    amountInMatches: isPaidMember ? '$500K+' : '$125K'
   };
+  
+  // Initialize displayed scholarships based on member status
+  useEffect(() => {
+    if (isPaidMember) {
+      // For paid members, show first page of all scholarships
+      setDisplayedScholarships(allScholarships.slice(0, SCHOLARSHIPS_PER_PAGE));
+    } else {
+      // For free members, show only first 3 scholarships
+      setDisplayedScholarships(allScholarships.slice(0, 3));
+    }
+    setCurrentPage(1);
+  }, [isPaidMember]);
+  
+  // Load more scholarships for infinite scroll
+  const loadMoreScholarships = () => {
+    if (isLoading || !isPaidMember) return;
+    
+    setIsLoading(true);
+    
+    // Simulate loading delay
+    setTimeout(() => {
+      const startIndex = currentPage * SCHOLARSHIPS_PER_PAGE;
+      const endIndex = startIndex + SCHOLARSHIPS_PER_PAGE;
+      const nextScholarships = allScholarships.slice(startIndex, endIndex);
+      
+      if (nextScholarships.length > 0) {
+        setDisplayedScholarships(prev => [...prev, ...nextScholarships]);
+        setCurrentPage(prev => prev + 1);
+      }
+      
+      setIsLoading(false);
+    }, 500);
+  };
+  
+  // Intersection Observer for infinite scroll
+  useEffect(() => {
+    if (!isPaidMember) return;
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isLoading) {
+          const hasMore = currentPage * SCHOLARSHIPS_PER_PAGE < allScholarships.length;
+          if (hasMore) {
+            loadMoreScholarships();
+          }
+        }
+      },
+      { threshold: 0.1 }
+    );
+    
+    const lastElement = document.querySelector('#last-scholarship');
+    if (lastElement) {
+      observer.observe(lastElement);
+    }
+    
+    return () => {
+      if (lastElement) {
+        observer.unobserve(lastElement);
+      }
+    };
+  }, [currentPage, isLoading, isPaidMember]);
 
   // Click outside handler for settings dropdown
   useEffect(() => {
@@ -293,8 +392,15 @@ const Dashboard: React.FC = () => {
   const handlePaywallPurchase = () => {
     // In a real app, this would process the payment
     console.log('Processing membership purchase...');
+    
+    // Set paid member status
+    setIsPaidMember(true);
+    localStorage.setItem('isPaidMember', 'true');
+    
     setIsPaywallModalOpen(false);
-    // Could show a success message or update user status
+    
+    // Show member congratulations modal
+    setIsMemberCongratulationsModalOpen(true);
   };
 
   // Settings handlers
@@ -316,6 +422,7 @@ const Dashboard: React.FC = () => {
         localStorage.removeItem('appliedScholarships');
         localStorage.removeItem('lastAccessedSaved');
         localStorage.removeItem('lastAccessedApplied');
+        localStorage.removeItem('isPaidMember');
         
         // Reset session by navigating to landing page
         window.location.href = '/preview';
@@ -510,14 +617,22 @@ const Dashboard: React.FC = () => {
 
           {/* Scholarship List */}
           <div className="space-y-4">
-            {scholarships
+            {displayedScholarships
               .filter(scholarship => {
                 if (filter === 'saved') return savedScholarships.has(scholarship.id);
                 if (filter === 'applied') return appliedScholarships.has(scholarship.id);
                 return true; // For now, show all for other filters
               })
-              .map((scholarship) => (
-              <div key={scholarship.id} className="bg-white rounded-lg shadow-sm p-6">
+              .map((scholarship, index) => (
+              <div 
+                key={scholarship.id} 
+                id={index === displayedScholarships.filter(s => {
+                  if (filter === 'saved') return savedScholarships.has(s.id);
+                  if (filter === 'applied') return appliedScholarships.has(s.id);
+                  return true;
+                }).length - 1 ? 'last-scholarship' : undefined}
+                className="bg-white rounded-lg shadow-sm p-6"
+              >
                 <div className="flex items-start space-x-6">
                   {/* Match Strength */}
                   <div className="flex-shrink-0">
@@ -609,22 +724,31 @@ const Dashboard: React.FC = () => {
               </div>
             ))}
             
-            {/* Subscription Promo */}
-            <div className="bg-trust-pink bg-opacity-10 border-2 border-trust-pink rounded-lg p-8 text-center">
-              <h3 className="text-2xl font-serif font-bold text-vault-blue mb-4">
-                Unlock Your Full Potential! 🚀
-              </h3>
-              <p className="text-gray-700 mb-6 max-w-2xl mx-auto">
-                You have 44 more scholarships waiting for you! Subscribe to ScholarTrail 
-                to access all your matches and maximize your funding opportunities.
-              </p>
-              <button 
-                onClick={handleBecomeMember}
-                className="px-8 py-3 bg-trust-pink text-white rounded-md font-semibold hover:bg-opacity-90 transform hover:scale-105 transition-all"
-              >
-                Become a Member
-              </button>
-            </div>
+            {/* Subscription Promo - Only show for non-paid members */}
+            {!isPaidMember && (
+              <div className="bg-trust-pink bg-opacity-10 border-2 border-trust-pink rounded-lg p-8 text-center">
+                <h3 className="text-2xl font-serif font-bold text-vault-blue mb-4">
+                  Unlock Your Full Potential! 🚀
+                </h3>
+                <p className="text-gray-700 mb-6 max-w-2xl mx-auto">
+                  You have {allScholarships.length - 3} more scholarships waiting for you! Subscribe to ScholarTrail 
+                  to access all your matches and maximize your funding opportunities.
+                </p>
+                <button 
+                  onClick={handleBecomeMember}
+                  className="px-8 py-3 bg-trust-pink text-white rounded-md font-semibold hover:bg-opacity-90 transform hover:scale-105 transition-all"
+                >
+                  Become a Member
+                </button>
+              </div>
+            )}
+            
+            {/* Loading indicator for infinite scroll */}
+            {isPaidMember && isLoading && (
+              <div className="text-center py-4">
+                <span className="text-gray-600">Loading more scholarships...</span>
+              </div>
+            )}
           </div>
         </div>
           </>
@@ -694,6 +818,11 @@ const Dashboard: React.FC = () => {
         onYes={handleDidYouApplyYes}
         onNo={handleDidYouApplyNo}
         scholarshipName={applyingScholarship?.name || ''}
+      />
+      
+      <MemberCongratulationsModal
+        isOpen={isMemberCongratulationsModalOpen}
+        onClose={() => setIsMemberCongratulationsModalOpen(false)}
       />
     </div>
   );
