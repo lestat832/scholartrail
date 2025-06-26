@@ -39,6 +39,8 @@ const LandingPage: React.FC = () => {
 
   const handleProfileContinue = (data: { firstName: string; birthday: string }) => {
     setProfileData(data);
+    // Save profile data to localStorage
+    localStorage.setItem('userProfile', JSON.stringify(data));
     setIsAddProfileModalOpen(false);
     setIsAddPersonalInfoModalOpen(true);
   };
@@ -72,13 +74,13 @@ const LandingPage: React.FC = () => {
   const handleAddPersonalInfoClose = () => {
     // Since they've completed profile, show non-empty dashboard
     setIsAddPersonalInfoModalOpen(false);
-    navigate('/dashboard', { state: { firstName: profileData.firstName } });
+    navigate('/dashboard', { state: { firstName: profileData.firstName, birthday: profileData.birthday } });
   };
 
   const handleAddAcademicInfoClose = () => {
     // Since they've completed profile, show non-empty dashboard
     setIsAddAcademicInfoModalOpen(false);
-    navigate('/dashboard', { state: { firstName: profileData.firstName } });
+    navigate('/dashboard', { state: { firstName: profileData.firstName, birthday: profileData.birthday } });
   };
 
   const handleSchoolInfoContinue = (data: { major?: string; degree?: string; graduationYear?: string }) => {
@@ -95,12 +97,12 @@ const LandingPage: React.FC = () => {
   const handleAddSchoolInfoClose = () => {
     // Since they've completed profile, show non-empty dashboard
     setIsAddSchoolInfoModalOpen(false);
-    navigate('/dashboard', { state: { firstName: profileData.firstName } });
+    navigate('/dashboard', { state: { firstName: profileData.firstName, birthday: profileData.birthday } });
   };
 
   const handleCongratulationsContinue = () => {
     setIsCongratulationsModalOpen(false);
-    navigate('/dashboard', { state: { firstName: profileData.firstName } });
+    navigate('/dashboard', { state: { firstName: profileData.firstName, birthday: profileData.birthday } });
   };
 
   const handleSignIn = () => {

@@ -10,9 +10,14 @@ import SaveScholarshipModal from '../components/SaveScholarshipModal';
 import RedirectModal from '../components/RedirectModal';
 import DidYouApplyModal from '../components/DidYouApplyModal';
 import MemberCongratulationsModal from '../components/MemberCongratulationsModal';
+import EditAccountModal from '../components/EditAccountModal';
+import EditProfileModal from '../components/EditProfileModal';
+import EditAcademicInfoModal from '../components/EditAcademicInfoModal';
+import EditSchoolInfoModal from '../components/EditSchoolInfoModal';
 
 interface LocationState {
   firstName?: string;
+  birthday?: string;
   showEmptyState?: boolean;
 }
 
@@ -29,7 +34,6 @@ const Dashboard: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const state = location.state as LocationState;
-  const firstName = state?.firstName || 'Student';
   const showEmptyState = state?.showEmptyState || false;
   
   const [filter, setFilter] = useState('all');
@@ -68,6 +72,10 @@ const Dashboard: React.FC = () => {
   const [isCongratulationsModalOpen, setIsCongratulationsModalOpen] = useState(false);
   const [isPaywallModalOpen, setIsPaywallModalOpen] = useState(false);
   const [isMemberCongratulationsModalOpen, setIsMemberCongratulationsModalOpen] = useState(false);
+  const [isEditAccountModalOpen, setIsEditAccountModalOpen] = useState(false);
+  const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
+  const [isEditAcademicInfoModalOpen, setIsEditAcademicInfoModalOpen] = useState(false);
+  const [isEditSchoolInfoModalOpen, setIsEditSchoolInfoModalOpen] = useState(false);
   
   // Load saved and applied scholarships from localStorage on mount
   useEffect(() => {
@@ -99,7 +107,27 @@ const Dashboard: React.FC = () => {
   }, []);
   
   // Form data states
-  const [profileData, setProfileData] = useState({ firstName: '', birthday: '' });
+  const [profileData, setProfileData] = useState(() => {
+    // Try to load from localStorage first
+    const storedProfile = localStorage.getItem('userProfile');
+    if (storedProfile) {
+      return JSON.parse(storedProfile);
+    }
+    // Otherwise use state from navigation
+    return {
+      firstName: state?.firstName || '', 
+      birthday: state?.birthday || '',
+      gender: '',
+      nationality: '',
+      cityState: '',
+      gradeLevel: '',
+      schoolType: '',
+      gpa: '',
+      major: '',
+      degree: '',
+      graduationYear: ''
+    };
+  });
   
   // Save scholarship handler
   const handleSaveScholarship = (scholarshipId: string) => {
@@ -315,6 +343,7 @@ const Dashboard: React.FC = () => {
 
   const handleProfileContinue = (data: { firstName: string; birthday: string }) => {
     setProfileData(data);
+    localStorage.setItem('userProfile', JSON.stringify(data));
     setIsAddProfileModalOpen(false);
     setIsAddPersonalInfoModalOpen(true);
   };
@@ -402,16 +431,44 @@ const Dashboard: React.FC = () => {
     // Show member congratulations modal
     setIsMemberCongratulationsModalOpen(true);
   };
+  
+  // Edit Account handlers
+  const handleEditAccountSave = (data: { firstName: string; birthday: string }) => {
+    setProfileData(prevData => ({ ...prevData, ...data }));
+    localStorage.setItem('userProfile', JSON.stringify({ ...profileData, ...data }));
+    setIsEditAccountModalOpen(false);
+  };
+  
+  // Edit Profile handlers
+  const handleEditProfileSave = (data: { gender?: string; nationality?: string; cityState?: string }) => {
+    setProfileData(prevData => ({ ...prevData, ...data }));
+    localStorage.setItem('userProfile', JSON.stringify({ ...profileData, ...data }));
+    setIsEditProfileModalOpen(false);
+    setIsEditAcademicInfoModalOpen(true);
+  };
+  
+  const handleEditAcademicInfoSave = (data: { gradeLevel?: string; schoolType?: string; gpa?: string }) => {
+    setProfileData(prevData => ({ ...prevData, ...data }));
+    localStorage.setItem('userProfile', JSON.stringify({ ...profileData, ...data }));
+    setIsEditAcademicInfoModalOpen(false);
+    setIsEditSchoolInfoModalOpen(true);
+  };
+  
+  const handleEditSchoolInfoSave = (data: { major?: string; degree?: string; graduationYear?: string }) => {
+    setProfileData(prevData => ({ ...prevData, ...data }));
+    localStorage.setItem('userProfile', JSON.stringify({ ...profileData, ...data }));
+    setIsEditSchoolInfoModalOpen(false);
+  };
 
   // Settings handlers
   const handleSettingsClick = (action: string) => {
     setShowSettingsDropdown(false);
     switch (action) {
       case 'edit-profile':
-        console.log('Navigate to Edit Profile');
+        setIsEditProfileModalOpen(true);
         break;
       case 'edit-account':
-        console.log('Navigate to Edit Account');
+        setIsEditAccountModalOpen(true);
         break;
       case 'faqs':
         console.log('Navigate to FAQs');
@@ -423,6 +480,7 @@ const Dashboard: React.FC = () => {
         localStorage.removeItem('lastAccessedSaved');
         localStorage.removeItem('lastAccessedApplied');
         localStorage.removeItem('isPaidMember');
+        localStorage.removeItem('userProfile');
         
         // Reset session by navigating to landing page
         window.location.href = '/preview';
@@ -519,7 +577,7 @@ const Dashboard: React.FC = () => {
             <div className="flex items-center mb-12">
               <div className="flex-1 max-w-md">
                 <h1 className="text-3xl font-serif font-bold text-vault-blue mb-2">
-                  Hi {firstName}! 🎓
+                  Hi {profileData.firstName || 'Student'}! 🎓
                 </h1>
                 <p className="text-gray-600">
                   Here's a brief overview of your personalized matches.
@@ -823,6 +881,34 @@ const Dashboard: React.FC = () => {
       <MemberCongratulationsModal
         isOpen={isMemberCongratulationsModalOpen}
         onClose={() => setIsMemberCongratulationsModalOpen(false)}
+      />
+      
+      <EditAccountModal
+        isOpen={isEditAccountModalOpen}
+        onClose={() => setIsEditAccountModalOpen(false)}
+        onSave={handleEditAccountSave}
+        currentData={profileData}
+      />
+      
+      <EditProfileModal
+        isOpen={isEditProfileModalOpen}
+        onClose={() => setIsEditProfileModalOpen(false)}
+        onSave={handleEditProfileSave}
+        currentData={profileData}
+      />
+      
+      <EditAcademicInfoModal
+        isOpen={isEditAcademicInfoModalOpen}
+        onClose={() => setIsEditAcademicInfoModalOpen(false)}
+        onSave={handleEditAcademicInfoSave}
+        currentData={profileData}
+      />
+      
+      <EditSchoolInfoModal
+        isOpen={isEditSchoolInfoModalOpen}
+        onClose={() => setIsEditSchoolInfoModalOpen(false)}
+        onSave={handleEditSchoolInfoSave}
+        currentData={profileData}
       />
     </div>
   );
