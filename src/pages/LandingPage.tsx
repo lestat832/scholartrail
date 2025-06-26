@@ -130,8 +130,8 @@ const LandingPage: React.FC = () => {
         onLoginClick={() => setIsSignInModalOpen(true)}
       />
       <main>
-        <Hero />
-        <PersonaTabs />
+        <Hero onLoginClick={() => setIsSignInModalOpen(true)} />
+        <PersonaTabs onLoginClick={() => setIsSignInModalOpen(true)} />
       </main>
       <Footer />
       

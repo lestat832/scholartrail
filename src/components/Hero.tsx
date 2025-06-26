@@ -1,6 +1,10 @@
 import React from 'react';
 
-const Hero: React.FC = () => {
+interface HeroProps {
+  onLoginClick: () => void;
+}
+
+const Hero: React.FC<HeroProps> = ({ onLoginClick }) => {
   return (
     <section className="bg-protected-bg py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -14,7 +18,10 @@ const Hero: React.FC = () => {
               ScholarTrail is the only platform that puts students and families first. 
               No ads. No spam. Just scholarships.
             </p>
-            <button className="bg-privacy-teal text-white font-semibold px-8 py-3 rounded-md hover:bg-opacity-90 transition-all text-lg">
+            <button 
+              onClick={onLoginClick}
+              className="bg-privacy-teal text-white font-semibold px-8 py-3 rounded-md hover:bg-opacity-90 transition-all text-lg"
+            >
               Search for Scholarships
             </button>
           </div>

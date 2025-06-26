@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
+import Logo from '../components/Logo';
 import AddProfileModal from '../components/AddProfileModal';
 import AddPersonalInfoModal from '../components/AddPersonalInfoModal';
 import AddAcademicInfoModal from '../components/AddAcademicInfoModal';
@@ -495,11 +496,13 @@ const Dashboard: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-8">
-              <div className="w-24 h-8 bg-gray-300 rounded" /> {/* Logo placeholder */}
+              <Link to="/preview">
+                <Logo variant="horizontal" size={100} className="hover:opacity-90 transition-opacity" />
+              </Link>
               <nav className="flex space-x-8">
-                <a href="#" className="text-gray-900 font-medium">Home</a>
-                <a href="#" className="text-gray-600 hover:text-gray-900">About Us</a>
-                <a href="#" className="text-gray-600 hover:text-gray-900">Contact Us</a>
+                <Link to="/dashboard" className="text-gray-900 font-medium">Home</Link>
+                <Link to="/about" className="text-gray-600 hover:text-gray-900">About Us</Link>
+                <Link to="/contact" className="text-gray-600 hover:text-gray-900">Contact Us</Link>
               </nav>
             </div>
             <div className="flex items-center space-x-4">

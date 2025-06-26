@@ -1,4 +1,6 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import Logo from './Logo';
 
 const Footer: React.FC = () => {
   return (
@@ -7,24 +9,24 @@ const Footer: React.FC = () => {
         <div className="flex flex-col md:flex-row justify-between items-center">
           {/* Logo/Brand */}
           <div className="mb-8 md:mb-0">
-            <h3 className="text-2xl font-serif font-bold mb-2">ScholarTrail</h3>
+            <Logo variant="full" size="sm" colorScheme="white" className="mb-2" />
             <p className="text-sm text-gray-300">Privacy-first scholarship search platform</p>
           </div>
 
           {/* Links */}
           <div className="flex flex-wrap justify-center gap-8 mb-8 md:mb-0">
-            <a href="#" className="text-gray-300 hover:text-white transition-colors">
-              About
-            </a>
-            <a href="#" className="text-gray-300 hover:text-white transition-colors">
-              Contact
-            </a>
-            <a href="#" className="text-gray-300 hover:text-white transition-colors">
+            <Link to="/about" className="text-gray-300 hover:text-white transition-colors">
+              About Us
+            </Link>
+            <Link to="/contact" className="text-gray-300 hover:text-white transition-colors">
+              Contact Us
+            </Link>
+            <Link to="/privacy" className="text-gray-300 hover:text-white transition-colors">
               Privacy Policy
-            </a>
-            <a href="#" className="text-gray-300 hover:text-white transition-colors">
+            </Link>
+            <Link to="/terms" className="text-gray-300 hover:text-white transition-colors">
               Terms of Use
-            </a>
+            </Link>
           </div>
 
           {/* Copyright */}

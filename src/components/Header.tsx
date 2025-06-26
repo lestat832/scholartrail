@@ -1,4 +1,6 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import Logo from './Logo';
 
 interface HeaderProps {
   onSignUpClick?: () => void;
@@ -12,20 +14,22 @@ const Header: React.FC<HeaderProps> = ({ onSignUpClick, onLoginClick }) => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <span className="text-2xl font-serif font-bold text-vault-blue">ScholarTrail</span>
+            <Link to="/preview">
+              <Logo variant="horizontal" size="sm" className="hover:opacity-90 transition-opacity" />
+            </Link>
           </div>
 
           {/* Navigation */}
           <nav className="hidden md:flex space-x-8">
-            <a href="#" className="text-neutral-gray hover:text-privacy-teal font-medium transition-colors">
+            <Link to="/preview" className="text-neutral-gray hover:text-privacy-teal font-medium transition-colors">
               Home
-            </a>
-            <a href="#" className="text-neutral-gray hover:text-privacy-teal font-medium transition-colors">
+            </Link>
+            <Link to="/about" className="text-neutral-gray hover:text-privacy-teal font-medium transition-colors">
               About Us
-            </a>
-            <a href="#" className="text-neutral-gray hover:text-privacy-teal font-medium transition-colors">
+            </Link>
+            <Link to="/contact" className="text-neutral-gray hover:text-privacy-teal font-medium transition-colors">
               Contact Us
-            </a>
+            </Link>
           </nav>
 
           {/* Auth Buttons */}

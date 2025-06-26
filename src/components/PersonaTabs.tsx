@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 
-const PersonaTabs: React.FC = () => {
+interface PersonaTabsProps {
+  onLoginClick: () => void;
+}
+
+const PersonaTabs: React.FC<PersonaTabsProps> = ({ onLoginClick }) => {
   const [activeTab, setActiveTab] = useState<'parent' | 'educator'>('parent');
 
   return (
@@ -67,7 +71,10 @@ const PersonaTabs: React.FC = () => {
                 </p>
               </>
             )}
-            <button className="bg-privacy-teal text-white font-semibold px-8 py-3 rounded-md hover:bg-opacity-90 transition-all">
+            <button 
+              onClick={onLoginClick}
+              className="bg-privacy-teal text-white font-semibold px-8 py-3 rounded-md hover:bg-opacity-90 transition-all"
+            >
               Search for Scholarships
             </button>
           </div>
