@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import NeedFinancialAssistanceModal from './NeedFinancialAssistanceModal';
+import ApplicationSubmissionModal from './ApplicationSubmissionModal';
 
 interface PaywallModalProps {
   isOpen: boolean;
@@ -11,6 +13,8 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onPurchase
   const [showCouponCode, setShowCouponCode] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'credit' | 'more'>('credit');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [showFinancialAssistanceModal, setShowFinancialAssistanceModal] = useState(false);
+  const [showApplicationSubmissionModal, setShowApplicationSubmissionModal] = useState(false);
   
   // Form fields
   const [nameOnCard, setNameOnCard] = useState('');
@@ -111,6 +115,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onPurchase
               </p>
               <button 
                 type="button" 
+                onClick={() => setShowFinancialAssistanceModal(true)}
                 className="px-6 py-2 bg-info-blue text-white rounded-md font-medium hover:bg-opacity-90 transition-all"
               >
                 Apply for Sponsorship
@@ -311,6 +316,24 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onPurchase
           </form>
         </div>
       </div>
+      
+      {/* Financial Assistance Modal */}
+      <NeedFinancialAssistanceModal
+        isOpen={showFinancialAssistanceModal}
+        onClose={() => setShowFinancialAssistanceModal(false)}
+        onSubmit={(data) => {
+          console.log('Financial assistance application submitted:', data);
+          setShowFinancialAssistanceModal(false);
+          // In a real app, this would send the application to a backend
+          setShowApplicationSubmissionModal(true);
+        }}
+      />
+      
+      {/* Application Submission Success Modal */}
+      <ApplicationSubmissionModal
+        isOpen={showApplicationSubmissionModal}
+        onClose={() => setShowApplicationSubmissionModal(false)}
+      />
     </div>
   );
 };

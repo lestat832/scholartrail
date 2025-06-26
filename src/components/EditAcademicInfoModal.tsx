@@ -17,7 +17,6 @@ const EditAcademicInfoModal: React.FC<EditAcademicInfoModalProps> = ({
   const [gradeLevel, setGradeLevel] = useState('');
   const [schoolType, setSchoolType] = useState('');
   const [gpa, setGpa] = useState('');
-  const [hasChanges, setHasChanges] = useState(false);
   const gpaValues = generateGPAValues();
 
   // Initialize form with current data when modal opens
@@ -26,22 +25,11 @@ const EditAcademicInfoModal: React.FC<EditAcademicInfoModalProps> = ({
       setGradeLevel(currentData.gradeLevel || '');
       setSchoolType(currentData.schoolType || '');
       setGpa(currentData.gpa || '');
-      setHasChanges(false);
     }
   }, [isOpen, currentData]);
 
-  // Check if form has changes
-  useEffect(() => {
-    const gradeLevelChanged = gradeLevel !== (currentData.gradeLevel || '');
-    const schoolTypeChanged = schoolType !== (currentData.schoolType || '');
-    const gpaChanged = gpa !== (currentData.gpa || '');
-    setHasChanges(gradeLevelChanged || schoolTypeChanged || gpaChanged);
-  }, [gradeLevel, schoolType, gpa, currentData]);
-
   const handleSave = () => {
-    if (hasChanges) {
-      onSave({ gradeLevel, schoolType, gpa });
-    }
+    onSave({ gradeLevel, schoolType, gpa });
   };
 
   const handleCancel = () => {
@@ -180,14 +168,9 @@ const EditAcademicInfoModal: React.FC<EditAcademicInfoModalProps> = ({
               </button>
               <button
                 type="submit"
-                disabled={!hasChanges}
-                className={`flex-1 py-3 px-6 rounded-md font-semibold transition-all ${
-                  hasChanges
-                    ? 'bg-privacy-teal text-white hover:bg-opacity-90'
-                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                }`}
+                className="flex-1 py-3 px-6 rounded-md font-semibold transition-all bg-privacy-teal text-white hover:bg-opacity-90"
               >
-                Save
+                Continue
               </button>
             </div>
           </form>

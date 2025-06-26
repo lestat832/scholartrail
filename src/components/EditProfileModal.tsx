@@ -20,7 +20,6 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
   const [cityState, setCityState] = useState('');
   const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [hasChanges, setHasChanges] = useState(false);
 
   // Initialize form with current data when modal opens
   useEffect(() => {
@@ -28,22 +27,11 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
       setGender(currentData.gender || '');
       setNationality(currentData.nationality || '');
       setCityState(currentData.cityState || '');
-      setHasChanges(false);
     }
   }, [isOpen, currentData]);
 
-  // Check if form has changes
-  useEffect(() => {
-    const genderChanged = gender !== (currentData.gender || '');
-    const nationalityChanged = nationality !== (currentData.nationality || '');
-    const cityStateChanged = cityState !== (currentData.cityState || '');
-    setHasChanges(genderChanged || nationalityChanged || cityStateChanged);
-  }, [gender, nationality, cityState, currentData]);
-
   const handleSave = () => {
-    if (hasChanges) {
-      onSave({ gender, nationality, cityState });
-    }
+    onSave({ gender, nationality, cityState });
   };
 
   const handleCancel = () => {
@@ -220,14 +208,9 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
               </button>
               <button
                 type="submit"
-                disabled={!hasChanges}
-                className={`flex-1 py-3 px-6 rounded-md font-semibold transition-all ${
-                  hasChanges
-                    ? 'bg-privacy-teal text-white hover:bg-opacity-90'
-                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                }`}
+                className="flex-1 py-3 px-6 rounded-md font-semibold transition-all bg-privacy-teal text-white hover:bg-opacity-90"
               >
-                Save
+                Continue
               </button>
             </div>
           </form>

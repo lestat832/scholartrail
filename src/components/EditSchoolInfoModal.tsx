@@ -19,7 +19,6 @@ const EditSchoolInfoModal: React.FC<EditSchoolInfoModalProps> = ({
   const [graduationYear, setGraduationYear] = useState('');
   const [majorSuggestions, setMajorSuggestions] = useState<string[]>([]);
   const [showMajorSuggestions, setShowMajorSuggestions] = useState(false);
-  const [hasChanges, setHasChanges] = useState(false);
 
   // Initialize form with current data when modal opens
   useEffect(() => {
@@ -27,22 +26,11 @@ const EditSchoolInfoModal: React.FC<EditSchoolInfoModalProps> = ({
       setMajor(currentData.major || '');
       setDegree(currentData.degree || '');
       setGraduationYear(currentData.graduationYear || '');
-      setHasChanges(false);
     }
   }, [isOpen, currentData]);
 
-  // Check if form has changes
-  useEffect(() => {
-    const majorChanged = major !== (currentData.major || '');
-    const degreeChanged = degree !== (currentData.degree || '');
-    const graduationYearChanged = graduationYear !== (currentData.graduationYear || '');
-    setHasChanges(majorChanged || degreeChanged || graduationYearChanged);
-  }, [major, degree, graduationYear, currentData]);
-
   const handleSave = () => {
-    if (hasChanges) {
-      onSave({ major, degree, graduationYear });
-    }
+    onSave({ major, degree, graduationYear });
   };
 
   const handleCancel = () => {
@@ -217,12 +205,7 @@ const EditSchoolInfoModal: React.FC<EditSchoolInfoModalProps> = ({
               </button>
               <button
                 type="submit"
-                disabled={!hasChanges}
-                className={`flex-1 py-3 px-6 rounded-md font-semibold transition-all ${
-                  hasChanges
-                    ? 'bg-privacy-teal text-white hover:bg-opacity-90'
-                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                }`}
+                className="flex-1 py-3 px-6 rounded-md font-semibold transition-all bg-privacy-teal text-white hover:bg-opacity-90"
               >
                 Save
               </button>
