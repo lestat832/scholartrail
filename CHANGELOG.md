@@ -7,8 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2025-07-02]
 
+### Added
+- Parent onboarding and dashboard features
+  - Create WelcomeParentModal with two CTAs: "Add Child Profile" and "Browse Non-Personalized Scholarships"
+  - Implement parent dashboard state showing non-personalized scholarships (limited to 3)
+  - Create SubscribePromo component encouraging child profile completion
+  - Add AddChildProfileModal for capturing child's first name and birthday
+  - Add AddChildPersonalInfoModal for optional demographic information
+  - Implement proper navigation flow from parent signup to dashboard
+
 ### Changed
-- Add parent dashboard features and child profile modals
+- Fix logout functionality to use React Router navigation instead of hardcoded paths
+- Update parent dashboard styling to match student dashboard exactly
+- Fix conditional rendering priority to show parent state correctly
+- Update CTA button colors to use Trust Pink (brand guidelines) consistently
+- Add emoji to parent promo to match student dashboard
+- Remove unnecessary copy from AddChildProfileModal
+
+### Fixed
+- Resolve development server issues with multiple node processes
+- Fix parent state not showing due to conditional logic priority
+- Correct CTA alignment in parent dashboard (right-aligned to match student)
+- Fix saved/applied state colors from gray to verified-green
 
 ## [2025-06-26]
 
