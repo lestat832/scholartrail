@@ -12,6 +12,9 @@ import AddPersonalInfoModal from '../components/AddPersonalInfoModal';
 import AddAcademicInfoModal from '../components/AddAcademicInfoModal';
 import AddSchoolInfoModal from '../components/AddSchoolInfoModal';
 import CongratulationsModal from '../components/CongratulationsModal';
+import WelcomeParentModal from '../components/WelcomeParentModal';
+import AddChildProfileModal from '../components/AddChildProfileModal';
+import AddChildPersonalInfoModal from '../components/AddChildPersonalInfoModal';
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -23,8 +26,12 @@ const LandingPage: React.FC = () => {
   const [isAddAcademicInfoModalOpen, setIsAddAcademicInfoModalOpen] = useState(false);
   const [isAddSchoolInfoModalOpen, setIsAddSchoolInfoModalOpen] = useState(false);
   const [isCongratulationsModalOpen, setIsCongratulationsModalOpen] = useState(false);
+  const [isWelcomeParentModalOpen, setIsWelcomeParentModalOpen] = useState(false);
+  const [isAddChildProfileModalOpen, setIsAddChildProfileModalOpen] = useState(false);
+  const [isAddChildPersonalInfoModalOpen, setIsAddChildPersonalInfoModalOpen] = useState(false);
   const [selectedUserType, setSelectedUserType] = useState<'student' | 'parent' | 'educator'>('student');
   const [profileData, setProfileData] = useState({ firstName: '', birthday: '' });
+  const [childProfileData, setChildProfileData] = useState({ firstName: '', birthday: '' });
 
   const handleUserTypeSelected = (userType: 'student' | 'parent' | 'educator') => {
     setSelectedUserType(userType);
@@ -34,7 +41,13 @@ const LandingPage: React.FC = () => {
 
   const handleEmailContinue = () => {
     setIsSignUpOptionsModalOpen(false);
-    setIsAddProfileModalOpen(true);
+    
+    // Show different modal based on user type
+    if (selectedUserType === 'parent') {
+      setIsWelcomeParentModalOpen(true);
+    } else {
+      setIsAddProfileModalOpen(true);
+    }
   };
 
   const handleProfileContinue = (data: { firstName: string; birthday: string }) => {
@@ -123,6 +136,47 @@ const LandingPage: React.FC = () => {
     setIsSignInModalOpen(true);
   };
 
+  // Welcome Parent Modal handlers
+  const handleParentAddChild = () => {
+    setIsWelcomeParentModalOpen(false);
+    setIsAddChildProfileModalOpen(true);
+  };
+
+  const handleParentBrowseScholarships = () => {
+    setIsWelcomeParentModalOpen(false);
+    navigate('/dashboard', { state: { userType: 'parent', showParentNonPersonalized: true } });
+  };
+
+  // Add Child Profile Modal handlers
+  const handleAddChildProfileClose = () => {
+    setIsAddChildProfileModalOpen(false);
+    navigate('/dashboard', { state: { userType: 'parent', showParentNonPersonalized: true } });
+  };
+
+  const handleAddChildProfileContinue = (data: { firstName: string; birthday: string }) => {
+    setChildProfileData(data);
+    setIsAddChildProfileModalOpen(false);
+    setIsAddChildPersonalInfoModalOpen(true);
+  };
+
+  // Add Child Personal Info Modal handlers
+  const handleAddChildPersonalInfoClose = () => {
+    setIsAddChildPersonalInfoModalOpen(false);
+    navigate('/dashboard', { state: { userType: 'parent', showParentNonPersonalized: true } });
+  };
+
+  const handleAddChildPersonalInfoContinue = (_data: { gender?: string; nationality?: string; cityState?: string }) => {
+    setIsAddChildPersonalInfoModalOpen(false);
+    // TODO: Continue with child academic info, etc.
+    // For now, navigate to parent dashboard
+    navigate('/dashboard', { state: { userType: 'parent', showParentNonPersonalized: true } });
+  };
+
+  const handleAddChildPersonalInfoPrevious = () => {
+    setIsAddChildPersonalInfoModalOpen(false);
+    setIsAddChildProfileModalOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-white font-sans">
       <Header 
@@ -194,6 +248,30 @@ const LandingPage: React.FC = () => {
         onClose={() => setIsSignInModalOpen(false)}
         onSignIn={handleSignIn}
         onRegister={handleSwitchToSignUp}
+      />
+      
+      <WelcomeParentModal
+        isOpen={isWelcomeParentModalOpen}
+        onClose={handleParentBrowseScholarships}
+        onAddChild={handleParentAddChild}
+        onBrowseScholarships={handleParentBrowseScholarships}
+      />
+      
+      <AddChildProfileModal
+        isOpen={isAddChildProfileModalOpen}
+        onClose={handleAddChildProfileClose}
+        onContinue={handleAddChildProfileContinue}
+        currentStep={1}
+        totalSteps={4}
+      />
+      
+      <AddChildPersonalInfoModal
+        isOpen={isAddChildPersonalInfoModalOpen}
+        onClose={handleAddChildPersonalInfoClose}
+        onContinue={handleAddChildPersonalInfoContinue}
+        onPrevious={handleAddChildPersonalInfoPrevious}
+        currentStep={2}
+        totalSteps={4}
       />
     </div>
   );

@@ -94,7 +94,7 @@ const UnderConstruction: React.FC = () => {
         {/* Preview Link */}
         <div className="pt-8 border-t border-gray-200">
           <a
-            href="/preview"
+            href={import.meta.env.PROD ? "/scholartrail/preview" : "/preview"}
             className="text-privacy-teal hover:text-opacity-80 font-medium inline-flex items-center space-x-2 transition-colors"
           >
             <span>Preview our full site</span>

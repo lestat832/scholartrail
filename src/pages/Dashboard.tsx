@@ -15,11 +15,16 @@ import EditAccountModal from '../components/EditAccountModal';
 import EditProfileModal from '../components/EditProfileModal';
 import EditAcademicInfoModal from '../components/EditAcademicInfoModal';
 import EditSchoolInfoModal from '../components/EditSchoolInfoModal';
+import SubscribePromo from '../components/SubscribePromo';
+import AddChildProfileModal from '../components/AddChildProfileModal';
+import AddChildPersonalInfoModal from '../components/AddChildPersonalInfoModal';
 
 interface LocationState {
   firstName?: string;
   birthday?: string;
   showEmptyState?: boolean;
+  userType?: string;
+  showParentNonPersonalized?: boolean;
 }
 
 interface Scholarship {
@@ -36,6 +41,8 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const state = location.state as LocationState;
   const showEmptyState = state?.showEmptyState || false;
+  const isParentNonPersonalized = state?.showParentNonPersonalized || false;
+  // const userType = state?.userType; // Keeping for future use
   
   const [filter, setFilter] = useState('all');
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
@@ -77,6 +84,9 @@ const Dashboard: React.FC = () => {
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
   const [isEditAcademicInfoModalOpen, setIsEditAcademicInfoModalOpen] = useState(false);
   const [isEditSchoolInfoModalOpen, setIsEditSchoolInfoModalOpen] = useState(false);
+  const [isAddChildProfileModalOpen, setIsAddChildProfileModalOpen] = useState(false);
+  const [isAddChildPersonalInfoModalOpen, setIsAddChildPersonalInfoModalOpen] = useState(false);
+  const [childProfileData, setChildProfileData] = useState({ firstName: '', birthday: '' });
   
   // Load saved and applied scholarships from localStorage on mount
   useEffect(() => {
@@ -96,7 +106,7 @@ const Dashboard: React.FC = () => {
       setAppliedScholarships(new Set(JSON.parse(applied)));
     }
     const lastAccessedApplied = localStorage.getItem('lastAccessedApplied');
-    const currentAppliedCount = applied ? JSON.parse(saved).length : 0;
+    const currentAppliedCount = applied ? JSON.parse(applied).length : 0;
     const lastAppliedCount = lastAccessedApplied ? parseInt(lastAccessedApplied) : 0;
     setNewAppliedCount(currentAppliedCount - lastAppliedCount);
     
@@ -435,30 +445,57 @@ const Dashboard: React.FC = () => {
   
   // Edit Account handlers
   const handleEditAccountSave = (data: { firstName: string; birthday: string }) => {
-    setProfileData(prevData => ({ ...prevData, ...data }));
+    setProfileData((prevData: any) => ({ ...prevData, ...data }));
     localStorage.setItem('userProfile', JSON.stringify({ ...profileData, ...data }));
     setIsEditAccountModalOpen(false);
   };
   
   // Edit Profile handlers
   const handleEditProfileSave = (data: { gender?: string; nationality?: string; cityState?: string }) => {
-    setProfileData(prevData => ({ ...prevData, ...data }));
+    setProfileData((prevData: any) => ({ ...prevData, ...data }));
     localStorage.setItem('userProfile', JSON.stringify({ ...profileData, ...data }));
     setIsEditProfileModalOpen(false);
     setIsEditAcademicInfoModalOpen(true);
   };
   
   const handleEditAcademicInfoSave = (data: { gradeLevel?: string; schoolType?: string; gpa?: string }) => {
-    setProfileData(prevData => ({ ...prevData, ...data }));
+    setProfileData((prevData: any) => ({ ...prevData, ...data }));
     localStorage.setItem('userProfile', JSON.stringify({ ...profileData, ...data }));
     setIsEditAcademicInfoModalOpen(false);
     setIsEditSchoolInfoModalOpen(true);
   };
   
   const handleEditSchoolInfoSave = (data: { major?: string; degree?: string; graduationYear?: string }) => {
-    setProfileData(prevData => ({ ...prevData, ...data }));
+    setProfileData((prevData: any) => ({ ...prevData, ...data }));
     localStorage.setItem('userProfile', JSON.stringify({ ...profileData, ...data }));
     setIsEditSchoolInfoModalOpen(false);
+  };
+
+  // Add Child Profile handlers
+  const handleAddChildProfileClose = () => {
+    setIsAddChildProfileModalOpen(false);
+  };
+
+  const handleAddChildProfileContinue = (data: { firstName: string; birthday: string }) => {
+    setChildProfileData(data);
+    setIsAddChildProfileModalOpen(false);
+    setIsAddChildPersonalInfoModalOpen(true);
+  };
+
+  // Add Child Personal Info handlers
+  const handleAddChildPersonalInfoClose = () => {
+    setIsAddChildPersonalInfoModalOpen(false);
+  };
+
+  const handleAddChildPersonalInfoContinue = (_data: { gender?: string; nationality?: string; cityState?: string }) => {
+    setIsAddChildPersonalInfoModalOpen(false);
+    // TODO: Continue with child academic info, etc.
+    // For now, just close the modal
+  };
+
+  const handleAddChildPersonalInfoPrevious = () => {
+    setIsAddChildPersonalInfoModalOpen(false);
+    setIsAddChildProfileModalOpen(true);
   };
 
   // Settings handlers
@@ -484,7 +521,7 @@ const Dashboard: React.FC = () => {
         localStorage.removeItem('userProfile');
         
         // Reset session by navigating to landing page
-        window.location.href = '/preview';
+        navigate('/preview');
         break;
     }
   };
@@ -556,7 +593,215 @@ const Dashboard: React.FC = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {showEmptyState ? (
+        {isParentNonPersonalized ? (
+          /* Parent Browse Non-Personalized Scholarships State */
+          <>
+            {/* Parent Overview Section */}
+            <div className="flex items-center mb-12">
+              <div className="flex-1 max-w-md">
+                <h1 className="text-3xl font-serif font-bold text-vault-blue mb-2">
+                  Welcome Parent!
+                </h1>
+                <p className="text-gray-600">
+                  Here's a brief overview of your non-personalized matches.
+                </p>
+              </div>
+
+              {/* Stats - Centered */}
+              <div className="flex-1 flex justify-center space-x-8">
+                <div className="bg-white rounded-full w-40 h-40 flex flex-col items-center justify-center shadow-md">
+                  <div className="text-3xl font-bold text-vault-blue">{allScholarships.length > 3 ? 3 : allScholarships.length}</div>
+                  <div className="text-sm text-gray-600 text-center mt-2">Number<br />of<br />Matches</div>
+                </div>
+                <div className="bg-white rounded-full w-40 h-40 flex flex-col items-center justify-center shadow-md">
+                  <div className="text-3xl font-bold text-vault-blue">$150K</div>
+                  <div className="text-sm text-gray-600 text-center mt-2">Amount<br />in<br />Matches</div>
+                </div>
+              </div>
+
+              {/* Spacer for filter alignment */}
+              <div className="w-48"></div>
+            </div>
+
+            {/* Parent Feed Section */}
+            <div className="relative">
+              {/* Filter Dropdown */}
+              <div className="absolute right-0 -top-12">
+                <div className="relative">
+                  <button
+                    onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+                    className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                    </svg>
+                    <span className="capitalize">{filter === 'all' ? 'All' : filter}</span>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  
+                  {showFilterDropdown && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                      <div className="py-1">
+                        <button
+                          onClick={() => { setFilter('all'); setShowFilterDropdown(false); }}
+                          className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                        >
+                          All
+                        </button>
+                        <button
+                          onClick={() => { 
+                            setFilter('saved'); 
+                            setShowFilterDropdown(false);
+                            localStorage.setItem('lastAccessedSaved', savedScholarships.size.toString());
+                            setNewSavedCount(0);
+                          }}
+                          className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center justify-between"
+                        >
+                          <span>Saved</span>
+                          {newSavedCount > 0 && (
+                            <span className="bg-trust-pink text-white text-xs px-2 py-0.5 rounded-full">
+                              {newSavedCount}
+                            </span>
+                          )}
+                        </button>
+                        <button
+                          onClick={() => { 
+                            setFilter('applied'); 
+                            setShowFilterDropdown(false);
+                            localStorage.setItem('lastAccessedApplied', appliedScholarships.size.toString());
+                            setNewAppliedCount(0);
+                          }}
+                          className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center justify-between"
+                        >
+                          <span>Applied</span>
+                          {newAppliedCount > 0 && (
+                            <span className="bg-trust-pink text-white text-xs px-2 py-0.5 rounded-full">
+                              {newAppliedCount}
+                            </span>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Parent Scholarship Snippets (Limited to 3) */}
+              <div className="space-y-4">
+                {displayedScholarships
+                  .filter(scholarship => {
+                    if (filter === 'saved') return savedScholarships.has(scholarship.id);
+                    if (filter === 'applied') return appliedScholarships.has(scholarship.id);
+                    return true;
+                  })
+                  .slice(0, 3).map((scholarship) => (
+                  <div key={scholarship.id} className="bg-white rounded-lg shadow-sm p-6">
+                    <div className="flex items-start space-x-6">
+                      {/* Match Strength */}
+                      <div className="flex-shrink-0">
+                        {renderMatchStrength(scholarship.matchStrength)}
+                      </div>
+                      
+                      {/* Scholarship Details */}
+                      <div className="flex-grow">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-grow">
+                            <h3 
+                              className="text-xl font-semibold text-vault-blue mb-2 cursor-pointer hover:text-info-blue transition-colors"
+                              onClick={() => {
+                                const slug = scholarship.name.toLowerCase().replace(/\s+/g, '-');
+                                navigate(`/scholarship/${slug}`);
+                              }}
+                            >
+                              {scholarship.name}
+                            </h3>
+                            <p 
+                              className="text-gray-600 mb-4 cursor-pointer hover:text-gray-800 transition-colors"
+                              onClick={() => {
+                                const slug = scholarship.name.toLowerCase().replace(/\s+/g, '-');
+                                navigate(`/scholarship/${slug}`);
+                              }}
+                            >
+                              {scholarship.description.length > 100 
+                                ? scholarship.description.substring(0, 100) + '...'
+                                : scholarship.description
+                              }
+                            </p>
+                            <div className="flex space-x-6 text-sm text-gray-500">
+                              <span>Deadline: {scholarship.deadline}</span>
+                            </div>
+                          </div>
+                          
+                          {/* Amount */}
+                          <div className="text-2xl font-bold text-privacy-teal ml-6">
+                            {scholarship.amount}
+                          </div>
+                        </div>
+                        
+                        {/* Actions */}
+                        <div className="flex items-center justify-end space-x-6 mt-4">
+                          <button
+                            onClick={() => {
+                              const slug = scholarship.name.toLowerCase().replace(/\s+/g, '-');
+                              navigate(`/scholarship/${slug}`);
+                            }}
+                            className="text-info-blue hover:underline"
+                          >
+                            View More
+                          </button>
+                          {appliedScholarships.has(scholarship.id) ? (
+                            <button
+                              disabled
+                              className="text-verified-green"
+                            >
+                              Applied ✓
+                            </button>
+                          ) : savedScholarships.has(scholarship.id) ? (
+                            <button
+                              disabled
+                              className="text-verified-green"
+                            >
+                              Saved ✓
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleSaveScholarship(scholarship.id)}
+                              className="text-info-blue hover:underline"
+                            >
+                              Save
+                            </button>
+                          )}
+                          {appliedScholarships.has(scholarship.id) ? (
+                            <button
+                              disabled
+                              className="bg-gray-400 text-white px-6 py-2 rounded-md"
+                            >
+                              Applied
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleApplyScholarship(scholarship)}
+                              className="bg-trust-pink text-white px-6 py-2 rounded-md hover:bg-opacity-90 transition-all"
+                            >
+                              Apply
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Subscribe Promo after 3rd snippet */}
+                <SubscribePromo onFinishChildProfile={() => {
+                  setIsAddChildProfileModalOpen(true);
+                }} />
+              </div>
+            </div>
+          </>
+        ) : showEmptyState ? (
           /* Empty State */
           <div className="flex flex-col items-center justify-center min-h-[60vh]">
             <div className="w-48 h-48 bg-gray-200 rounded-lg flex items-center justify-center mb-8">
@@ -773,7 +1018,7 @@ const Dashboard: React.FC = () => {
                         ) : (
                           <button 
                             onClick={() => handleApplyScholarship(scholarship)}
-                            className="px-6 py-2 bg-info-blue text-white rounded-md hover:bg-opacity-90"
+                            className="px-6 py-2 bg-trust-pink text-white rounded-md hover:bg-opacity-90"
                           >
                             Apply
                           </button>
@@ -912,6 +1157,23 @@ const Dashboard: React.FC = () => {
         onClose={() => setIsEditSchoolInfoModalOpen(false)}
         onSave={handleEditSchoolInfoSave}
         currentData={profileData}
+      />
+      
+      <AddChildProfileModal
+        isOpen={isAddChildProfileModalOpen}
+        onClose={handleAddChildProfileClose}
+        onContinue={handleAddChildProfileContinue}
+        currentStep={1}
+        totalSteps={4}
+      />
+      
+      <AddChildPersonalInfoModal
+        isOpen={isAddChildPersonalInfoModalOpen}
+        onClose={handleAddChildPersonalInfoClose}
+        onContinue={handleAddChildPersonalInfoContinue}
+        onPrevious={handleAddChildPersonalInfoPrevious}
+        currentStep={2}
+        totalSteps={4}
       />
     </div>
   );

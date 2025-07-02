@@ -170,7 +170,51 @@ npm test
 
 # Deploy to GitHub Pages
 npm run deploy
+
+# View live demo
+# https://lestat832.github.io/scholartrail/
+
+# Sync changes to GitHub with automatic changelog update
+./sync.sh "Your commit message here"
+# or without a message (will prompt for one)
+./sync.sh
 ```
+
+### GitHub Sync Script
+The project includes a `sync.sh` script that automates the process of committing changes, updating the changelog, and pushing to GitHub.
+
+**Usage:**
+```bash
+# With a commit message
+./sync.sh "Add new feature for scholarship matching"
+
+# Without a message (will prompt)
+./sync.sh
+```
+
+**What it does:**
+1. Stages all changes
+2. Creates a commit with your message
+3. Automatically updates CHANGELOG.md with the commit
+4. Pushes everything to GitHub
+5. Adds Claude Code attribution to commits
+
+**Note:** The script will automatically update the CHANGELOG.md file with each sync, organizing entries by date.
+
+### Live Demo
+The ScholarTrail demo is deployed and available at:
+**https://lestat832.github.io/scholartrail/**
+
+To update the live demo:
+1. Make your changes locally
+2. Run `./sync.sh "Description of changes"` to sync to GitHub
+3. Run `npm run deploy` to update the live demo
+
+The demo includes:
+- Complete investor demonstration flow
+- All major features (sign-up, dashboard, scholarship search)
+- Privacy Policy and Terms of Use pages
+- Responsive design for desktop and mobile viewing
 
 ### Important Reminders
 - This is a prototype - focus on presentation over complex functionality
