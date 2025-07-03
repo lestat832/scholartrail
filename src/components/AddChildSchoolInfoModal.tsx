@@ -1,31 +1,59 @@
 import React, { useState, useEffect } from 'react';
-import { generateGPAValues } from '../utils/gpaValues';
+import { searchMajors } from '../utils/majors';
 
-interface AddAcademicInfoModalProps {
+interface AddChildSchoolInfoModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onContinue: (data: { gradeLevel?: string; schoolType?: string; gpa?: string }) => void;
+  onContinue: (data: { major?: string; degree?: string; graduationYear?: string }) => void;
   onPrevious: () => void;
   currentStep?: number;
   totalSteps?: number;
 }
 
-const AddAcademicInfoModal: React.FC<AddAcademicInfoModalProps> = ({ 
+const AddChildSchoolInfoModal: React.FC<AddChildSchoolInfoModalProps> = ({ 
   isOpen, 
   onClose, 
   onContinue,
   onPrevious,
-  currentStep = 3,
+  currentStep = 4,
   totalSteps = 4
 }) => {
-  const [gradeLevel, setGradeLevel] = useState('');
-  const [schoolType, setSchoolType] = useState('');
-  const [gpa, setGpa] = useState('');
-  const gpaValues = generateGPAValues();
+  const [major, setMajor] = useState('');
+  const [degree, setDegree] = useState('');
+  const [graduationYear, setGraduationYear] = useState('');
+  const [majorSuggestions, setMajorSuggestions] = useState<string[]>([]);
+  const [showMajorSuggestions, setShowMajorSuggestions] = useState(false);
 
   const handleContinue = () => {
-    onContinue({ gradeLevel, schoolType, gpa });
+    onContinue({ major, degree, graduationYear });
   };
+
+  const handleMajorChange = (value: string) => {
+    setMajor(value);
+    if (value.length >= 3) {
+      const suggestions = searchMajors(value);
+      setMajorSuggestions(suggestions);
+      setShowMajorSuggestions(suggestions.length > 0);
+    } else {
+      setShowMajorSuggestions(false);
+    }
+  };
+
+  const selectMajor = (selectedMajor: string) => {
+    setMajor(selectedMajor);
+    setShowMajorSuggestions(false);
+  };
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setShowMajorSuggestions(false);
+    };
+    if (showMajorSuggestions) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [showMajorSuggestions]);
 
   // Close modal on Escape key
   useEffect(() => {
@@ -68,85 +96,91 @@ const AddAcademicInfoModal: React.FC<AddAcademicInfoModalProps> = ({
           {/* Header */}
           <div className="text-center mb-8">
             <h2 className="text-3xl font-serif font-bold text-vault-blue mb-4">
-              Add Academic Info
+              Add School Info
             </h2>
             <p className="text-sm text-gray-500">
-              Tell us about your academic profile to find scholarships that match your educational level and achievements.
+              Tell us about your child's academic profile to find scholarships that match their educational level and achievements.
             </p>
           </div>
 
           {/* Form */}
           <form onSubmit={(e) => { e.preventDefault(); handleContinue(); }}>
             <div className="space-y-6 mb-8">
-              {/* Grade Level */}
-              <div>
+              {/* Major */}
+              <div className="relative">
                 <label 
-                  htmlFor="gradeLevel" 
+                  htmlFor="major" 
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  Grade Level
+                  Major
+                </label>
+                <input
+                  type="text"
+                  id="major"
+                  value={major}
+                  onChange={(e) => handleMajorChange(e.target.value)}
+                  onClick={(e) => e.stopPropagation()}
+                  placeholder="Start typing major..."
+                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-privacy-teal focus:border-transparent"
+                />
+                
+                {/* Major autocomplete suggestions */}
+                {showMajorSuggestions && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                    {majorSuggestions.map((suggestion, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => selectMajor(suggestion)}
+                        className="w-full px-4 py-2 text-left hover:bg-gray-100 first:rounded-t-md last:rounded-b-md"
+                      >
+                        {suggestion}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Degree */}
+              <div>
+                <label 
+                  htmlFor="degree" 
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Degree
                 </label>
                 <select
-                  id="gradeLevel"
-                  value={gradeLevel}
-                  onChange={(e) => setGradeLevel(e.target.value)}
+                  id="degree"
+                  value={degree}
+                  onChange={(e) => setDegree(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-privacy-teal focus:border-transparent"
                 >
-                  <option value="">Select grade level</option>
-                  <option value="freshman">Freshman</option>
-                  <option value="sophomore">Sophomore</option>
-                  <option value="junior">Junior</option>
-                  <option value="senior">Senior</option>
-                  <option value="graduate">Graduate Student</option>
+                  <option value="">Select degree</option>
+                  <option value="high-school">High School Diploma</option>
+                  <option value="associate">Associate's Degree</option>
+                  <option value="bachelor">Bachelor's Degree</option>
+                  <option value="master">Master's Degree</option>
+                  <option value="doctorate">Doctorate Degree</option>
                   <option value="other">Other</option>
                 </select>
               </div>
 
-              {/* School Type */}
+              {/* Graduation Year */}
               <div>
                 <label 
-                  htmlFor="schoolType" 
+                  htmlFor="graduationYear" 
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  School Type
+                  Graduation Year
                 </label>
-                <select
-                  id="schoolType"
-                  value={schoolType}
-                  onChange={(e) => setSchoolType(e.target.value)}
+                <input
+                  type="text"
+                  id="graduationYear"
+                  value={graduationYear}
+                  onChange={(e) => setGraduationYear(e.target.value)}
+                  placeholder="Example: 2025"
                   className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-privacy-teal focus:border-transparent"
-                >
-                  <option value="">Select school type</option>
-                  <option value="high-school">High School</option>
-                  <option value="college">College</option>
-                  <option value="graduate-school">Graduate School</option>
-                  <option value="trade-school">Trade School</option>
-                  <option value="adult-school">Adult School</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-
-              {/* GPA */}
-              <div>
-                <label 
-                  htmlFor="gpa" 
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  GPA
-                </label>
-                <select
-                  id="gpa"
-                  value={gpa}
-                  onChange={(e) => setGpa(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-privacy-teal focus:border-transparent"
-                >
-                  <option value="">Select GPA</option>
-                  {gpaValues.map((value) => (
-                    <option key={value} value={value}>
-                      {value}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
             </div>
 
@@ -190,4 +224,4 @@ const AddAcademicInfoModal: React.FC<AddAcademicInfoModalProps> = ({
   );
 };
 
-export default AddAcademicInfoModal;
+export default AddChildSchoolInfoModal;

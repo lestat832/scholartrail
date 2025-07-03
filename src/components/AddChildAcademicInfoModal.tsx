@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { generateGPAValues } from '../utils/gpaValues';
 
-interface AddAcademicInfoModalProps {
+interface AddChildAcademicInfoModalProps {
   isOpen: boolean;
   onClose: () => void;
   onContinue: (data: { gradeLevel?: string; schoolType?: string; gpa?: string }) => void;
@@ -10,7 +10,7 @@ interface AddAcademicInfoModalProps {
   totalSteps?: number;
 }
 
-const AddAcademicInfoModal: React.FC<AddAcademicInfoModalProps> = ({ 
+const AddChildAcademicInfoModal: React.FC<AddChildAcademicInfoModalProps> = ({ 
   isOpen, 
   onClose, 
   onContinue,
@@ -71,7 +71,7 @@ const AddAcademicInfoModal: React.FC<AddAcademicInfoModalProps> = ({
               Add Academic Info
             </h2>
             <p className="text-sm text-gray-500">
-              Tell us about your academic profile to find scholarships that match your educational level and achievements.
+              Tell us about your child's academic profile to find scholarships that match your educational level and achievements.
             </p>
           </div>
 
@@ -190,4 +190,4 @@ const AddAcademicInfoModal: React.FC<AddAcademicInfoModalProps> = ({
   );
 };
 
-export default AddAcademicInfoModal;
+export default AddChildAcademicInfoModal;

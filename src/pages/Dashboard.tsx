@@ -18,6 +18,9 @@ import EditSchoolInfoModal from '../components/EditSchoolInfoModal';
 import SubscribePromo from '../components/SubscribePromo';
 import AddChildProfileModal from '../components/AddChildProfileModal';
 import AddChildPersonalInfoModal from '../components/AddChildPersonalInfoModal';
+import AddChildAcademicInfoModal from '../components/AddChildAcademicInfoModal';
+import AddChildSchoolInfoModal from '../components/AddChildSchoolInfoModal';
+import ParentCongratulationsModal from '../components/ParentCongratulationsModal';
 
 interface LocationState {
   firstName?: string;
@@ -25,6 +28,8 @@ interface LocationState {
   showEmptyState?: boolean;
   userType?: string;
   showParentNonPersonalized?: boolean;
+  isParentChildFTUE?: boolean;
+  childFirstName?: string;
 }
 
 interface Scholarship {
@@ -36,13 +41,52 @@ interface Scholarship {
   matchStrength: number; // 1-5
 }
 
+interface Child {
+  id: string;
+  firstName: string;
+  profileData: {
+    firstName: string;
+    birthday: string;
+    gender?: string;
+    nationality?: string;
+    cityState?: string;
+    gradeLevel?: string;
+    schoolType?: string;
+    gpa?: string;
+    major?: string;
+    degree?: string;
+    graduationYear?: string;
+  };
+}
+
 const Dashboard: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const state = location.state as LocationState;
   const showEmptyState = state?.showEmptyState || false;
   const isParentNonPersonalized = state?.showParentNonPersonalized || false;
-  // const userType = state?.userType; // Keeping for future use
+  const isParentChildFTUE = state?.isParentChildFTUE || false;
+  // Initialize children array - check localStorage first, then use state
+  const [children, setChildren] = useState<Child[]>(() => {
+    const savedChildren = localStorage.getItem('childrenProfiles');
+    if (savedChildren) {
+      return JSON.parse(savedChildren);
+    }
+    // If coming from initial flow with a child name, create the first child
+    if (state?.childFirstName) {
+      const firstChild: Child = {
+        id: '1',
+        firstName: state.childFirstName,
+        profileData: {
+          firstName: state.childFirstName,
+          birthday: '',
+          // Additional data would come from the full profile
+        }
+      };
+      return [firstChild];
+    }
+    return [];
+  });
   
   const [filter, setFilter] = useState('all');
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
@@ -86,7 +130,25 @@ const Dashboard: React.FC = () => {
   const [isEditSchoolInfoModalOpen, setIsEditSchoolInfoModalOpen] = useState(false);
   const [isAddChildProfileModalOpen, setIsAddChildProfileModalOpen] = useState(false);
   const [isAddChildPersonalInfoModalOpen, setIsAddChildPersonalInfoModalOpen] = useState(false);
-  const [childProfileData, setChildProfileData] = useState({ firstName: '', birthday: '' });
+  const [isAddChildAcademicInfoModalOpen, setIsAddChildAcademicInfoModalOpen] = useState(false);
+  const [isAddChildSchoolInfoModalOpen, setIsAddChildSchoolInfoModalOpen] = useState(false);
+  const [isParentCongratulationsModalOpen, setIsParentCongratulationsModalOpen] = useState(false);
+  const [childProfileData, setChildProfileData] = useState<{
+    firstName: string;
+    birthday: string;
+    gender?: string;
+    nationality?: string;
+    cityState?: string;
+    gradeLevel?: string;
+    schoolType?: string;
+    gpa?: string;
+  }>({ firstName: '', birthday: '' });
+  
+  // Parent tab state - 'browse' or a child ID
+  const [activeChildTab, setActiveChildTab] = useState<'browse' | string>(() => {
+    // Default to first child if exists, otherwise browse
+    return children.length > 0 ? children[0].id : 'browse';
+  });
   
   // Load saved and applied scholarships from localStorage on mount
   useEffect(() => {
@@ -243,44 +305,10 @@ const Dashboard: React.FC = () => {
     return allScholarships;
   };
   
-  const allScholarships = generateScholarships();
-
-  const stats = {
-    numberOfMatches: isPaidMember ? allScholarships.length : 47,
-    amountInMatches: isPaidMember ? '$500K+' : '$125K'
-  };
-  
-  // Initialize displayed scholarships based on member status
-  useEffect(() => {
-    if (isPaidMember) {
-      // For paid members, show first page of all scholarships
-      setDisplayedScholarships(allScholarships.slice(0, SCHOLARSHIPS_PER_PAGE));
-    } else {
-      // For free members, show only first 3 scholarships
-      setDisplayedScholarships(allScholarships.slice(0, 3));
-    }
-    setCurrentPage(1);
-  }, [isPaidMember]);
-  
-  // Load more scholarships for infinite scroll
-  const loadMoreScholarships = () => {
-    if (isLoading || !isPaidMember) return;
-    
-    setIsLoading(true);
-    
-    // Simulate loading delay
-    setTimeout(() => {
-      const startIndex = currentPage * SCHOLARSHIPS_PER_PAGE;
-      const endIndex = startIndex + SCHOLARSHIPS_PER_PAGE;
-      const nextScholarships = allScholarships.slice(startIndex, endIndex);
-      
-      if (nextScholarships.length > 0) {
-        setDisplayedScholarships(prev => [...prev, ...nextScholarships]);
-        setCurrentPage(prev => prev + 1);
-      }
-      
-      setIsLoading(false);
-    }, 500);
+  // Note: This function will be redefined after allScholarships is available
+  // For now, provide a placeholder to avoid errors
+  let loadMoreScholarships = () => {
+    console.log('loadMoreScholarships not yet initialized');
   };
   
   // Intersection Observer for infinite scroll
@@ -487,15 +515,76 @@ const Dashboard: React.FC = () => {
     setIsAddChildPersonalInfoModalOpen(false);
   };
 
-  const handleAddChildPersonalInfoContinue = (_data: { gender?: string; nationality?: string; cityState?: string }) => {
+  const handleAddChildPersonalInfoContinue = (data: { gender?: string; nationality?: string; cityState?: string }) => {
+    setChildProfileData(prev => ({ ...prev, ...data }));
     setIsAddChildPersonalInfoModalOpen(false);
-    // TODO: Continue with child academic info, etc.
-    // For now, just close the modal
+    setIsAddChildAcademicInfoModalOpen(true);
   };
 
   const handleAddChildPersonalInfoPrevious = () => {
     setIsAddChildPersonalInfoModalOpen(false);
     setIsAddChildProfileModalOpen(true);
+  };
+
+  // Add Child Academic Info handlers
+  const handleAddChildAcademicInfoClose = () => {
+    setIsAddChildAcademicInfoModalOpen(false);
+  };
+
+  const handleAddChildAcademicInfoContinue = (data: { gradeLevel?: string; schoolType?: string; gpa?: string }) => {
+    const updatedChildData = { ...childProfileData, ...data };
+    setChildProfileData(updatedChildData);
+    setIsAddChildAcademicInfoModalOpen(false);
+    setIsAddChildSchoolInfoModalOpen(true);
+  };
+
+  const handleAddChildAcademicInfoPrevious = () => {
+    setIsAddChildAcademicInfoModalOpen(false);
+    setIsAddChildPersonalInfoModalOpen(true);
+  };
+
+  // Add Child School Info handlers
+  const handleAddChildSchoolInfoClose = () => {
+    setIsAddChildSchoolInfoModalOpen(false);
+  };
+
+  const handleAddChildSchoolInfoContinue = (data: { major?: string; degree?: string; graduationYear?: string }) => {
+    const completeChildData = { ...childProfileData, ...data };
+    setChildProfileData(completeChildData);
+    // Save child profile to localStorage
+    localStorage.setItem('childProfile', JSON.stringify(completeChildData));
+    setIsAddChildSchoolInfoModalOpen(false);
+    setIsParentCongratulationsModalOpen(true);
+  };
+
+  const handleAddChildSchoolInfoPrevious = () => {
+    setIsAddChildSchoolInfoModalOpen(false);
+    setIsAddChildAcademicInfoModalOpen(true);
+  };
+
+  // Parent Congratulations handler
+  const handleParentCongratulationsContinue = () => {
+    setIsParentCongratulationsModalOpen(false);
+    
+    // Create new child object
+    const newChild: Child = {
+      id: Date.now().toString(), // Simple ID generation
+      firstName: childProfileData.firstName,
+      profileData: { ...childProfileData }
+    };
+    
+    // Append to children array
+    const updatedChildren = [...children, newChild];
+    setChildren(updatedChildren);
+    
+    // Save to localStorage
+    localStorage.setItem('childrenProfiles', JSON.stringify(updatedChildren));
+    
+    // Switch to the new child's tab
+    setActiveChildTab(newChild.id);
+    
+    // Reset the form data for next child
+    setChildProfileData({ firstName: '', birthday: '' });
   };
 
   // Settings handlers
@@ -524,6 +613,47 @@ const Dashboard: React.FC = () => {
         navigate('/preview');
         break;
     }
+  };
+
+  // Generate scholarship data
+  const allScholarships = generateScholarships();
+
+  const stats = {
+    numberOfMatches: isPaidMember ? allScholarships.length : 47,
+    amountInMatches: isPaidMember ? '$500K+' : '$125K'
+  };
+
+  // Initialize displayed scholarships based on member status
+  useEffect(() => {
+    if (isPaidMember) {
+      // For paid members, show first page of all scholarships
+      setDisplayedScholarships(allScholarships.slice(0, SCHOLARSHIPS_PER_PAGE));
+    } else {
+      // For free members, show only first 3 scholarships
+      setDisplayedScholarships(allScholarships.slice(0, 3));
+    }
+    setCurrentPage(1);
+  }, [isPaidMember, allScholarships.length]);
+
+  // Redefine loadMoreScholarships with access to allScholarships
+  loadMoreScholarships = () => {
+    if (isLoading || !isPaidMember) return;
+    
+    setIsLoading(true);
+    
+    // Simulate loading delay
+    setTimeout(() => {
+      const startIndex = currentPage * SCHOLARSHIPS_PER_PAGE;
+      const endIndex = startIndex + SCHOLARSHIPS_PER_PAGE;
+      const nextScholarships = allScholarships.slice(startIndex, endIndex);
+      
+      if (nextScholarships.length > 0) {
+        setDisplayedScholarships(prev => [...prev, ...nextScholarships]);
+        setCurrentPage(prev => prev + 1);
+      }
+      
+      setIsLoading(false);
+    }, 500);
   };
 
   return (
@@ -591,9 +721,269 @@ const Dashboard: React.FC = () => {
         </div>
       </header>
 
+      {/* Parent Child Profile Tabs - Only show for parent users */}
+      {(isParentChildFTUE || isParentNonPersonalized) && (
+        <div>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center space-x-8 py-4">
+              <button
+                onClick={() => setActiveChildTab('browse')}
+                className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeChildTab === 'browse'
+                    ? 'border-info-blue text-info-blue'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Browse
+              </button>
+              {children.map((child) => (
+                <button
+                  key={child.id}
+                  onClick={() => setActiveChildTab(child.id)}
+                  className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                    activeChildTab === child.id
+                      ? 'border-info-blue text-info-blue'
+                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  {child.firstName}
+                </button>
+              ))}
+              <button
+                onClick={() => setIsAddChildProfileModalOpen(true)}
+                className="ml-auto flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
+                title="Add another child"
+              >
+                <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {isParentNonPersonalized ? (
+        {isParentChildFTUE && activeChildTab !== 'browse' && children.find(c => c.id === activeChildTab) ? (
+          /* Parent Child Free User State (FTUE) */
+          <>
+            {/* Parent Child Overview Section */}
+            <div className="flex items-center mb-12">
+              <div className="flex-1 max-w-md">
+                <h1 className="text-3xl font-serif font-bold text-vault-blue mb-2">
+                  Hi {children.find(c => c.id === activeChildTab)?.firstName || 'Student'}!
+                </h1>
+                <p className="text-gray-600">
+                  Here's a brief overview of your personalized matches
+                </p>
+              </div>
+
+              {/* Stats - Centered */}
+              <div className="flex-1 flex justify-center space-x-8">
+                <div className="bg-white rounded-full w-40 h-40 flex flex-col items-center justify-center shadow-md">
+                  <div className="text-3xl font-bold text-vault-blue">{stats.numberOfMatches}</div>
+                  <div className="text-sm text-gray-600 text-center mt-2">Number<br />of<br />Matches</div>
+                </div>
+                <div className="bg-white rounded-full w-40 h-40 flex flex-col items-center justify-center shadow-md">
+                  <div className="text-3xl font-bold text-vault-blue">{stats.amountInMatches}</div>
+                  <div className="text-sm text-gray-600 text-center mt-2">Amount<br />in<br />Matches</div>
+                </div>
+              </div>
+
+              {/* Spacer for filter alignment */}
+              <div className="w-48"></div>
+            </div>
+
+            {/* Feed Section */}
+            <div className="relative">
+              {/* Filter Dropdown */}
+              <div className="absolute right-0 -top-12">
+                <div className="relative">
+                  <button
+                    onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+                    className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                    </svg>
+                    <span className="capitalize">{filter === 'all' ? 'All' : filter}</span>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  
+                  {showFilterDropdown && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                      <div className="py-1">
+                        <button
+                          onClick={() => { setFilter('all'); setShowFilterDropdown(false); }}
+                          className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                        >
+                          All
+                        </button>
+                        <button
+                          onClick={() => { 
+                            setFilter('saved'); 
+                            setShowFilterDropdown(false);
+                            localStorage.setItem('lastAccessedSaved', savedScholarships.size.toString());
+                            setNewSavedCount(0);
+                          }}
+                          className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center justify-between"
+                        >
+                          <span>Saved</span>
+                          {newSavedCount > 0 && (
+                            <span className="bg-trust-pink text-white text-xs px-2 py-0.5 rounded-full">
+                              {newSavedCount}
+                            </span>
+                          )}
+                        </button>
+                        <button
+                          onClick={() => { 
+                            setFilter('applied'); 
+                            setShowFilterDropdown(false);
+                            localStorage.setItem('lastAccessedApplied', appliedScholarships.size.toString());
+                            setNewAppliedCount(0);
+                          }}
+                          className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center justify-between"
+                        >
+                          <span>Applied</span>
+                          {newAppliedCount > 0 && (
+                            <span className="bg-trust-pink text-white text-xs px-2 py-0.5 rounded-full">
+                              {newAppliedCount}
+                            </span>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Scholarship List */}
+              <div>
+                {displayedScholarships.slice(0, isPaidMember ? displayedScholarships.length : 3).map((scholarship, index) => (
+                  <div key={scholarship.id}>
+                    <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                      <div className="flex items-start">
+                        {/* Left Section: Match Strength */}
+                        <div className="flex-shrink-0 mr-6">
+                          {renderMatchStrength(scholarship.matchStrength)}
+                        </div>
+                        
+                        {/* Middle Section: Scholarship Info and Amount */}
+                        <div className="flex-grow">
+                          <div className="flex items-start">
+                            {/* Scholarship Details */}
+                            <div className="flex-grow">
+                              <h3 
+                                className="text-xl font-semibold text-vault-blue mb-2 cursor-pointer hover:text-info-blue transition-colors"
+                                onClick={() => {
+                                  const slug = scholarship.name.toLowerCase().replace(/\s+/g, '-');
+                                  navigate(`/scholarship/${slug}`);
+                                }}
+                              >
+                                {scholarship.name}
+                              </h3>
+                              <p 
+                                className="text-gray-600 mb-4 cursor-pointer hover:text-gray-800 transition-colors"
+                                onClick={() => {
+                                  const slug = scholarship.name.toLowerCase().replace(/\s+/g, '-');
+                                  navigate(`/scholarship/${slug}`);
+                                }}
+                              >
+                                {scholarship.description.length > 100 
+                                  ? scholarship.description.substring(0, 100) + '...'
+                                  : scholarship.description
+                                }
+                              </p>
+                              <div className="flex space-x-6 text-sm text-gray-500">
+                                <span>Deadline: {scholarship.deadline}</span>
+                              </div>
+                            </div>
+                            
+                            {/* Amount */}
+                            <div className="text-2xl font-bold text-privacy-teal ml-6">
+                              {scholarship.amount}
+                            </div>
+                          </div>
+                          
+                          {/* Actions */}
+                          <div className="flex items-center justify-end space-x-6 mt-4">
+                            <button
+                              onClick={() => {
+                                const slug = scholarship.name.toLowerCase().replace(/\s+/g, '-');
+                                navigate(`/scholarship/${slug}`);
+                              }}
+                              className="text-info-blue hover:underline"
+                            >
+                              View More
+                            </button>
+                            {appliedScholarships.has(scholarship.id) ? (
+                              <button
+                                disabled
+                                className="text-verified-green"
+                              >
+                                Applied ✓
+                              </button>
+                            ) : savedScholarships.has(scholarship.id) ? (
+                              <button
+                                disabled
+                                className="text-verified-green"
+                              >
+                                Saved ✓
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => handleSaveScholarship(scholarship.id)}
+                                className="text-info-blue hover:underline"
+                              >
+                                Save
+                              </button>
+                            )}
+                            {appliedScholarships.has(scholarship.id) ? (
+                              <button
+                                disabled
+                                className="bg-gray-400 text-white px-6 py-2 rounded-md"
+                              >
+                                Applied
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => handleApplyScholarship(scholarship)}
+                                className="bg-info-blue text-white px-6 py-2 rounded-md hover:bg-opacity-90 transition-all"
+                              >
+                                Apply
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Subscribe Promo after 3rd scholarship */}
+                    {index === 2 && !isPaidMember && (
+                      <div className="bg-trust-pink bg-opacity-10 border-2 border-trust-pink rounded-lg p-8 text-center mb-6">
+                        <h3 className="text-2xl font-serif font-bold text-vault-blue mb-4">
+                          Unlock Your Full Potential! 🚀
+                        </h3>
+                        <p className="text-gray-700 mb-6 max-w-2xl mx-auto">
+                          You have {allScholarships.length - 3} more scholarships waiting for you! Subscribe to ScholarTrail to access all your matches and maximize your funding opportunities.
+                        </p>
+                        <button
+                          onClick={handleBecomeMember}
+                          className="px-8 py-3 bg-trust-pink text-white rounded-md font-semibold hover:bg-opacity-90 transform hover:scale-105 transition-all"
+                        >
+                          Become a Member
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        ) : (isParentChildFTUE && activeChildTab === 'browse') || isParentNonPersonalized ? (
           /* Parent Browse Non-Personalized Scholarships State */
           <>
             {/* Parent Overview Section */}
@@ -1174,6 +1564,29 @@ const Dashboard: React.FC = () => {
         onPrevious={handleAddChildPersonalInfoPrevious}
         currentStep={2}
         totalSteps={4}
+      />
+      
+      <AddChildAcademicInfoModal
+        isOpen={isAddChildAcademicInfoModalOpen}
+        onClose={handleAddChildAcademicInfoClose}
+        onContinue={handleAddChildAcademicInfoContinue}
+        onPrevious={handleAddChildAcademicInfoPrevious}
+        currentStep={3}
+        totalSteps={4}
+      />
+      
+      <AddChildSchoolInfoModal
+        isOpen={isAddChildSchoolInfoModalOpen}
+        onClose={handleAddChildSchoolInfoClose}
+        onContinue={handleAddChildSchoolInfoContinue}
+        onPrevious={handleAddChildSchoolInfoPrevious}
+        currentStep={4}
+        totalSteps={4}
+      />
+      
+      <ParentCongratulationsModal
+        isOpen={isParentCongratulationsModalOpen}
+        onContinue={handleParentCongratulationsContinue}
       />
     </div>
   );

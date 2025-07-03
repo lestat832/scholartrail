@@ -15,6 +15,9 @@ import CongratulationsModal from '../components/CongratulationsModal';
 import WelcomeParentModal from '../components/WelcomeParentModal';
 import AddChildProfileModal from '../components/AddChildProfileModal';
 import AddChildPersonalInfoModal from '../components/AddChildPersonalInfoModal';
+import AddChildAcademicInfoModal from '../components/AddChildAcademicInfoModal';
+import AddChildSchoolInfoModal from '../components/AddChildSchoolInfoModal';
+import ParentCongratulationsModal from '../components/ParentCongratulationsModal';
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -29,6 +32,9 @@ const LandingPage: React.FC = () => {
   const [isWelcomeParentModalOpen, setIsWelcomeParentModalOpen] = useState(false);
   const [isAddChildProfileModalOpen, setIsAddChildProfileModalOpen] = useState(false);
   const [isAddChildPersonalInfoModalOpen, setIsAddChildPersonalInfoModalOpen] = useState(false);
+  const [isAddChildAcademicInfoModalOpen, setIsAddChildAcademicInfoModalOpen] = useState(false);
+  const [isAddChildSchoolInfoModalOpen, setIsAddChildSchoolInfoModalOpen] = useState(false);
+  const [isParentCongratulationsModalOpen, setIsParentCongratulationsModalOpen] = useState(false);
   const [selectedUserType, setSelectedUserType] = useState<'student' | 'parent' | 'educator'>('student');
   const [profileData, setProfileData] = useState({ firstName: '', birthday: '' });
   const [childProfileData, setChildProfileData] = useState({ firstName: '', birthday: '' });
@@ -165,16 +171,65 @@ const LandingPage: React.FC = () => {
     navigate('/dashboard', { state: { userType: 'parent', showParentNonPersonalized: true } });
   };
 
-  const handleAddChildPersonalInfoContinue = (_data: { gender?: string; nationality?: string; cityState?: string }) => {
+  const handleAddChildPersonalInfoContinue = (data: { gender?: string; nationality?: string; cityState?: string }) => {
+    setChildProfileData(prev => ({ ...prev, ...data }));
     setIsAddChildPersonalInfoModalOpen(false);
-    // TODO: Continue with child academic info, etc.
-    // For now, navigate to parent dashboard
-    navigate('/dashboard', { state: { userType: 'parent', showParentNonPersonalized: true } });
+    setIsAddChildAcademicInfoModalOpen(true);
   };
 
   const handleAddChildPersonalInfoPrevious = () => {
     setIsAddChildPersonalInfoModalOpen(false);
     setIsAddChildProfileModalOpen(true);
+  };
+
+  // Add Child Academic Info Modal handlers
+  const handleAddChildAcademicInfoClose = () => {
+    setIsAddChildAcademicInfoModalOpen(false);
+    navigate('/dashboard', { state: { userType: 'parent', showParentNonPersonalized: true } });
+  };
+
+  const handleAddChildAcademicInfoContinue = (data: { gradeLevel?: string; schoolType?: string; gpa?: string }) => {
+    setChildProfileData(prev => ({ ...prev, ...data }));
+    setIsAddChildAcademicInfoModalOpen(false);
+    setIsAddChildSchoolInfoModalOpen(true);
+  };
+
+  const handleAddChildAcademicInfoPrevious = () => {
+    setIsAddChildAcademicInfoModalOpen(false);
+    setIsAddChildPersonalInfoModalOpen(true);
+  };
+
+  // Add Child School Info Modal handlers
+  const handleAddChildSchoolInfoClose = () => {
+    setIsAddChildSchoolInfoModalOpen(false);
+    navigate('/dashboard', { state: { userType: 'parent', showParentNonPersonalized: true } });
+  };
+
+  const handleAddChildSchoolInfoContinue = (data: { major?: string; degree?: string; graduationYear?: string }) => {
+    const completeChildData = { ...childProfileData, ...data };
+    setChildProfileData(completeChildData);
+    // Save child profile data to localStorage
+    localStorage.setItem('childProfile', JSON.stringify(completeChildData));
+    setIsAddChildSchoolInfoModalOpen(false);
+    setIsParentCongratulationsModalOpen(true);
+  };
+
+  const handleAddChildSchoolInfoPrevious = () => {
+    setIsAddChildSchoolInfoModalOpen(false);
+    setIsAddChildAcademicInfoModalOpen(true);
+  };
+
+  // Parent Congratulations Modal handler
+  const handleParentCongratulationsContinue = () => {
+    setIsParentCongratulationsModalOpen(false);
+    navigate('/dashboard', { 
+      state: { 
+        userType: 'parent', 
+        showParentNonPersonalized: false,
+        isParentChildFTUE: true,
+        childFirstName: childProfileData.firstName
+      } 
+    });
   };
 
   return (
@@ -272,6 +327,29 @@ const LandingPage: React.FC = () => {
         onPrevious={handleAddChildPersonalInfoPrevious}
         currentStep={2}
         totalSteps={4}
+      />
+      
+      <AddChildAcademicInfoModal
+        isOpen={isAddChildAcademicInfoModalOpen}
+        onClose={handleAddChildAcademicInfoClose}
+        onContinue={handleAddChildAcademicInfoContinue}
+        onPrevious={handleAddChildAcademicInfoPrevious}
+        currentStep={3}
+        totalSteps={4}
+      />
+      
+      <AddChildSchoolInfoModal
+        isOpen={isAddChildSchoolInfoModalOpen}
+        onClose={handleAddChildSchoolInfoClose}
+        onContinue={handleAddChildSchoolInfoContinue}
+        onPrevious={handleAddChildSchoolInfoPrevious}
+        currentStep={4}
+        totalSteps={4}
+      />
+      
+      <ParentCongratulationsModal
+        isOpen={isParentCongratulationsModalOpen}
+        onContinue={handleParentCongratulationsContinue}
       />
     </div>
   );
