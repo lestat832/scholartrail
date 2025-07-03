@@ -601,13 +601,8 @@ const Dashboard: React.FC = () => {
         console.log('Navigate to FAQs');
         break;
       case 'logout':
-        // Clear all scholarship-related data from localStorage
-        localStorage.removeItem('savedScholarships');
-        localStorage.removeItem('appliedScholarships');
-        localStorage.removeItem('lastAccessedSaved');
-        localStorage.removeItem('lastAccessedApplied');
-        localStorage.removeItem('isPaidMember');
-        localStorage.removeItem('userProfile');
+        // Clear ALL localStorage data to prevent data leakage between sessions
+        localStorage.clear();
         
         // Reset session by navigating to landing page
         navigate('/preview');
@@ -772,7 +767,7 @@ const Dashboard: React.FC = () => {
             <div className="flex items-center mb-12">
               <div className="flex-1 max-w-md">
                 <h1 className="text-3xl font-serif font-bold text-vault-blue mb-2">
-                  Hi {children.find(c => c.id === activeChildTab)?.firstName || 'Student'}!
+                  Hi {children.find(c => c.id === activeChildTab)?.firstName || 'Alyssa'}!
                 </h1>
                 <p className="text-gray-600">
                   Here's a brief overview of your personalized matches
