@@ -741,14 +741,14 @@ const Dashboard: React.FC = () => {
     setSharingChild(null);
   };
 
-  const handleShareComplete = (method: 'email' | 'sms' | 'copy', invitationCode: string) => {
+  const handleShareComplete = (_method: 'email' | 'copy') => {
     // Update child's invitation status
     const updatedChildren = children.map(child => {
       if (child.id === sharingChild?.id) {
         return {
           ...child,
           invitation: {
-            code: invitationCode,
+            code: '', // No longer using invitation codes
             status: 'pending' as const,
             sentAt: new Date().toISOString(),
             expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days

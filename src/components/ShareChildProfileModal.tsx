@@ -5,7 +5,7 @@ interface ShareChildProfileModalProps {
   onClose: () => void;
   childName: string;
   childId: string;
-  onShare: (method: 'email' | 'sms' | 'copy', invitationCode: string) => void;
+  onShare: (method: 'email' | 'copy') => void;
 }
 
 const ShareChildProfileModal: React.FC<ShareChildProfileModalProps> = ({ 
@@ -15,45 +15,16 @@ const ShareChildProfileModal: React.FC<ShareChildProfileModalProps> = ({
   childId,
   onShare
 }) => {
-  const [invitationCode, setInvitationCode] = useState('');
   const [copiedToClipboard, setCopiedToClipboard] = useState(false);
-  const [shareMethod, setShareMethod] = useState<'email' | 'sms' | 'copy' | null>(null);
+  const [shareMethod, setShareMethod] = useState<'email' | 'copy' | null>(null);
 
-  // Generate invitation code when modal opens
+  // Reset states when modal opens
   useEffect(() => {
     if (isOpen) {
-      // Check if invitation already exists for this child
-      const storedChildren = localStorage.getItem('childrenProfiles');
-      if (storedChildren) {
-        const children = JSON.parse(storedChildren);
-        const child = children.find((c: any) => c.id === childId);
-        if (child?.invitation?.code) {
-          setInvitationCode(child.invitation.code);
-        } else {
-          // Generate new code
-          const code = generateInvitationCode();
-          setInvitationCode(code);
-        }
-      }
-      // Reset states
       setCopiedToClipboard(false);
       setShareMethod(null);
     }
-  }, [isOpen, childId]);
-
-  const generateInvitationCode = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let code = 'SCHOLAR-';
-    for (let i = 0; i < 8; i++) {
-      if (i === 4) code += '-';
-      code += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return code;
-  };
-
-  const getInvitationLink = () => {
-    return `https://scholartrail.com/join/${invitationCode}`;
-  };
+  }, [isOpen]);
 
   const getEmailTemplate = () => {
     const subject = `Join me on ScholarTrail - Scholarship Opportunities for ${childName}`;
@@ -63,12 +34,7 @@ I've created a profile for you on ScholarTrail to help you find scholarship oppo
 
 ScholarTrail is a privacy-first platform that matches students with scholarships without selling your data.
 
-Click here to activate your account and connect with me:
-${getInvitationLink()}
-
-Your invitation code is: ${invitationCode}
-
-This invitation expires in 7 days.
+Visit ScholarTrail.com to create your account and connect with me. You'll have full control over your profile and can choose what information to share.
 
 Let's work together to find great scholarship opportunities!
 
@@ -78,32 +44,21 @@ Your Parent`;
     return { subject, body };
   };
 
-  const getSMSTemplate = () => {
-    return `Hi ${childName}! I created a ScholarTrail profile to help you find scholarships. Join here: ${getInvitationLink()} Code: ${invitationCode}`;
-  };
-
   const handleEmailShare = () => {
     const { subject, body } = getEmailTemplate();
     const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.location.href = mailtoLink;
     setShareMethod('email');
-    onShare('email', invitationCode);
-  };
-
-  const handleSMSShare = () => {
-    const message = getSMSTemplate();
-    const smsLink = `sms:?body=${encodeURIComponent(message)}`;
-    window.location.href = smsLink;
-    setShareMethod('sms');
-    onShare('sms', invitationCode);
+    onShare('email');
   };
 
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(getInvitationLink());
+      const message = `I've created a ScholarTrail profile for ${childName}. Visit ScholarTrail.com to connect and find scholarship opportunities together!`;
+      await navigator.clipboard.writeText(message);
       setCopiedToClipboard(true);
       setShareMethod('copy');
-      onShare('copy', invitationCode);
+      onShare('copy');
       
       // Reset copied state after 3 seconds
       setTimeout(() => {
@@ -125,13 +80,13 @@ Your Parent`;
       <div className="flex min-h-screen items-center justify-center p-4">
         <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full p-6 sm:p-8">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-serif font-bold text-vault-blue">
+          <div className="relative flex items-center justify-center mb-6">
+            <h2 className="text-2xl font-serif font-bold text-vault-blue text-center">
               Share Profile with {childName}
             </h2>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600"
+              className="absolute right-0 text-gray-400 hover:text-gray-600 transition-colors"
             >
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -141,16 +96,9 @@ Your Parent`;
 
           {/* Content */}
           <div className="space-y-6">
-            {/* Invitation Code Display */}
-            <div className="bg-protected-bg rounded-lg p-4 text-center">
-              <p className="text-sm text-gray-600 mb-2">Invitation Code</p>
-              <p className="text-2xl font-mono font-bold text-privacy-teal">{invitationCode}</p>
-              <p className="text-xs text-gray-500 mt-2">Expires in 7 days</p>
-            </div>
-
             {/* Instructions */}
             <p className="text-gray-600">
-              Share this profile with {childName} so they can create their own account and connect with you. They'll have control over what information you can see.
+              Share this profile with {childName} so they can create their own account and connect with you. They'll have full control over their profile and can choose what information to share.
             </p>
 
             {/* Share Options */}
@@ -178,28 +126,6 @@ Your Parent`;
               </button>
 
               <button
-                onClick={handleSMSShare}
-                className="w-full flex items-center justify-between p-4 bg-white border-2 border-gray-200 rounded-lg hover:border-info-blue hover:bg-blue-50 transition-all"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-info-blue bg-opacity-10 rounded-full flex items-center justify-center">
-                    <svg className="w-5 h-5 text-info-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                    </svg>
-                  </div>
-                  <div className="text-left">
-                    <p className="font-semibold text-gray-900">Text Message</p>
-                    <p className="text-sm text-gray-500">Send via SMS</p>
-                  </div>
-                </div>
-                {shareMethod === 'sms' && (
-                  <svg className="w-5 h-5 text-verified-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-              </button>
-
-              <button
                 onClick={handleCopyLink}
                 className="w-full flex items-center justify-between p-4 bg-white border-2 border-gray-200 rounded-lg hover:border-info-blue hover:bg-blue-50 transition-all"
               >
@@ -210,9 +136,9 @@ Your Parent`;
                     </svg>
                   </div>
                   <div className="text-left">
-                    <p className="font-semibold text-gray-900">Copy Link</p>
+                    <p className="font-semibold text-gray-900">Copy Message</p>
                     <p className="text-sm text-gray-500">
-                      {copiedToClipboard ? 'Copied to clipboard!' : 'Share manually'}
+                      {copiedToClipboard ? 'Copied to clipboard!' : 'Copy invitation message'}
                     </p>
                   </div>
                 </div>
