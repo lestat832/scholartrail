@@ -6,6 +6,12 @@ interface AddChildProfileModalProps {
   onContinue: (data: { firstName: string; birthday: string }) => void;
   currentStep?: number;
   totalSteps?: number;
+  mode?: 'add' | 'edit';
+  initialData?: {
+    firstName?: string;
+    birthday?: string;
+  };
+  childName?: string;
 }
 
 const AddChildProfileModal: React.FC<AddChildProfileModalProps> = ({ 
@@ -13,10 +19,25 @@ const AddChildProfileModal: React.FC<AddChildProfileModalProps> = ({
   onClose, 
   onContinue,
   currentStep = 1,
-  totalSteps = 4
+  totalSteps = 4,
+  mode = 'add',
+  initialData,
+  childName
 }) => {
   const [firstName, setFirstName] = useState('');
   const [birthday, setBirthday] = useState('');
+
+  // Initialize form with existing data in edit mode
+  useEffect(() => {
+    if (mode === 'edit' && initialData) {
+      setFirstName(initialData.firstName || '');
+      setBirthday(initialData.birthday || '');
+    } else if (mode === 'add') {
+      // Reset form when switching to add mode
+      setFirstName('');
+      setBirthday('');
+    }
+  }, [mode, initialData, isOpen]);
 
   const isFormValid = firstName.trim() !== '' && birthday !== '';
 
@@ -67,10 +88,10 @@ const AddChildProfileModal: React.FC<AddChildProfileModalProps> = ({
           {/* Header */}
           <div className="text-center mb-8">
             <h2 className="text-3xl font-serif font-bold text-vault-blue mb-2">
-              Add Child Profile
+              {mode === 'edit' ? `Edit ${childName} Profile` : 'Add Child Profile'}
             </h2>
             <h3 className="text-xl text-gray-700">
-              Tell Us About Your Child
+              {mode === 'edit' ? 'Update your child\'s basic information' : 'Tell Us About Your Child'}
             </h3>
           </div>
 

@@ -21,6 +21,7 @@ import AddChildPersonalInfoModal from '../components/AddChildPersonalInfoModal';
 import AddChildAcademicInfoModal from '../components/AddChildAcademicInfoModal';
 import AddChildSchoolInfoModal from '../components/AddChildSchoolInfoModal';
 import ParentCongratulationsModal from '../components/ParentCongratulationsModal';
+import ShareChildProfileModal from '../components/ShareChildProfileModal';
 
 interface LocationState {
   firstName?: string;
@@ -56,6 +57,13 @@ interface Child {
     major?: string;
     degree?: string;
     graduationYear?: string;
+  };
+  invitation?: {
+    code: string;
+    status: 'pending' | 'accepted';
+    sentAt: string;
+    expiresAt: string;
+    acceptedAt?: string;
   };
 }
 
@@ -133,6 +141,16 @@ const Dashboard: React.FC = () => {
   const [isAddChildAcademicInfoModalOpen, setIsAddChildAcademicInfoModalOpen] = useState(false);
   const [isAddChildSchoolInfoModalOpen, setIsAddChildSchoolInfoModalOpen] = useState(false);
   const [isParentCongratulationsModalOpen, setIsParentCongratulationsModalOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [sharingChild, setSharingChild] = useState<Child | null>(null);
+  
+  // Edit child profile modal states
+  const [isEditChildProfileModalOpen, setIsEditChildProfileModalOpen] = useState(false);
+  const [isEditChildPersonalInfoModalOpen, setIsEditChildPersonalInfoModalOpen] = useState(false);
+  const [isEditChildAcademicInfoModalOpen, setIsEditChildAcademicInfoModalOpen] = useState(false);
+  const [isEditChildSchoolInfoModalOpen, setIsEditChildSchoolInfoModalOpen] = useState(false);
+  const [editingChild, setEditingChild] = useState<Child | null>(null);
+  
   const [childProfileData, setChildProfileData] = useState<{
     firstName: string;
     birthday: string;
@@ -149,6 +167,12 @@ const Dashboard: React.FC = () => {
     // Default to first child if exists, otherwise browse
     return children.length > 0 ? children[0].id : 'browse';
   });
+  
+  // Child dropdown state
+  const [childDropdownOpen, setChildDropdownOpen] = useState<{ [childId: string]: boolean }>({});
+  
+  // Tooltip hover state
+  const [hoveredTooltip, setHoveredTooltip] = useState<string | null>(null);
   
   // Load saved and applied scholarships from localStorage on mount
   useEffect(() => {
@@ -355,6 +379,29 @@ const Dashboard: React.FC = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showSettingsDropdown]);
+
+  // Click outside handler for child dropdowns
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // Check if click is outside all dropdowns
+      const clickedInsideDropdown = Object.keys(childDropdownOpen).some(childId => {
+        const dropdownElement = document.querySelector(`[data-dropdown-id="${childId}"]`);
+        return dropdownElement && dropdownElement.contains(event.target as Node);
+      });
+      
+      if (!clickedInsideDropdown) {
+        setChildDropdownOpen({});
+      }
+    };
+
+    if (Object.values(childDropdownOpen).some(isOpen => isOpen)) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [childDropdownOpen]);
 
   const renderMatchStrength = (strength: number) => {
     return (
@@ -587,6 +634,134 @@ const Dashboard: React.FC = () => {
     setChildProfileData({ firstName: '', birthday: '' });
   };
 
+  // Edit child profile handlers
+  const handleEditChildProfileContinue = (data: { firstName: string; birthday: string }) => {
+    if (editingChild) {
+      const updatedChild = { 
+        ...editingChild,
+        firstName: data.firstName,
+        profileData: { ...editingChild.profileData, firstName: data.firstName, birthday: data.birthday } 
+      };
+      setEditingChild(updatedChild);
+    }
+    setIsEditChildProfileModalOpen(false);
+    setIsEditChildPersonalInfoModalOpen(true);
+  };
+
+  const handleEditChildProfileClose = () => {
+    setIsEditChildProfileModalOpen(false);
+    setEditingChild(null);
+  };
+
+  const handleEditChildPersonalInfoContinue = (data: { gender?: string; nationality?: string; cityState?: string }) => {
+    if (editingChild) {
+      const updatedChild = { 
+        ...editingChild, 
+        profileData: { ...editingChild.profileData, ...data } 
+      };
+      setEditingChild(updatedChild);
+    }
+    setIsEditChildPersonalInfoModalOpen(false);
+    setIsEditChildAcademicInfoModalOpen(true);
+  };
+
+  const handleEditChildPersonalInfoClose = () => {
+    setIsEditChildPersonalInfoModalOpen(false);
+    setEditingChild(null);
+  };
+
+  const handleEditChildPersonalInfoPrevious = () => {
+    // Go back to profile modal
+    setIsEditChildPersonalInfoModalOpen(false);
+    setIsEditChildProfileModalOpen(true);
+  };
+
+  const handleEditChildAcademicInfoContinue = (data: { gradeLevel?: string; schoolType?: string; gpa?: string }) => {
+    if (editingChild) {
+      const updatedChild = { 
+        ...editingChild, 
+        profileData: { ...editingChild.profileData, ...data } 
+      };
+      setEditingChild(updatedChild);
+    }
+    setIsEditChildAcademicInfoModalOpen(false);
+    setIsEditChildSchoolInfoModalOpen(true);
+  };
+
+  const handleEditChildAcademicInfoClose = () => {
+    setIsEditChildAcademicInfoModalOpen(false);
+    setEditingChild(null);
+  };
+
+  const handleEditChildAcademicInfoPrevious = () => {
+    setIsEditChildAcademicInfoModalOpen(false);
+    setIsEditChildPersonalInfoModalOpen(true);
+  };
+
+  const handleEditChildSchoolInfoSave = (data: { major?: string; degree?: string; graduationYear?: string }) => {
+    if (editingChild) {
+      // Update the child's profile data
+      const updatedChild = { 
+        ...editingChild, 
+        profileData: { ...editingChild.profileData, ...data } 
+      };
+      
+      // Update children array
+      const updatedChildren = children.map(child => 
+        child.id === editingChild.id ? updatedChild : child
+      );
+      
+      setChildren(updatedChildren);
+      localStorage.setItem('childrenProfiles', JSON.stringify(updatedChildren));
+    }
+    
+    // Close modal and reset
+    setIsEditChildSchoolInfoModalOpen(false);
+    setEditingChild(null);
+  };
+
+  const handleEditChildSchoolInfoClose = () => {
+    setIsEditChildSchoolInfoModalOpen(false);
+    setEditingChild(null);
+  };
+
+  const handleEditChildSchoolInfoPrevious = () => {
+    setIsEditChildSchoolInfoModalOpen(false);
+    setIsEditChildAcademicInfoModalOpen(true);
+  };
+
+  // Share profile handlers
+  const handleShareProfile = (child: Child) => {
+    setSharingChild(child);
+    setIsShareModalOpen(true);
+  };
+
+  const handleShareModalClose = () => {
+    setIsShareModalOpen(false);
+    setSharingChild(null);
+  };
+
+  const handleShareComplete = (method: 'email' | 'sms' | 'copy', invitationCode: string) => {
+    // Update child's invitation status
+    const updatedChildren = children.map(child => {
+      if (child.id === sharingChild?.id) {
+        return {
+          ...child,
+          invitation: {
+            code: invitationCode,
+            status: 'pending' as const,
+            sentAt: new Date().toISOString(),
+            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days
+          }
+        };
+      }
+      return child;
+    });
+    
+    setChildren(updatedChildren);
+    localStorage.setItem('childrenProfiles', JSON.stringify(updatedChildren));
+  };
+
   // Settings handlers
   const handleSettingsClick = (action: string) => {
     setShowSettingsDropdown(false);
@@ -682,12 +857,14 @@ const Dashboard: React.FC = () => {
                 {showSettingsDropdown && (
                   <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
                     <div className="py-1">
-                      <button
-                        onClick={() => handleSettingsClick('edit-profile')}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        Edit Profile
-                      </button>
+                      {!(isParentChildFTUE || isParentNonPersonalized) && (
+                        <button
+                          onClick={() => handleSettingsClick('edit-profile')}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Edit Profile
+                        </button>
+                      )}
                       <button
                         onClick={() => handleSettingsClick('edit-account')}
                         className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -732,17 +909,98 @@ const Dashboard: React.FC = () => {
                 Browse
               </button>
               {children.map((child) => (
-                <button
-                  key={child.id}
-                  onClick={() => setActiveChildTab(child.id)}
-                  className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                    activeChildTab === child.id
-                      ? 'border-info-blue text-info-blue'
-                      : 'border-transparent text-gray-500 hover:text-gray-700'
-                  }`}
-                >
-                  {child.firstName}
-                </button>
+                <div key={child.id} className="relative flex items-center">
+                  <button
+                    onClick={() => setActiveChildTab(child.id)}
+                    className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                      activeChildTab === child.id
+                        ? 'border-info-blue text-info-blue'
+                        : 'border-transparent text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    {child.firstName}
+                  </button>
+                  {child.invitation?.status === 'pending' && (
+                    <div className="relative inline-block ml-2 mb-3">
+                      <span 
+                        className="block w-2.5 h-2.5 bg-yellow-400 rounded-full cursor-help transition-transform hover:scale-125"
+                        onMouseEnter={() => setHoveredTooltip(`pending-${child.id}`)}
+                        onMouseLeave={() => setHoveredTooltip(null)}
+                      ></span>
+                      {hoveredTooltip === `pending-${child.id}` && (
+                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 z-50">
+                          <div className="bg-gray-900 text-white text-xs rounded-md py-2 px-3 whitespace-nowrap">
+                            Invitation Pending - Waiting for your child to accept
+                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                              <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {child.invitation?.status === 'accepted' && (
+                    <div className="relative inline-block ml-2 mb-3">
+                      <span 
+                        className="block w-2.5 h-2.5 bg-verified-green rounded-full cursor-help transition-transform hover:scale-125"
+                        onMouseEnter={() => setHoveredTooltip(`accepted-${child.id}`)}
+                        onMouseLeave={() => setHoveredTooltip(null)}
+                      ></span>
+                      {hoveredTooltip === `accepted-${child.id}` && (
+                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 z-50">
+                          <div className="bg-gray-900 text-white text-xs rounded-md py-2 px-3 whitespace-nowrap">
+                            Connected - Your child has access to their matches
+                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                              <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  <button
+                    onClick={() => setChildDropdownOpen({ ...childDropdownOpen, [child.id]: !childDropdownOpen[child.id] })}
+                    className="ml-2 mb-3 p-1 hover:bg-gray-100 rounded transition-colors"
+                  >
+                    <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                    </svg>
+                  </button>
+                  
+                  {childDropdownOpen[child.id] && (
+                    <div 
+                      data-dropdown-id={child.id}
+                      className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                      <div className="py-1">
+                        <button
+                          onClick={() => {
+                            handleShareProfile(child);
+                            setChildDropdownOpen({ ...childDropdownOpen, [child.id]: false });
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m9.032 4.026a9.001 9.001 0 01-7.432 0m9.032-4.026A9.001 9.001 0 0112 3c-4.991 0-9.032 4.007-9.032 9.001m9.032-4.027a3 3 0 110 5.052" />
+                          </svg>
+                          <span>Share Profile</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEditingChild(child);
+                            setIsEditChildProfileModalOpen(true);
+                            setChildDropdownOpen({ ...childDropdownOpen, [child.id]: false });
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                          </svg>
+                          <span>Edit Profile</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               ))}
               <button
                 onClick={() => setIsAddChildProfileModalOpen(true)}
@@ -769,9 +1027,21 @@ const Dashboard: React.FC = () => {
                 <h1 className="text-3xl font-serif font-bold text-vault-blue mb-2">
                   Hi {children.find(c => c.id === activeChildTab)?.firstName || 'Alyssa'}!
                 </h1>
-                <p className="text-gray-600">
+                <p className="text-gray-600 mb-4">
                   Here's a brief overview of your personalized matches
                 </p>
+                <button
+                  onClick={() => {
+                    const currentChild = children.find(c => c.id === activeChildTab);
+                    if (currentChild) handleShareProfile(currentChild);
+                  }}
+                  className="flex items-center space-x-2 px-4 py-2 bg-white border-2 border-info-blue text-info-blue rounded-md hover:bg-blue-50 transition-all"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m9.032 4.026a9.001 9.001 0 01-7.432 0m9.032-4.026A9.001 9.001 0 0112 3c-4.991 0-9.032 4.007-9.032 9.001m9.032-4.027a3 3 0 110 5.052" />
+                  </svg>
+                  <span>Share Profile with {children.find(c => c.id === activeChildTab)?.firstName}</span>
+                </button>
               </div>
 
               {/* Stats - Centered */}
@@ -978,7 +1248,7 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
           </>
-        ) : (isParentChildFTUE && activeChildTab === 'browse') || isParentNonPersonalized ? (
+        ) : ((isParentChildFTUE || isParentNonPersonalized) && activeChildTab === 'browse') ? (
           /* Parent Browse Non-Personalized Scholarships State */
           <>
             {/* Parent Overview Section */}
@@ -1210,11 +1480,27 @@ const Dashboard: React.FC = () => {
             <div className="flex items-center mb-12">
               <div className="flex-1 max-w-md">
                 <h1 className="text-3xl font-serif font-bold text-vault-blue mb-2">
-                  Hi {profileData.firstName || 'Student'}! 🎓
+                  Hi {(isParentChildFTUE || isParentNonPersonalized) && activeChildTab !== 'browse' ? 
+                      children.find(c => c.id === activeChildTab)?.firstName || 'Student' : 
+                      profileData.firstName || 'Student'}! 🎓
                 </h1>
-                <p className="text-gray-600">
+                <p className="text-gray-600 mb-4">
                   Here's a brief overview of your personalized matches.
                 </p>
+                {(isParentChildFTUE || isParentNonPersonalized) && activeChildTab !== 'browse' && (
+                  <button
+                    onClick={() => {
+                      const currentChild = children.find(c => c.id === activeChildTab);
+                      if (currentChild) handleShareProfile(currentChild);
+                    }}
+                    className="flex items-center space-x-2 px-4 py-2 bg-white border-2 border-info-blue text-info-blue rounded-md hover:bg-blue-50 transition-all"
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m9.032 4.026a9.001 9.001 0 01-7.432 0m9.032-4.026A9.001 9.001 0 0112 3c-4.991 0-9.032 4.007-9.032 9.001m9.032-4.027a3 3 0 110 5.052" />
+                    </svg>
+                    <span>Share Profile with {children.find(c => c.id === activeChildTab)?.firstName}</span>
+                  </button>
+                )}
               </div>
 
               {/* Stats - Centered */}
@@ -1582,6 +1868,77 @@ const Dashboard: React.FC = () => {
       <ParentCongratulationsModal
         isOpen={isParentCongratulationsModalOpen}
         onContinue={handleParentCongratulationsContinue}
+      />
+      
+      <ShareChildProfileModal
+        isOpen={isShareModalOpen}
+        onClose={handleShareModalClose}
+        childName={sharingChild?.firstName || ''}
+        childId={sharingChild?.id || ''}
+        onShare={handleShareComplete}
+      />
+      
+      {/* Edit Child Profile Modals */}
+      <AddChildProfileModal
+        isOpen={isEditChildProfileModalOpen}
+        onClose={handleEditChildProfileClose}
+        onContinue={handleEditChildProfileContinue}
+        currentStep={1}
+        totalSteps={4}
+        mode="edit"
+        initialData={{
+          firstName: editingChild?.firstName,
+          birthday: editingChild?.profileData.birthday
+        }}
+        childName={editingChild?.firstName}
+      />
+      
+      <AddChildPersonalInfoModal
+        isOpen={isEditChildPersonalInfoModalOpen}
+        onClose={handleEditChildPersonalInfoClose}
+        onContinue={handleEditChildPersonalInfoContinue}
+        onPrevious={handleEditChildPersonalInfoPrevious}
+        currentStep={2}
+        totalSteps={4}
+        mode="edit"
+        initialData={{
+          gender: editingChild?.profileData.gender,
+          nationality: editingChild?.profileData.nationality,
+          cityState: editingChild?.profileData.cityState
+        }}
+        childName={editingChild?.firstName}
+      />
+      
+      <AddChildAcademicInfoModal
+        isOpen={isEditChildAcademicInfoModalOpen}
+        onClose={handleEditChildAcademicInfoClose}
+        onContinue={handleEditChildAcademicInfoContinue}
+        onPrevious={handleEditChildAcademicInfoPrevious}
+        currentStep={3}
+        totalSteps={4}
+        mode="edit"
+        initialData={{
+          gradeLevel: editingChild?.profileData.gradeLevel,
+          schoolType: editingChild?.profileData.schoolType,
+          gpa: editingChild?.profileData.gpa
+        }}
+        childName={editingChild?.firstName}
+      />
+      
+      <AddChildSchoolInfoModal
+        isOpen={isEditChildSchoolInfoModalOpen}
+        onClose={handleEditChildSchoolInfoClose}
+        onContinue={handleEditChildSchoolInfoSave}
+        onPrevious={handleEditChildSchoolInfoPrevious}
+        currentStep={4}
+        totalSteps={4}
+        mode="edit"
+        initialData={{
+          major: editingChild?.profileData.major,
+          degree: editingChild?.profileData.degree,
+          graduationYear: editingChild?.profileData.graduationYear
+        }}
+        childName={editingChild?.firstName}
       />
     </div>
   );

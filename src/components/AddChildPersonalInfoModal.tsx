@@ -9,6 +9,9 @@ interface AddChildPersonalInfoModalProps {
   onPrevious: () => void;
   currentStep?: number;
   totalSteps?: number;
+  mode?: 'add' | 'edit';
+  initialData?: { gender?: string; nationality?: string; cityState?: string };
+  childName?: string;
 }
 
 const AddChildPersonalInfoModal: React.FC<AddChildPersonalInfoModalProps> = ({ 
@@ -17,13 +20,30 @@ const AddChildPersonalInfoModal: React.FC<AddChildPersonalInfoModalProps> = ({
   onContinue,
   onPrevious,
   currentStep = 2,
-  totalSteps = 4
+  totalSteps = 4,
+  mode = 'add',
+  initialData,
+  childName
 }) => {
   const [gender, setGender] = useState('');
   const [nationality, setNationality] = useState('');
   const [cityState, setCityState] = useState('');
   const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+
+  // Prepopulate fields when in edit mode
+  useEffect(() => {
+    if (isOpen && mode === 'edit' && initialData) {
+      setGender(initialData.gender || '');
+      setNationality(initialData.nationality || '');
+      setCityState(initialData.cityState || '');
+    } else if (isOpen && mode === 'add') {
+      // Reset fields for add mode
+      setGender('');
+      setNationality('');
+      setCityState('');
+    }
+  }, [isOpen, mode, initialData]);
 
   const handleContinue = () => {
     onContinue({ gender, nationality, cityState });
@@ -95,7 +115,7 @@ const AddChildPersonalInfoModal: React.FC<AddChildPersonalInfoModalProps> = ({
           {/* Header */}
           <div className="text-center mb-8">
             <h2 className="text-3xl font-serif font-bold text-vault-blue mb-4">
-              Add Personal Info
+              {mode === 'edit' ? `Edit ${childName}'s Personal Info` : 'Add Personal Info'}
             </h2>
             <p className="text-sm text-gray-500">
               This information helps us find scholarships that match your child's background and location.

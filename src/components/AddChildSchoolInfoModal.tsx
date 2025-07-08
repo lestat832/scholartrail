@@ -8,6 +8,9 @@ interface AddChildSchoolInfoModalProps {
   onPrevious: () => void;
   currentStep?: number;
   totalSteps?: number;
+  mode?: 'add' | 'edit';
+  initialData?: { major?: string; degree?: string; graduationYear?: string };
+  childName?: string;
 }
 
 const AddChildSchoolInfoModal: React.FC<AddChildSchoolInfoModalProps> = ({ 
@@ -16,13 +19,30 @@ const AddChildSchoolInfoModal: React.FC<AddChildSchoolInfoModalProps> = ({
   onContinue,
   onPrevious,
   currentStep = 4,
-  totalSteps = 4
+  totalSteps = 4,
+  mode = 'add',
+  initialData,
+  childName
 }) => {
   const [major, setMajor] = useState('');
   const [degree, setDegree] = useState('');
   const [graduationYear, setGraduationYear] = useState('');
   const [majorSuggestions, setMajorSuggestions] = useState<string[]>([]);
   const [showMajorSuggestions, setShowMajorSuggestions] = useState(false);
+
+  // Prepopulate fields when in edit mode
+  useEffect(() => {
+    if (isOpen && mode === 'edit' && initialData) {
+      setMajor(initialData.major || '');
+      setDegree(initialData.degree || '');
+      setGraduationYear(initialData.graduationYear || '');
+    } else if (isOpen && mode === 'add') {
+      // Reset fields for add mode
+      setMajor('');
+      setDegree('');
+      setGraduationYear('');
+    }
+  }, [isOpen, mode, initialData]);
 
   const handleContinue = () => {
     onContinue({ major, degree, graduationYear });
@@ -96,7 +116,7 @@ const AddChildSchoolInfoModal: React.FC<AddChildSchoolInfoModalProps> = ({
           {/* Header */}
           <div className="text-center mb-8">
             <h2 className="text-3xl font-serif font-bold text-vault-blue mb-4">
-              Add School Info
+              {mode === 'edit' ? `Edit ${childName}'s School Info` : 'Add School Info'}
             </h2>
             <p className="text-sm text-gray-500">
               Tell us about your child's academic profile to find scholarships that match their educational level and achievements.
@@ -205,7 +225,7 @@ const AddChildSchoolInfoModal: React.FC<AddChildSchoolInfoModalProps> = ({
                 type="submit"
                 className="w-full py-3 px-6 bg-privacy-teal text-white rounded-md font-semibold hover:bg-opacity-90 transition-all"
               >
-                Continue
+                {mode === 'edit' ? 'Save' : 'Continue'}
               </button>
 
               {/* Previous Link */}

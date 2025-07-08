@@ -8,6 +8,9 @@ interface AddChildAcademicInfoModalProps {
   onPrevious: () => void;
   currentStep?: number;
   totalSteps?: number;
+  mode?: 'add' | 'edit';
+  initialData?: { gradeLevel?: string; schoolType?: string; gpa?: string };
+  childName?: string;
 }
 
 const AddChildAcademicInfoModal: React.FC<AddChildAcademicInfoModalProps> = ({ 
@@ -16,12 +19,29 @@ const AddChildAcademicInfoModal: React.FC<AddChildAcademicInfoModalProps> = ({
   onContinue,
   onPrevious,
   currentStep = 3,
-  totalSteps = 4
+  totalSteps = 4,
+  mode = 'add',
+  initialData,
+  childName
 }) => {
   const [gradeLevel, setGradeLevel] = useState('');
   const [schoolType, setSchoolType] = useState('');
   const [gpa, setGpa] = useState('');
   const gpaValues = generateGPAValues();
+
+  // Prepopulate fields when in edit mode
+  useEffect(() => {
+    if (isOpen && mode === 'edit' && initialData) {
+      setGradeLevel(initialData.gradeLevel || '');
+      setSchoolType(initialData.schoolType || '');
+      setGpa(initialData.gpa || '');
+    } else if (isOpen && mode === 'add') {
+      // Reset fields for add mode
+      setGradeLevel('');
+      setSchoolType('');
+      setGpa('');
+    }
+  }, [isOpen, mode, initialData]);
 
   const handleContinue = () => {
     onContinue({ gradeLevel, schoolType, gpa });
@@ -68,7 +88,7 @@ const AddChildAcademicInfoModal: React.FC<AddChildAcademicInfoModalProps> = ({
           {/* Header */}
           <div className="text-center mb-8">
             <h2 className="text-3xl font-serif font-bold text-vault-blue mb-4">
-              Add Academic Info
+              {mode === 'edit' ? `Edit ${childName}'s Academic Info` : 'Add Academic Info'}
             </h2>
             <p className="text-sm text-gray-500">
               Tell us about your child's academic profile to find scholarships that match your educational level and achievements.
