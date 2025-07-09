@@ -32,24 +32,6 @@ const ShareChildProfileModal: React.FC<ShareChildProfileModalProps> = ({
     }
   }, [isOpen]);
 
-  const getEmailTemplate = () => {
-    const subject = `Join me on ScholarTrail - Scholarship Opportunities for ${childName}`;
-    const body = `Hi ${childName},
-
-I've created a profile for you on ScholarTrail to help you find scholarship opportunities!
-
-ScholarTrail is a privacy-first platform that matches students with scholarships without selling your data.
-
-Visit ScholarTrail.com to create your account and connect with me. You'll have full control over your profile and can choose what information to share.
-
-Let's work together to find great scholarship opportunities!
-
-Best,
-Your Parent`;
-
-    return { subject, body };
-  };
-
   const handleEmailShare = () => {
     // Navigate to email preview page with parameters
     const params = new URLSearchParams({

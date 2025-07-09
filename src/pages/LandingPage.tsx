@@ -45,7 +45,7 @@ const LandingPage: React.FC = () => {
   const [childProfileData, setChildProfileData] = useState({ firstName: '', birthday: '' });
   const [isFromInvitation, setIsFromInvitation] = useState(false);
   const [invitationData, setInvitationData] = useState<{ parentId: string; childId: string } | null>(null);
-  const [showConnectModal, setShowConnectModal] = useState(false);
+  const [_showConnectModal, _setShowConnectModal] = useState(false);
 
   // Check for invitation parameters on mount
   useEffect(() => {
