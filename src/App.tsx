@@ -8,6 +8,7 @@ import ContactUs from './pages/ContactUs';
 import LogoShowcase from './pages/LogoShowcase';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfUse from './pages/TermsOfUse';
+import EmailPreview from './pages/EmailPreview';
 
 function App() {
   // Use basename only in production (GitHub Pages)
@@ -25,6 +26,8 @@ function App() {
         <Route path="/logo" element={<LogoShowcase />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/scholarship/:scholarshipSlug" element={<ScholarshipPage />} />
+        <Route path="/join/:parentId/:childId" element={<LandingPage />} />
+        <Route path="/email-preview" element={<EmailPreview />} />
       </Routes>
     </Router>
   );

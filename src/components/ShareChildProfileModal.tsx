@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface ShareChildProfileModalProps {
   isOpen: boolean;
@@ -6,6 +7,8 @@ interface ShareChildProfileModalProps {
   childName: string;
   childId: string;
   onShare: (method: 'email' | 'copy') => void;
+  parentId?: string;
+  parentName?: string;
 }
 
 const ShareChildProfileModal: React.FC<ShareChildProfileModalProps> = ({ 
@@ -13,8 +16,11 @@ const ShareChildProfileModal: React.FC<ShareChildProfileModalProps> = ({
   onClose,
   childName,
   childId,
-  onShare
+  onShare,
+  parentId = '1',
+  parentName = 'Parent'
 }) => {
+  const navigate = useNavigate();
   const [copiedToClipboard, setCopiedToClipboard] = useState(false);
   const [shareMethod, setShareMethod] = useState<'email' | 'copy' | null>(null);
 
@@ -45,9 +51,14 @@ Your Parent`;
   };
 
   const handleEmailShare = () => {
-    const { subject, body } = getEmailTemplate();
-    const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailtoLink;
+    // Navigate to email preview page with parameters
+    const params = new URLSearchParams({
+      parentId,
+      childId,
+      childName,
+      parentName
+    });
+    navigate(`/email-preview?${params.toString()}`);
     setShareMethod('email');
     onShare('email');
   };

@@ -7,17 +7,21 @@ interface SignUpOptionsModalProps {
   userType: 'student' | 'parent' | 'educator';
   onEmailContinue: () => void;
   onLogin?: () => void;
+  isFromInvitation?: boolean;
+  parentName?: string;
 }
 
-const SignUpOptionsModal: React.FC<SignUpOptionsModalProps> = ({ isOpen, onClose, userType, onEmailContinue, onLogin }) => {
+const SignUpOptionsModal: React.FC<SignUpOptionsModalProps> = ({ isOpen, onClose, userType, onEmailContinue, onLogin, isFromInvitation = false, parentName = 'Your Parent' }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [hasConsented, setHasConsented] = useState(false);
+  
+  console.log('SignUpOptionsModal props:', { isOpen, userType, isFromInvitation, parentName });
 
   const handleContinue = () => {
     if (email && password && hasConsented) {
       // In a real app, this would handle email signup
-      console.log('Email signup:', { email, password, userType });
+      console.log('Email signup:', { email, password, userType, isFromInvitation });
       onEmailContinue();
     }
   };
@@ -67,6 +71,18 @@ const SignUpOptionsModal: React.FC<SignUpOptionsModalProps> = ({ isOpen, onClose
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
+
+          {/* Connection Banner */}
+          {isFromInvitation && (
+            <div className="bg-info-blue bg-opacity-10 border-2 border-info-blue rounded-lg p-4 mb-6 text-center">
+              <p className="text-info-blue font-semibold">
+                Connecting with {parentName}
+              </p>
+              <p className="text-sm text-gray-600 mt-1">
+                Create your account to connect and start finding scholarships together
+              </p>
+            </div>
+          )}
 
           {/* Header */}
           <div className="text-center mb-8">

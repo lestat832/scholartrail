@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import Header from '../components/Header';
 import Hero from '../components/Hero';
 import PersonaTabs from '../components/PersonaTabs';
@@ -21,6 +21,11 @@ import ParentCongratulationsModal from '../components/ParentCongratulationsModal
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
+  const { parentId, childId } = useParams<{ parentId: string; childId: string }>();
+  
+  console.log('LandingPage - Route params:', { parentId, childId });
+  console.log('LandingPage - Current URL:', window.location.href);
+  
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
   const [isSignUpOptionsModalOpen, setIsSignUpOptionsModalOpen] = useState(false);
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
@@ -38,6 +43,43 @@ const LandingPage: React.FC = () => {
   const [selectedUserType, setSelectedUserType] = useState<'student' | 'parent' | 'educator'>('student');
   const [profileData, setProfileData] = useState({ firstName: '', birthday: '' });
   const [childProfileData, setChildProfileData] = useState({ firstName: '', birthday: '' });
+  const [isFromInvitation, setIsFromInvitation] = useState(false);
+  const [invitationData, setInvitationData] = useState<{ parentId: string; childId: string } | null>(null);
+  const [showConnectModal, setShowConnectModal] = useState(false);
+
+  // Check for invitation parameters on mount
+  useEffect(() => {
+    console.log('Checking invitation params - parentId:', parentId, 'childId:', childId);
+    if (parentId && childId) {
+      console.log('Invitation detected! Setting up invitation flow...');
+      setIsFromInvitation(true);
+      setInvitationData({ parentId, childId });
+      // Store invitation data in sessionStorage to persist through sign-up flow
+      sessionStorage.setItem('invitationData', JSON.stringify({ parentId, childId }));
+      // Auto-open sign-up options modal for student
+      setSelectedUserType('student');
+      setIsSignUpOptionsModalOpen(true);
+    }
+  }, [parentId, childId]);
+  
+  // Also check sessionStorage on mount in case of page refresh
+  useEffect(() => {
+    const storedInvitation = sessionStorage.getItem('invitationData');
+    if (storedInvitation && !invitationData) {
+      console.log('Found stored invitation data:', storedInvitation);
+      const parsed = JSON.parse(storedInvitation);
+      setIsFromInvitation(true);
+      setInvitationData(parsed);
+      setSelectedUserType('student');
+    }
+  }, []);
+
+  const handleConnectWithParent = () => {
+    // For now, just open the sign-up modal as a student
+    // In a full implementation, we'd have a modal to enter parent email/code
+    setSelectedUserType('student');
+    setIsSignUpModalOpen(true);
+  };
 
   const handleUserTypeSelected = (userType: 'student' | 'parent' | 'educator') => {
     setSelectedUserType(userType);
@@ -45,8 +87,112 @@ const LandingPage: React.FC = () => {
     setIsSignUpOptionsModalOpen(true);
   };
 
+  // Helper function to retrieve child data by ID
+  const getChildDataById = (childId: string) => {
+    // In a real app, this would be an API call
+    // For demo, we'll check localStorage (though in reality, this would be on different devices)
+    console.log('Looking for child with ID:', childId);
+    const childrenProfiles = localStorage.getItem('childrenProfiles');
+    console.log('Children profiles from localStorage:', childrenProfiles);
+    
+    if (childrenProfiles) {
+      const children = JSON.parse(childrenProfiles);
+      console.log('Parsed children:', children);
+      const child = children.find((c: any) => c.id === childId);
+      console.log('Found child:', child);
+      
+      if (child && child.profileData) {
+        console.log('Returning child profileData:', child.profileData);
+        return child.profileData;
+      } else if (child) {
+        // If child exists but profileData is missing, use the child's firstName
+        console.log('Child found but no profileData, using firstName:', child.firstName);
+        return {
+          firstName: child.firstName,
+          birthday: child.birthday || '2006-01-01',
+          gender: '',
+          nationality: '',
+          cityState: '',
+          gradeLevel: '',
+          schoolType: '',
+          gpa: '',
+          major: '',
+          degree: '',
+          graduationYear: ''
+        };
+      }
+    }
+    
+    // For demo purposes, if specific childId is '1', return Kona's data
+    if (childId === '1') {
+      console.log('Using demo data for Kona');
+      return {
+        firstName: 'Kona',
+        birthday: '2006-01-01',
+        gender: '',
+        nationality: '',
+        cityState: '',
+        gradeLevel: '',
+        schoolType: '',
+        gpa: '',
+        major: '',
+        degree: '',
+        graduationYear: ''
+      };
+    }
+    
+    console.log('Child not found, returning fallback data');
+    // Fallback data if child not found (e.g., different browser/device)
+    return {
+      firstName: 'Student',
+      birthday: '2006-01-01',
+      gender: '',
+      nationality: '',
+      cityState: '',
+      gradeLevel: '',
+      schoolType: '',
+      gpa: '',
+      major: '',
+      degree: '',
+      graduationYear: ''
+    };
+  };
+
   const handleEmailContinue = () => {
     setIsSignUpOptionsModalOpen(false);
+    
+    console.log('handleEmailContinue called - checking invitation status');
+    console.log('isFromInvitation:', isFromInvitation);
+    console.log('selectedUserType:', selectedUserType);
+    console.log('invitationData:', invitationData);
+    
+    // Also check sessionStorage in case state was lost
+    const storedInvitation = sessionStorage.getItem('invitationData');
+    console.log('Stored invitation in sessionStorage:', storedInvitation);
+    
+    const effectiveInvitationData = invitationData || (storedInvitation ? JSON.parse(storedInvitation) : null);
+    
+    // If coming from invitation as a student, skip profile creation
+    if ((isFromInvitation || effectiveInvitationData) && selectedUserType === 'student' && effectiveInvitationData) {
+      console.log('Processing invitation for student with data:', effectiveInvitationData);
+      // Fetch the actual child data using the childId from the invitation
+      const childData = getChildDataById(effectiveInvitationData.childId);
+      
+      console.log('Child data to use for dashboard:', childData);
+      
+      // Navigate directly to dashboard with pre-filled data
+      navigate('/dashboard', { 
+        state: { 
+          firstName: childData.firstName,
+          birthday: childData.birthday,
+          profileData: childData,
+          parentConnection: effectiveInvitationData,
+          isFromInvitation: true,
+          skipProfileCreation: true
+        } 
+      });
+      return;
+    }
     
     // Show different modal based on user type
     if (selectedUserType === 'parent') {
@@ -121,13 +267,41 @@ const LandingPage: React.FC = () => {
 
   const handleCongratulationsContinue = () => {
     setIsCongratulationsModalOpen(false);
-    navigate('/dashboard', { state: { firstName: profileData.firstName, birthday: profileData.birthday } });
+    // Include invitation data if coming from an invitation
+    const dashboardState: any = { 
+      firstName: profileData.firstName, 
+      birthday: profileData.birthday 
+    };
+    
+    if (isFromInvitation && invitationData) {
+      dashboardState.parentConnection = invitationData;
+      dashboardState.isFromInvitation = true;
+    }
+    
+    navigate('/dashboard', { state: dashboardState });
   };
 
   const handleSignIn = () => {
     // Close sign in modal and navigate to dashboard
     setIsSignInModalOpen(false);
-    navigate('/dashboard', { state: { firstName: 'User' } });
+    
+    // Include invitation data if coming from an invitation
+    let dashboardState: any = { firstName: 'User' };
+    
+    if (isFromInvitation && invitationData) {
+      // If signing in from invitation, fetch the child's data
+      const childData = getChildDataById(invitationData.childId);
+      dashboardState = {
+        firstName: childData.firstName,
+        birthday: childData.birthday,
+        profileData: childData,
+        parentConnection: invitationData,
+        isFromInvitation: true,
+        skipProfileCreation: true
+      };
+    }
+    
+    navigate('/dashboard', { state: dashboardState });
   };
 
   const handleSwitchToSignUp = () => {
@@ -239,7 +413,10 @@ const LandingPage: React.FC = () => {
         onLoginClick={() => setIsSignInModalOpen(true)}
       />
       <main>
-        <Hero onLoginClick={() => setIsSignInModalOpen(true)} />
+        <Hero 
+          onLoginClick={() => setIsSignInModalOpen(true)} 
+          onConnectWithParent={handleConnectWithParent}
+        />
         <PersonaTabs onLoginClick={() => setIsSignInModalOpen(true)} />
       </main>
       <Footer />
@@ -256,6 +433,8 @@ const LandingPage: React.FC = () => {
         userType={selectedUserType}
         onEmailContinue={handleEmailContinue}
         onLogin={handleSwitchToSignIn}
+        isFromInvitation={isFromInvitation}
+        parentName="Your Parent" // In a real app, we'd fetch the parent's name
       />
 
       <AddProfileModal

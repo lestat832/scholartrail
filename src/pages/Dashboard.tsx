@@ -22,6 +22,8 @@ import AddChildAcademicInfoModal from '../components/AddChildAcademicInfoModal';
 import AddChildSchoolInfoModal from '../components/AddChildSchoolInfoModal';
 import ParentCongratulationsModal from '../components/ParentCongratulationsModal';
 import ShareChildProfileModal from '../components/ShareChildProfileModal';
+import PrivacyControlsModal, { PrivacySettings } from '../components/PrivacyControlsModal';
+import PrivacyAwareField from '../components/PrivacyAwareField';
 
 interface LocationState {
   firstName?: string;
@@ -31,6 +33,31 @@ interface LocationState {
   showParentNonPersonalized?: boolean;
   isParentChildFTUE?: boolean;
   childFirstName?: string;
+  parentConnection?: {
+    parentId: string;
+    childId: string;
+    parentName?: string;
+  };
+  isFromInvitation?: boolean;
+  skipProfileCreation?: boolean;
+  profileData?: {
+    firstName: string;
+    birthday: string;
+    gender?: string;
+    nationality?: string;
+    cityState?: string;
+    gradeLevel?: string;
+    schoolType?: string;
+    gpa?: string;
+    major?: string;
+    degree?: string;
+    graduationYear?: string;
+  };
+  demoMode?: boolean;
+  fromStudent?: boolean;
+  fromParent?: boolean;
+  studentName?: string;
+  children?: Child[];
 }
 
 interface Scholarship {
@@ -74,6 +101,8 @@ const Dashboard: React.FC = () => {
   const showEmptyState = state?.showEmptyState || false;
   const isParentNonPersonalized = state?.showParentNonPersonalized || false;
   const isParentChildFTUE = state?.isParentChildFTUE || false;
+  const parentConnection = state?.parentConnection;
+  const isFromInvitation = state?.isFromInvitation || false;
   // Initialize children array - check localStorage first, then use state
   const [children, setChildren] = useState<Child[]>(() => {
     const savedChildren = localStorage.getItem('childrenProfiles');
@@ -174,6 +203,60 @@ const Dashboard: React.FC = () => {
   // Tooltip hover state
   const [hoveredTooltip, setHoveredTooltip] = useState<string | null>(null);
   
+  // Parent connection state (for students)
+  const [connectedParent, setConnectedParent] = useState<{ parentId: string; parentName: string } | null>(null);
+  
+  // Privacy settings state
+  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
+  const [privacySettings, setPrivacySettings] = useState<PrivacySettings>(() => {
+    // Load from localStorage or default to all shared
+    const saved = localStorage.getItem('privacySettings');
+    if (saved) {
+      return JSON.parse(saved);
+    }
+    return {
+      gender: true,
+      nationality: true,
+      cityState: true,
+      gradeLevel: true,
+      schoolType: true,
+      gpa: true,
+      major: true,
+      degree: true,
+      graduationYear: true,
+      scholarships: true
+    };
+  });
+  
+  // Handle parent connection from invitation
+  useEffect(() => {
+    if (isFromInvitation && parentConnection) {
+      // In a real app, we'd make an API call to establish the connection
+      // For now, we'll just store it locally
+      const connection = {
+        parentId: parentConnection.parentId,
+        parentName: 'Your Parent' // In real app, fetch parent's name
+      };
+      setConnectedParent(connection);
+      localStorage.setItem('parentConnection', JSON.stringify(connection));
+      
+      // Clear invitation data from session storage
+      sessionStorage.removeItem('invitationData');
+    } else if (state?.demoMode && parentConnection) {
+      // Handle demo mode connection
+      setConnectedParent({
+        parentId: parentConnection.parentId,
+        parentName: parentConnection.parentName || 'Demo Parent'
+      });
+    } else {
+      // Check if there's an existing parent connection
+      const savedConnection = localStorage.getItem('parentConnection');
+      if (savedConnection) {
+        setConnectedParent(JSON.parse(savedConnection));
+      }
+    }
+  }, [isFromInvitation, parentConnection, state?.demoMode]);
+
   // Load saved and applied scholarships from localStorage on mount
   useEffect(() => {
     // Load saved scholarships
@@ -205,13 +288,25 @@ const Dashboard: React.FC = () => {
   
   // Form data states
   const [profileData, setProfileData] = useState(() => {
+    console.log('Dashboard state received:', state);
+    
+    // If coming from invitation with pre-filled data, use that
+    if (state?.skipProfileCreation && state?.profileData) {
+      console.log('Using pre-filled profile data from invitation:', state.profileData);
+      // Save the pre-filled profile data to localStorage
+      localStorage.setItem('userProfile', JSON.stringify(state.profileData));
+      return state.profileData;
+    }
+    
     // Try to load from localStorage first
     const storedProfile = localStorage.getItem('userProfile');
     if (storedProfile) {
+      console.log('Using stored profile from localStorage:', JSON.parse(storedProfile));
       return JSON.parse(storedProfile);
     }
+    
     // Otherwise use state from navigation
-    return {
+    const defaultProfile = {
       firstName: state?.firstName || '', 
       birthday: state?.birthday || '',
       gender: '',
@@ -224,6 +319,8 @@ const Dashboard: React.FC = () => {
       degree: '',
       graduationYear: ''
     };
+    console.log('Using default profile:', defaultProfile);
+    return defaultProfile;
   });
   
   // Save scholarship handler
@@ -784,9 +881,97 @@ const Dashboard: React.FC = () => {
         break;
     }
   };
+  
+  // Privacy settings handlers
+  const handlePrivacySettingsSave = (settings: PrivacySettings) => {
+    setPrivacySettings(settings);
+    localStorage.setItem('privacySettings', JSON.stringify(settings));
+  };
+  
+  // Simulate getting child's privacy settings (for parent view)
+  const getChildPrivacySettings = (childId: string): PrivacySettings => {
+    // In a real app, this would be an API call to get the child's privacy settings
+    // For demo, we'll use a predefined set or try to load from localStorage
+    
+    // Demo: If viewing child with ID '1', use some preset privacy settings
+    if (childId === '1') {
+      return {
+        gender: false, // Hidden
+        nationality: true,
+        cityState: false, // Hidden
+        gradeLevel: true,
+        schoolType: true,
+        gpa: false, // Hidden
+        major: true,
+        degree: true,
+        graduationYear: true,
+        scholarships: true
+      };
+    }
+    
+    // Default: all visible
+    return {
+      gender: true,
+      nationality: true,
+      cityState: true,
+      gradeLevel: true,
+      schoolType: true,
+      gpa: true,
+      major: true,
+      degree: true,
+      graduationYear: true,
+      scholarships: true
+    };
+  };
 
   // Generate scholarship data
   const allScholarships = generateScholarships();
+  
+  // Filter scholarships based on privacy settings
+  const filterScholarshipsByPrivacy = (scholarships: Scholarship[], childPrivacy: PrivacySettings): { 
+    visible: Scholarship[], 
+    hiddenCount: number 
+  } => {
+    const visible: Scholarship[] = [];
+    let hiddenCount = 0;
+    
+    scholarships.forEach(scholarship => {
+      let shouldHide = false;
+      
+      // Check if scholarship depends on hidden fields
+      const name = scholarship.name.toLowerCase();
+      const desc = scholarship.description.toLowerCase();
+      
+      if (!childPrivacy.gender && (name.includes('women') || desc.includes('women') || desc.includes('female'))) {
+        shouldHide = true;
+      }
+      if (!childPrivacy.nationality && (name.includes('international') || desc.includes('international'))) {
+        shouldHide = true;
+      }
+      if (!childPrivacy.major && (name.includes('stem') || name.includes('technology') || name.includes('engineering'))) {
+        shouldHide = true;
+      }
+      if (!childPrivacy.gradeLevel && (desc.includes('undergraduate') || desc.includes('graduate'))) {
+        shouldHide = true;
+      }
+      if (!childPrivacy.cityState && (name.includes('rural') || desc.includes('rural') || desc.includes('community'))) {
+        shouldHide = true;
+      }
+      
+      if (!childPrivacy.scholarships) {
+        // If scholarships are completely hidden, hide all
+        shouldHide = true;
+      }
+      
+      if (shouldHide) {
+        hiddenCount++;
+      } else {
+        visible.push(scholarship);
+      }
+    });
+    
+    return { visible, hiddenCount };
+  };
 
   const stats = {
     numberOfMatches: isPaidMember ? allScholarships.length : 47,
@@ -828,6 +1013,18 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-protected-bg">
+      {/* Demo Mode Banner */}
+      {state?.demoMode && (
+        <div className="bg-trust-pink text-white py-2 px-4 text-center text-sm">
+          <div className="flex items-center justify-center space-x-2">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span className="font-medium">Demo Mode:</span>
+            <span>You're viewing the {(isParentChildFTUE || isParentNonPersonalized) ? 'parent' : 'student'} perspective</span>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1042,23 +1239,154 @@ const Dashboard: React.FC = () => {
                   </svg>
                   <span>Share Profile with {children.find(c => c.id === activeChildTab)?.firstName}</span>
                 </button>
+                {/* Demo Mode: View as Student */}
+                {state?.demoMode && (
+                  <button
+                    onClick={() => {
+                      const currentChild = children.find(c => c.id === activeChildTab);
+                      if (currentChild) {
+                        // Navigate to student dashboard with the child's data
+                        navigate('/dashboard', {
+                          state: {
+                            userType: 'student',
+                            firstName: currentChild.firstName,
+                            profileData: currentChild.profileData,
+                            parentConnection: {
+                              parentId: 'demo-parent',
+                              childId: currentChild.id,
+                              parentName: 'Demo Parent'
+                            },
+                            demoMode: true,
+                            fromParent: true
+                          }
+                        });
+                      }
+                    }}
+                    className="flex items-center space-x-2 px-4 py-2 bg-white border-2 border-trust-pink text-trust-pink rounded-md hover:bg-pink-50 transition-all mt-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <span>View as {children.find(c => c.id === activeChildTab)?.firstName}</span>
+                  </button>
+                )}
               </div>
 
               {/* Stats - Centered */}
               <div className="flex-1 flex justify-center space-x-8">
-                <div className="bg-white rounded-full w-40 h-40 flex flex-col items-center justify-center shadow-md">
-                  <div className="text-3xl font-bold text-vault-blue">{stats.numberOfMatches}</div>
-                  <div className="text-sm text-gray-600 text-center mt-2">Number<br />of<br />Matches</div>
-                </div>
-                <div className="bg-white rounded-full w-40 h-40 flex flex-col items-center justify-center shadow-md">
-                  <div className="text-3xl font-bold text-vault-blue">{stats.amountInMatches}</div>
-                  <div className="text-sm text-gray-600 text-center mt-2">Amount<br />in<br />Matches</div>
-                </div>
+                {(() => {
+                  const currentChild = children.find(c => c.id === activeChildTab);
+                  const childPrivacy = currentChild ? getChildPrivacySettings(currentChild.id) : null;
+                  
+                  let visibleCount = stats.numberOfMatches;
+                  if (childPrivacy) {
+                    const filtered = filterScholarshipsByPrivacy(allScholarships, childPrivacy);
+                    visibleCount = isPaidMember ? filtered.visible.length : Math.min(filtered.visible.length, 47);
+                  }
+                  
+                  return (
+                    <>
+                      <div className="bg-white rounded-full w-40 h-40 flex flex-col items-center justify-center shadow-md">
+                        <div className="text-3xl font-bold text-vault-blue">{visibleCount}</div>
+                        <div className="text-sm text-gray-600 text-center mt-2">Number<br />of<br />Matches</div>
+                      </div>
+                      <div className="bg-white rounded-full w-40 h-40 flex flex-col items-center justify-center shadow-md">
+                        <div className="text-3xl font-bold text-vault-blue">{stats.amountInMatches}</div>
+                        <div className="text-sm text-gray-600 text-center mt-2">Amount<br />in<br />Matches</div>
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
 
               {/* Spacer for filter alignment */}
               <div className="w-48"></div>
             </div>
+
+            {/* Privacy Notice Banner */}
+            {(() => {
+              const currentChild = children.find(c => c.id === activeChildTab);
+              const childPrivacy = currentChild ? getChildPrivacySettings(currentChild.id) : null;
+              const hasHiddenFields = childPrivacy && Object.values(childPrivacy).some(v => !v);
+              
+              if (hasHiddenFields) {
+                return (
+                  <div className="mb-6 bg-gray-50 border border-gray-200 rounded-lg p-4 flex items-start space-x-3">
+                    <svg className="w-5 h-5 text-gray-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-700">
+                        <span className="font-medium">{currentChild?.firstName}</span> has chosen to keep some information private. 
+                        Fields marked as "Private" are not visible to you.
+                      </p>
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })()}
+
+            {/* Child Profile Summary with Privacy */}
+            {(() => {
+              const currentChild = children.find(c => c.id === activeChildTab);
+              const childPrivacy = currentChild ? getChildPrivacySettings(currentChild.id) : null;
+              
+              if (currentChild && childPrivacy) {
+                return (
+                  <div className="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold text-vault-blue">Profile Information</h3>
+                      <button
+                        onClick={() => {
+                          setEditingChild(currentChild);
+                          setIsEditChildProfileModalOpen(true);
+                        }}
+                        className="text-sm text-info-blue hover:underline flex items-center space-x-1"
+                      >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        <span>Edit Profile</span>
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <PrivacyAwareField 
+                        label="Grade Level" 
+                        value={currentChild.profileData.gradeLevel} 
+                        isVisible={childPrivacy.gradeLevel} 
+                      />
+                      <PrivacyAwareField 
+                        label="School Type" 
+                        value={currentChild.profileData.schoolType} 
+                        isVisible={childPrivacy.schoolType} 
+                      />
+                      <PrivacyAwareField 
+                        label="GPA" 
+                        value={currentChild.profileData.gpa} 
+                        isVisible={childPrivacy.gpa} 
+                      />
+                      <PrivacyAwareField 
+                        label="Gender" 
+                        value={currentChild.profileData.gender} 
+                        isVisible={childPrivacy.gender} 
+                      />
+                      <PrivacyAwareField 
+                        label="City, State" 
+                        value={currentChild.profileData.cityState} 
+                        isVisible={childPrivacy.cityState} 
+                      />
+                      <PrivacyAwareField 
+                        label="Major" 
+                        value={currentChild.profileData.major} 
+                        isVisible={childPrivacy.major} 
+                      />
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })()}
 
             {/* Feed Section */}
             <div className="relative">
@@ -1125,9 +1453,35 @@ const Dashboard: React.FC = () => {
                 </div>
               </div>
 
-              {/* Scholarship List */}
+              {/* Scholarship List with Privacy Filtering */}
               <div>
-                {displayedScholarships.slice(0, isPaidMember ? displayedScholarships.length : 3).map((scholarship, index) => (
+                {(() => {
+                  // Apply privacy filtering for parent view
+                  const currentChild = children.find(c => c.id === activeChildTab);
+                  const childPrivacy = currentChild ? getChildPrivacySettings(currentChild.id) : null;
+                  
+                  let scholarshipsToShow = displayedScholarships;
+                  let hiddenCount = 0;
+                  
+                  if (childPrivacy) {
+                    const filtered = filterScholarshipsByPrivacy(displayedScholarships, childPrivacy);
+                    scholarshipsToShow = filtered.visible;
+                    hiddenCount = filtered.hiddenCount;
+                  }
+                  
+                  return (
+                    <>
+                      {hiddenCount > 0 && (
+                        <div className="mb-4 bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center space-x-2">
+                          <svg className="w-5 h-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <p className="text-sm text-yellow-800">
+                            {hiddenCount} scholarship{hiddenCount !== 1 ? 's' : ''} hidden due to privacy settings
+                          </p>
+                        </div>
+                      )}
+                      {scholarshipsToShow.slice(0, isPaidMember ? scholarshipsToShow.length : 3).map((scholarship, index) => (
                   <div key={scholarship.id}>
                     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
                       <div className="flex items-start">
@@ -1245,6 +1599,9 @@ const Dashboard: React.FC = () => {
                     )}
                   </div>
                 ))}
+                    </>
+                  );
+                })()}
               </div>
             </div>
           </>
@@ -1487,6 +1844,63 @@ const Dashboard: React.FC = () => {
                 <p className="text-gray-600 mb-4">
                   Here's a brief overview of your personalized matches.
                 </p>
+                {/* Parent Connection Status for Students */}
+                {connectedParent && !(isParentChildFTUE || isParentNonPersonalized) && (
+                  <div className="bg-info-blue bg-opacity-10 border border-info-blue rounded-lg p-3 mb-4 flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <svg className="w-5 h-5 text-info-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                      </svg>
+                      <div>
+                        <p className="text-sm font-semibold text-info-blue">Connected with {connectedParent.parentName}</p>
+                        <p className="text-xs text-gray-600">They can see your scholarship progress</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <button 
+                        onClick={() => setIsPrivacyModalOpen(true)}
+                        className="text-xs text-info-blue hover:underline"
+                      >
+                        Manage Privacy
+                      </button>
+                      <span className="text-gray-300">|</span>
+                      <button 
+                        onClick={() => {
+                          // Navigate to parent dashboard with demo data
+                          navigate('/dashboard', { 
+                            state: { 
+                              userType: 'parent',
+                              isParentChildFTUE: true,
+                              demoMode: true,
+                              fromStudent: true,
+                              studentName: profileData.firstName || 'Student',
+                              // Create a demo parent with the current student as their child
+                              children: [{
+                                id: '1',
+                                firstName: profileData.firstName || 'Student',
+                                profileData: profileData,
+                                invitation: {
+                                  status: 'accepted' as const,
+                                  code: '',
+                                  sentAt: new Date().toISOString(),
+                                  expiresAt: new Date().toISOString(),
+                                  acceptedAt: new Date().toISOString()
+                                }
+                              }]
+                            } 
+                          });
+                        }}
+                        className="text-xs text-trust-pink hover:underline flex items-center space-x-1"
+                      >
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        <span>View Parent's Perspective</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
                 {(isParentChildFTUE || isParentNonPersonalized) && activeChildTab !== 'browse' && (
                   <button
                     onClick={() => {
@@ -1876,6 +2290,8 @@ const Dashboard: React.FC = () => {
         childName={sharingChild?.firstName || ''}
         childId={sharingChild?.id || ''}
         onShare={handleShareComplete}
+        parentId="1"
+        parentName={profileData.firstName || 'Parent'}
       />
       
       {/* Edit Child Profile Modals */}
@@ -1939,6 +2355,13 @@ const Dashboard: React.FC = () => {
           graduationYear: editingChild?.profileData.graduationYear
         }}
         childName={editingChild?.firstName}
+      />
+      
+      <PrivacyControlsModal
+        isOpen={isPrivacyModalOpen}
+        onClose={() => setIsPrivacyModalOpen(false)}
+        privacySettings={privacySettings}
+        onSave={handlePrivacySettingsSave}
       />
     </div>
   );

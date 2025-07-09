@@ -5,6 +5,11 @@ All notable changes to ScholarTrail will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2025-07-09]
+
+### Changed
+- Add demo navigation: View Parent's Perspective and View as Student buttons for easy switching between connected accounts, plus demo mode banner
+
 ## [2025-07-08]
 
 ### Changed
