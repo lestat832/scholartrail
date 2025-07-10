@@ -23,7 +23,6 @@ import AddChildSchoolInfoModal from '../components/AddChildSchoolInfoModal';
 import ParentCongratulationsModal from '../components/ParentCongratulationsModal';
 import ShareChildProfileModal from '../components/ShareChildProfileModal';
 import PrivacyControlsModal, { PrivacySettings } from '../components/PrivacyControlsModal';
-import PrivacyAwareField from '../components/PrivacyAwareField';
 
 interface LocationState {
   firstName?: string;

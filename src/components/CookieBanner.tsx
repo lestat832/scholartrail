@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { shouldShowBanner, setCookieConsent } from '../utils/cookieConsent';
+import { setCookieConsent } from '../utils/cookieConsent';
 
 const CookieBanner: React.FC = () => {
   const [showBanner, setShowBanner] = useState(false);
