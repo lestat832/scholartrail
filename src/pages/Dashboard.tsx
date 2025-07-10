@@ -889,12 +889,33 @@ const Dashboard: React.FC = () => {
   };
   
   // Simulate getting child's privacy settings (for parent view)
-  const getChildPrivacySettings = (childId: string): PrivacySettings => {
-    // In a real app, this would be an API call to get the child's privacy settings
-    // For demo, we'll use a predefined set or try to load from localStorage
+  const getChildPrivacySettings = (childId: string): PrivacySettings | null => {
+    // Find the child to check their connection status
+    const child = children.find(c => c.id === childId);
     
-    // Demo: If viewing child with ID '1', use some preset privacy settings
-    if (childId === '1') {
+    // Only return privacy settings if child has accepted the invitation
+    if (!child || child.invitation?.status !== 'accepted') {
+      return null;
+    }
+    
+    // In a real app, this would be an API call to get the child's privacy settings
+    // For demo, we'll check if child has custom privacy settings stored
+    
+    // Try to load child-specific privacy settings from localStorage
+    const childPrivacyKey = `childPrivacySettings_${childId}`;
+    const storedSettings = localStorage.getItem(childPrivacyKey);
+    
+    if (storedSettings) {
+      try {
+        return JSON.parse(storedSettings);
+      } catch {
+        // If parsing fails, return default
+      }
+    }
+    
+    // Demo: If viewing child with ID '1' and they're connected, use some preset privacy settings
+    // This simulates a child who has changed their settings
+    if (childId === '1' && state?.demoMode) {
       return {
         gender: false, // Hidden
         nationality: true,
@@ -909,7 +930,7 @@ const Dashboard: React.FC = () => {
       };
     }
     
-    // Default: all visible
+    // Default: all fields visible (no privacy restrictions)
     return {
       gender: true,
       nationality: true,
@@ -1276,10 +1297,12 @@ const Dashboard: React.FC = () => {
               <div className="flex-1 flex justify-center space-x-8">
                 {(() => {
                   const currentChild = children.find(c => c.id === activeChildTab);
-                  const childPrivacy = currentChild ? getChildPrivacySettings(currentChild.id) : null;
+                  const isConnected = currentChild?.invitation?.status === 'accepted';
+                  const childPrivacy = currentChild && isConnected ? getChildPrivacySettings(currentChild.id) : null;
                   
                   let visibleCount = stats.numberOfMatches;
-                  if (childPrivacy) {
+                  // Only apply privacy filtering if child is connected and has privacy settings
+                  if (isConnected && childPrivacy) {
                     const filtered = filterScholarshipsByPrivacy(allScholarships, childPrivacy);
                     visibleCount = isPaidMember ? filtered.visible.length : Math.min(filtered.visible.length, 47);
                   }
@@ -1308,8 +1331,10 @@ const Dashboard: React.FC = () => {
               const currentChild = children.find(c => c.id === activeChildTab);
               const childPrivacy = currentChild ? getChildPrivacySettings(currentChild.id) : null;
               const hasHiddenFields = childPrivacy && Object.values(childPrivacy).some(v => !v);
+              const isConnected = currentChild?.invitation?.status === 'accepted';
               
-              if (hasHiddenFields) {
+              // Only show privacy notice if child is connected AND has chosen to hide some fields
+              if (isConnected && hasHiddenFields) {
                 return (
                   <div className="mb-6 bg-gray-50 border border-gray-200 rounded-lg p-4 flex items-start space-x-3">
                     <svg className="w-5 h-5 text-gray-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1327,66 +1352,6 @@ const Dashboard: React.FC = () => {
               return null;
             })()}
 
-            {/* Child Profile Summary with Privacy */}
-            {(() => {
-              const currentChild = children.find(c => c.id === activeChildTab);
-              const childPrivacy = currentChild ? getChildPrivacySettings(currentChild.id) : null;
-              
-              if (currentChild && childPrivacy) {
-                return (
-                  <div className="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold text-vault-blue">Profile Information</h3>
-                      <button
-                        onClick={() => {
-                          setEditingChild(currentChild);
-                          setIsEditChildProfileModalOpen(true);
-                        }}
-                        className="text-sm text-info-blue hover:underline flex items-center space-x-1"
-                      >
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                        <span>Edit Profile</span>
-                      </button>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <PrivacyAwareField 
-                        label="Grade Level" 
-                        value={currentChild.profileData.gradeLevel} 
-                        isVisible={childPrivacy.gradeLevel} 
-                      />
-                      <PrivacyAwareField 
-                        label="School Type" 
-                        value={currentChild.profileData.schoolType} 
-                        isVisible={childPrivacy.schoolType} 
-                      />
-                      <PrivacyAwareField 
-                        label="GPA" 
-                        value={currentChild.profileData.gpa} 
-                        isVisible={childPrivacy.gpa} 
-                      />
-                      <PrivacyAwareField 
-                        label="Gender" 
-                        value={currentChild.profileData.gender} 
-                        isVisible={childPrivacy.gender} 
-                      />
-                      <PrivacyAwareField 
-                        label="City, State" 
-                        value={currentChild.profileData.cityState} 
-                        isVisible={childPrivacy.cityState} 
-                      />
-                      <PrivacyAwareField 
-                        label="Major" 
-                        value={currentChild.profileData.major} 
-                        isVisible={childPrivacy.major} 
-                      />
-                    </div>
-                  </div>
-                );
-              }
-              return null;
-            })()}
 
             {/* Feed Section */}
             <div className="relative">
@@ -1458,12 +1423,14 @@ const Dashboard: React.FC = () => {
                 {(() => {
                   // Apply privacy filtering for parent view
                   const currentChild = children.find(c => c.id === activeChildTab);
-                  const childPrivacy = currentChild ? getChildPrivacySettings(currentChild.id) : null;
+                  const isConnected = currentChild?.invitation?.status === 'accepted';
+                  const childPrivacy = currentChild && isConnected ? getChildPrivacySettings(currentChild.id) : null;
                   
                   let scholarshipsToShow = displayedScholarships;
                   let hiddenCount = 0;
                   
-                  if (childPrivacy) {
+                  // Only apply privacy filtering if child is connected and has privacy settings
+                  if (isConnected && childPrivacy) {
                     const filtered = filterScholarshipsByPrivacy(displayedScholarships, childPrivacy);
                     scholarshipsToShow = filtered.visible;
                     hiddenCount = filtered.hiddenCount;

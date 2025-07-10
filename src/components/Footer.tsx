@@ -27,6 +27,9 @@ const Footer: React.FC = () => {
             <Link to="/terms" className="text-gray-300 hover:text-white transition-colors">
               Terms of Use
             </Link>
+            <Link to="/do-not-sell" className="text-gray-300 hover:text-white transition-colors">
+              Do Not Sell My Info
+            </Link>
           </div>
 
           {/* Copyright */}
