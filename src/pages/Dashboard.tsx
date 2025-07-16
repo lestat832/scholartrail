@@ -98,7 +98,7 @@ interface Child {
 const Dashboard: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { subscription, isFeatureLocked } = usePayment();
+  const { } = usePayment();
   const state = location.state as LocationState;
   const showEmptyState = state?.showEmptyState || false;
   const isParentNonPersonalized = state?.showParentNonPersonalized || false;
@@ -988,8 +988,8 @@ const Dashboard: React.FC = () => {
         shouldHide = true;
       }
       
-      if (!childPrivacy.scholarships) {
-        // If scholarships are completely hidden, hide all
+      if (!childPrivacy.scholarshipMatches) {
+        // If scholarship matches are completely hidden, hide all
         shouldHide = true;
       }
       

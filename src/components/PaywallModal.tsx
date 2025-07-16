@@ -382,15 +382,16 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onPurchase
         <NeedFinancialAssistanceModal
           isOpen={showFinancialAssistanceModal}
           onClose={() => setShowFinancialAssistanceModal(false)}
-          onContinue={handleNeedAssistanceContinue}
+          onSubmit={() => {
+            handleNeedAssistanceContinue();
+          }}
         />
       )}
 
       {showApplicationSubmissionModal && (
         <ApplicationSubmissionModal
           isOpen={showApplicationSubmissionModal}
-          onClose={() => setShowApplicationSubmissionModal(false)}
-          onSubmit={handleApplicationSubmitted}
+          onClose={handleApplicationSubmitted}
         />
       )}
     </>
