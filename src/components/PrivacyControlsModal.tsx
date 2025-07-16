@@ -8,6 +8,7 @@ interface PrivacyControlsModalProps {
 }
 
 export interface PrivacySettings {
+  // Profile Information
   gender: boolean;
   nationality: boolean;
   cityState: boolean;
@@ -17,7 +18,10 @@ export interface PrivacySettings {
   major: boolean;
   degree: boolean;
   graduationYear: boolean;
-  scholarships: boolean;
+  // Activity & Scholarships
+  scholarshipMatches: boolean;
+  scholarshipsApplied: boolean;
+  scholarshipsSaved: boolean;
 }
 
 const PrivacyControlsModal: React.FC<PrivacyControlsModalProps> = ({
@@ -28,7 +32,7 @@ const PrivacyControlsModal: React.FC<PrivacyControlsModalProps> = ({
 }) => {
   const [settings, setSettings] = useState<PrivacySettings>(privacySettings);
 
-  const privacyOptions = [
+  const profileInfoOptions = [
     { key: 'gender' as keyof PrivacySettings, label: 'Gender' },
     { key: 'nationality' as keyof PrivacySettings, label: 'Nationality' },
     { key: 'cityState' as keyof PrivacySettings, label: 'City, State' },
@@ -38,7 +42,12 @@ const PrivacyControlsModal: React.FC<PrivacyControlsModalProps> = ({
     { key: 'major' as keyof PrivacySettings, label: 'Major' },
     { key: 'degree' as keyof PrivacySettings, label: 'Degree' },
     { key: 'graduationYear' as keyof PrivacySettings, label: 'Graduation Year' },
-    { key: 'scholarships' as keyof PrivacySettings, label: 'Scholarships' },
+  ];
+
+  const activityOptions = [
+    { key: 'scholarshipMatches' as keyof PrivacySettings, label: 'Scholarship Matches' },
+    { key: 'scholarshipsApplied' as keyof PrivacySettings, label: 'Scholarships Applied' },
+    { key: 'scholarshipsSaved' as keyof PrivacySettings, label: 'Scholarships Saved' },
   ];
 
   const handleToggle = (key: keyof PrivacySettings) => {
@@ -78,33 +87,69 @@ const PrivacyControlsModal: React.FC<PrivacyControlsModalProps> = ({
             <span className="text-sm font-medium text-gray-700">Share</span>
           </div>
 
-          {/* Privacy Options */}
-          <div className="space-y-4">
-            {privacyOptions.map(({ key, label }) => (
-              <div key={key} className="flex items-center justify-between">
-                <span className="text-gray-900">{label}</span>
-                <button
-                  onClick={() => handleToggle(key)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    settings[key] ? 'bg-privacy-teal' : 'bg-gray-300'
-                  }`}
-                  role="switch"
-                  aria-checked={settings[key]}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      settings[key] ? 'translate-x-6' : 'translate-x-1'
+          {/* Profile Information Section */}
+          <div className="mb-6">
+            <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-3">
+              Profile Information
+            </h3>
+            <div className="space-y-3">
+              {profileInfoOptions.map(({ key, label }) => (
+                <div key={key} className="flex items-center justify-between">
+                  <span className="text-gray-900">{label}</span>
+                  <button
+                    onClick={() => handleToggle(key)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      settings[key] ? 'bg-privacy-teal' : 'bg-gray-300'
                     }`}
-                  />
-                </button>
-              </div>
-            ))}
+                    role="switch"
+                    aria-checked={settings[key]}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        settings[key] ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="border-t border-gray-200 my-6"></div>
+
+          {/* Activity & Scholarships Section */}
+          <div className="mb-6">
+            <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-3">
+              Activity & Scholarships
+            </h3>
+            <div className="space-y-3">
+              {activityOptions.map(({ key, label }) => (
+                <div key={key} className="flex items-center justify-between">
+                  <span className="text-gray-900">{label}</span>
+                  <button
+                    onClick={() => handleToggle(key)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      settings[key] ? 'bg-privacy-teal' : 'bg-gray-300'
+                    }`}
+                    role="switch"
+                    aria-checked={settings[key]}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        settings[key] ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Asterisk Note */}
           <div className="mt-6 p-4 bg-gray-50 rounded-lg">
             <p className="text-sm text-gray-600">
-              • Scholarships that are matched via a parameter that has been selected to not be shared with the parent will not be shown
+              • Scholarship matches that use profile information you've chosen not to share will be hidden from your parent's view
             </p>
           </div>
 

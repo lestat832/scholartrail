@@ -23,6 +23,8 @@ import AddChildSchoolInfoModal from '../components/AddChildSchoolInfoModal';
 import ParentCongratulationsModal from '../components/ParentCongratulationsModal';
 import ShareChildProfileModal from '../components/ShareChildProfileModal';
 import PrivacyControlsModal, { PrivacySettings } from '../components/PrivacyControlsModal';
+import RequestPaymentModal from '../components/RequestPaymentModal';
+import { usePayment } from '../contexts/PaymentContext';
 
 interface LocationState {
   firstName?: string;
@@ -96,6 +98,7 @@ interface Child {
 const Dashboard: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { subscription, isFeatureLocked } = usePayment();
   const state = location.state as LocationState;
   const showEmptyState = state?.showEmptyState || false;
   const isParentNonPersonalized = state?.showParentNonPersonalized || false;
@@ -159,6 +162,7 @@ const Dashboard: React.FC = () => {
   const [isAddSchoolInfoModalOpen, setIsAddSchoolInfoModalOpen] = useState(false);
   const [isCongratulationsModalOpen, setIsCongratulationsModalOpen] = useState(false);
   const [isPaywallModalOpen, setIsPaywallModalOpen] = useState(false);
+  const [isRequestPaymentModalOpen, setIsRequestPaymentModalOpen] = useState(false);
   const [isMemberCongratulationsModalOpen, setIsMemberCongratulationsModalOpen] = useState(false);
   const [isEditAccountModalOpen, setIsEditAccountModalOpen] = useState(false);
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
@@ -223,7 +227,9 @@ const Dashboard: React.FC = () => {
       major: true,
       degree: true,
       graduationYear: true,
-      scholarships: true
+      scholarshipMatches: true,
+      scholarshipsApplied: true,
+      scholarshipsSaved: true
     };
   });
   
@@ -925,7 +931,9 @@ const Dashboard: React.FC = () => {
         major: true,
         degree: true,
         graduationYear: true,
-        scholarships: true
+        scholarshipMatches: true,
+      scholarshipsApplied: true,
+      scholarshipsSaved: true
       };
     }
     
@@ -940,7 +948,9 @@ const Dashboard: React.FC = () => {
       major: true,
       degree: true,
       graduationYear: true,
-      scholarships: true
+      scholarshipMatches: true,
+      scholarshipsApplied: true,
+      scholarshipsSaved: true
     };
   };
 
@@ -1242,10 +1252,10 @@ const Dashboard: React.FC = () => {
             <div className="flex items-center mb-12">
               <div className="flex-1 max-w-md">
                 <h1 className="text-3xl font-serif font-bold text-vault-blue mb-2">
-                  Hi {children.find(c => c.id === activeChildTab)?.firstName || 'Alyssa'}!
+                  Welcome Parent!
                 </h1>
                 <p className="text-gray-600 mb-4">
-                  Here's a brief overview of your personalized matches
+                  Here are {children.find(c => c.id === activeChildTab)?.firstName || 'your child'}'s scholarship matches
                 </p>
                 <button
                   onClick={() => {
@@ -2157,6 +2167,16 @@ const Dashboard: React.FC = () => {
         isOpen={isPaywallModalOpen}
         onClose={handlePaywallClose}
         onPurchase={handlePaywallPurchase}
+        onRequestPayment={() => {
+          setIsPaywallModalOpen(false);
+          setIsRequestPaymentModalOpen(true);
+        }}
+      />
+      
+      <RequestPaymentModal
+        isOpen={isRequestPaymentModalOpen}
+        onClose={() => setIsRequestPaymentModalOpen(false)}
+        studentName={profileData.firstName || 'Student'}
       />
       
       <SaveScholarshipModal

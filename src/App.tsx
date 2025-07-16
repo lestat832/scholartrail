@@ -10,30 +10,37 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfUse from './pages/TermsOfUse';
 import EmailPreview from './pages/EmailPreview';
 import DoNotSell from './pages/DoNotSell';
+import PaymentLandingPage from './pages/PaymentLandingPage';
+import InvitationAcceptancePage from './pages/InvitationAcceptancePage';
 import CookieBanner from './components/CookieBanner';
+import { PaymentProvider } from './contexts/PaymentContext';
 
 function App() {
   // Use basename only in production (GitHub Pages)
   const basename = import.meta.env.PROD ? '/scholartrail' : '';
   
   return (
-    <Router basename={basename}>
-      <Routes>
-        <Route path="/" element={<UnderConstruction />} />
-        <Route path="/preview" element={<LandingPage />} />
-        <Route path="/about" element={<AboutUs />} />
-        <Route path="/contact" element={<ContactUs />} />
-        <Route path="/privacy" element={<PrivacyPolicy />} />
-        <Route path="/terms" element={<TermsOfUse />} />
-        <Route path="/logo" element={<LogoShowcase />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/scholarship/:scholarshipSlug" element={<ScholarshipPage />} />
-        <Route path="/join/:parentId/:childId" element={<LandingPage />} />
-        <Route path="/email-preview" element={<EmailPreview />} />
-        <Route path="/do-not-sell" element={<DoNotSell />} />
-      </Routes>
-      <CookieBanner />
-    </Router>
+    <PaymentProvider>
+      <Router basename={basename}>
+        <Routes>
+          <Route path="/" element={<UnderConstruction />} />
+          <Route path="/preview" element={<LandingPage />} />
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/contact" element={<ContactUs />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfUse />} />
+          <Route path="/logo" element={<LogoShowcase />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/scholarship/:scholarshipSlug" element={<ScholarshipPage />} />
+          <Route path="/join/:parentId/:childId" element={<LandingPage />} />
+          <Route path="/email-preview" element={<EmailPreview />} />
+          <Route path="/do-not-sell" element={<DoNotSell />} />
+          <Route path="/pay/:token" element={<PaymentLandingPage />} />
+          <Route path="/invitation/:invitationToken" element={<InvitationAcceptancePage />} />
+        </Routes>
+        <CookieBanner />
+      </Router>
+    </PaymentProvider>
   );
 }
 

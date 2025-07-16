@@ -8,7 +8,16 @@ const EmailPreview: React.FC = () => {
   const childName = searchParams.get('childName') || 'Student';
   const parentName = searchParams.get('parentName') || 'Your Parent';
 
-  const invitationLink = `/join/${parentId}/${childId}`;
+  // Generate a unique invitation token
+  const invitationToken = btoa(JSON.stringify({
+    parentId,
+    childId,
+    childName,
+    parentName,
+    timestamp: Date.now()
+  }));
+  
+  const invitationLink = `/invitation/${invitationToken}`;
   
   console.log('EmailPreview - Creating invitation link:', {
     parentId,
