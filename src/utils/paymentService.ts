@@ -139,3 +139,67 @@ export const sendPaymentRequestEmail = async (request: PaymentRequest): Promise<
   // For demo purposes, always return success
   return true;
 };
+
+// Parent account creation after payment
+export interface ParentAccount {
+  id: string;
+  email: string;
+  firstName: string;
+  password?: string; // In real app, this would be hashed
+  createdAt: string;
+  linkedStudents: string[];
+}
+
+const PARENT_ACCOUNTS_KEY = 'scholartrail_parent_accounts';
+
+// Create parent account after successful payment
+export const createParentAccount = (
+  email: string,
+  firstName: string,
+  password: string,
+  studentName: string
+): ParentAccount => {
+  const account: ParentAccount = {
+    id: generatePaymentToken(),
+    email,
+    firstName,
+    password, // In real app, this would be hashed
+    createdAt: new Date().toISOString(),
+    linkedStudents: [studentName]
+  };
+
+  // Save to localStorage
+  const existingAccounts = getParentAccounts();
+  existingAccounts.push(account);
+  localStorage.setItem(PARENT_ACCOUNTS_KEY, JSON.stringify(existingAccounts));
+
+  return account;
+};
+
+// Get all parent accounts
+export const getParentAccounts = (): ParentAccount[] => {
+  const stored = localStorage.getItem(PARENT_ACCOUNTS_KEY);
+  if (!stored) return [];
+  
+  try {
+    return JSON.parse(stored) as ParentAccount[];
+  } catch {
+    return [];
+  }
+};
+
+// Get parent account by email
+export const getParentAccountByEmail = (email: string): ParentAccount | null => {
+  const accounts = getParentAccounts();
+  return accounts.find(acc => acc.email === email) || null;
+};
+
+// Generate temporary password
+export const generateTemporaryPassword = (): string => {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  let password = '';
+  for (let i = 0; i < 8; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return password;
+};

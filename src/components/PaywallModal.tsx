@@ -184,7 +184,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onPurchase
                     }`}
                     onClick={() => setPaymentMethod('credit')}
                   >
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center justify-between">
                       <div className="flex items-center">
                         <div className={`w-5 h-5 rounded-full border-2 mr-3 ${
                           paymentMethod === 'credit' ? 'border-privacy-teal bg-privacy-teal' : 'border-gray-300'
@@ -205,7 +205,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onPurchase
                     </div>
 
                     {paymentMethod === 'credit' && (
-                      <div className="space-y-4">
+                      <div className="space-y-4 mt-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             Name on Card
@@ -306,31 +306,19 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onPurchase
 
                   {/* Ask my parent to pay */}
                   <div 
-                    className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
-                      paymentMethod === 'parent' ? 'border-privacy-teal' : 'border-gray-200'
-                    }`}
-                    onClick={() => setPaymentMethod('parent')}
+                    className="border-2 rounded-lg p-4 cursor-pointer transition-all border-gray-200 hover:border-privacy-teal"
+                    onClick={onRequestPayment}
                   >
-                    <div className="flex items-center">
-                      <div className={`w-5 h-5 rounded-full border-2 mr-3 ${
-                        paymentMethod === 'parent' ? 'border-privacy-teal bg-privacy-teal' : 'border-gray-300'
-                      }`}>
-                        {paymentMethod === 'parent' && (
-                          <svg className="w-3 h-3 text-white mx-auto mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        )}
+                    <div>
+                      <div className="flex items-center mb-2">
+                        <div className="w-5 h-5 rounded-full border-2 mr-3 border-gray-300">
+                        </div>
+                        <span className="font-medium">Ask My Parents To Pay</span>
                       </div>
-                      <span className="font-medium">Ask My Parents To Pay</span>
+                      <p className="text-sm text-gray-600 ml-8">
+                        Send a secure payment request to your parent's email. They'll receive a one-click link to pay for your ScholarTrail subscription.
+                      </p>
                     </div>
-
-                    {paymentMethod === 'parent' && (
-                      <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                        <p className="text-sm text-gray-600">
-                          We'll send your parent an email with a secure payment link for your ScholarTrail subscription.
-                        </p>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
@@ -351,27 +339,17 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onPurchase
               </div>
 
               {/* Purchase Button */}
-              {paymentMethod !== 'parent' ? (
-                <button
-                  type="submit"
-                  disabled={!agreedToTerms}
-                  className={`w-full py-3 px-6 rounded-md font-semibold transition-all ${
-                    agreedToTerms 
-                      ? 'bg-privacy-teal text-white hover:bg-opacity-90' 
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  }`}
-                >
-                  Purchase
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={onRequestPayment}
-                  className="w-full py-3 px-6 bg-privacy-teal text-white rounded-md font-semibold hover:bg-opacity-90 transition-all"
-                >
-                  Continue
-                </button>
-              )}
+              <button
+                type="submit"
+                disabled={!agreedToTerms}
+                className={`w-full py-3 px-6 rounded-md font-semibold transition-all ${
+                  agreedToTerms 
+                    ? 'bg-privacy-teal text-white hover:bg-opacity-90' 
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                Purchase
+              </button>
             </form>
           </div>
         </div>

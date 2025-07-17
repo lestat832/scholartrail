@@ -12,6 +12,9 @@ import EmailPreview from './pages/EmailPreview';
 import DoNotSell from './pages/DoNotSell';
 import PaymentLandingPage from './pages/PaymentLandingPage';
 import InvitationAcceptancePage from './pages/InvitationAcceptancePage';
+import ParentPaymentEmailPreview from './pages/ParentPaymentEmailPreview';
+import ParentPaymentPage from './pages/ParentPaymentPage';
+import ParentPaymentSuccessPage from './pages/ParentPaymentSuccessPage';
 import CookieBanner from './components/CookieBanner';
 import { PaymentProvider } from './contexts/PaymentContext';
 
@@ -37,6 +40,9 @@ function App() {
           <Route path="/do-not-sell" element={<DoNotSell />} />
           <Route path="/pay/:token" element={<PaymentLandingPage />} />
           <Route path="/invitation/:invitationToken" element={<InvitationAcceptancePage />} />
+          <Route path="/parent-payment-email-preview" element={<ParentPaymentEmailPreview />} />
+          <Route path="/parent-payment/:token" element={<ParentPaymentPage />} />
+          <Route path="/parent-payment-success" element={<ParentPaymentSuccessPage />} />
         </Routes>
         <CookieBanner />
       </Router>

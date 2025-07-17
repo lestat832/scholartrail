@@ -2175,7 +2175,10 @@ const Dashboard: React.FC = () => {
       
       <RequestPaymentModal
         isOpen={isRequestPaymentModalOpen}
-        onClose={() => setIsRequestPaymentModalOpen(false)}
+        onClose={() => {
+          setIsRequestPaymentModalOpen(false);
+          setIsPaywallModalOpen(true);
+        }}
         studentName={profileData.firstName || 'Student'}
       />
       

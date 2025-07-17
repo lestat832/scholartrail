@@ -197,6 +197,21 @@ const InvitationAcceptancePage: React.FC = () => {
               Create your account to get started
             </h2>
 
+            {/* First Name */}
+            <div className="mb-4">
+              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
+                First Name
+              </label>
+              <input
+                type="text"
+                id="firstName"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-privacy-teal focus:border-privacy-teal"
+                required
+              />
+            </div>
+
             {/* Email (Read-only) */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -216,21 +231,6 @@ const InvitationAcceptancePage: React.FC = () => {
                   <span className="text-sm ml-1">Verified</span>
                 </div>
               </div>
-            </div>
-
-            {/* First Name */}
-            <div className="mb-4">
-              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
-                First Name
-              </label>
-              <input
-                type="text"
-                id="firstName"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-privacy-teal focus:border-privacy-teal"
-                required
-              />
             </div>
 
             {/* Password */}

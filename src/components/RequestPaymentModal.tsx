@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   createPaymentRequest, 
   sendPaymentRequestEmail, 
-  isValidEmail,
-  hasPendingPaymentRequest,
-  getMostRecentPendingRequest
+  isValidEmail
 } from '../utils/paymentService';
 
 interface RequestPaymentModalProps {
@@ -24,10 +23,7 @@ const RequestPaymentModal: React.FC<RequestPaymentModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState('');
-  
-  // Check if there's already a pending request
-  const existingRequest = getMostRecentPendingRequest();
-  const hasExistingRequest = hasPendingPaymentRequest();
+  const navigate = useNavigate();
 
   if (!isOpen) return null;
 
@@ -56,7 +52,16 @@ const RequestPaymentModal: React.FC<RequestPaymentModalProps> = ({
       const emailSent = await sendPaymentRequestEmail(request);
 
       if (emailSent) {
-        setShowSuccess(true);
+        // Navigate to email preview with payment request details
+        const params = new URLSearchParams({
+          token: request.token,
+          studentName: studentName,
+          parentEmail: parentEmail,
+          parentName: parentName || '',
+          message: message || ''
+        });
+        navigate(`/parent-payment-email-preview?${params.toString()}`);
+        handleClose();
       } else {
         setError('Failed to send email. Please try again.');
       }
@@ -110,25 +115,6 @@ const RequestPaymentModal: React.FC<RequestPaymentModalProps> = ({
                   We'll send your parent an email with a secure payment link
                 </p>
               </div>
-
-              {/* Existing Request Warning */}
-              {hasExistingRequest && existingRequest && (
-                <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <div className="flex items-start space-x-3">
-                    <svg className="w-5 h-5 text-yellow-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                    <div className="flex-1">
-                      <p className="text-sm text-yellow-800">
-                        You already sent a payment request to <strong>{existingRequest.parentEmail}</strong>
-                      </p>
-                      <p className="text-sm text-yellow-700 mt-1">
-                        Sending a new request will replace the previous one.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
 
               {/* Form */}
               <form onSubmit={handleSubmit} className="space-y-4">
