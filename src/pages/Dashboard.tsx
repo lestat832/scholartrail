@@ -24,6 +24,7 @@ import ParentCongratulationsModal from '../components/ParentCongratulationsModal
 import ShareChildProfileModal from '../components/ShareChildProfileModal';
 import PrivacyControlsModal, { PrivacySettings } from '../components/PrivacyControlsModal';
 import RequestPaymentModal from '../components/RequestPaymentModal';
+import ProfileEnhancementModal, { ProfileEnhancementData } from '../components/ProfileEnhancementModal';
 import { usePayment } from '../contexts/PaymentContext';
 
 interface LocationState {
@@ -168,6 +169,7 @@ const Dashboard: React.FC = () => {
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
   const [isEditAcademicInfoModalOpen, setIsEditAcademicInfoModalOpen] = useState(false);
   const [isEditSchoolInfoModalOpen, setIsEditSchoolInfoModalOpen] = useState(false);
+  const [isProfileEnhancementModalOpen, setIsProfileEnhancementModalOpen] = useState(false);
   const [isAddChildProfileModalOpen, setIsAddChildProfileModalOpen] = useState(false);
   const [isAddChildPersonalInfoModalOpen, setIsAddChildPersonalInfoModalOpen] = useState(false);
   const [isAddChildAcademicInfoModalOpen, setIsAddChildAcademicInfoModalOpen] = useState(false);
@@ -648,6 +650,13 @@ const Dashboard: React.FC = () => {
     setIsEditSchoolInfoModalOpen(false);
   };
 
+  // Profile Enhancement handlers
+  const handleProfileEnhancementSave = (data: ProfileEnhancementData) => {
+    setProfileData((prevData: any) => ({ ...prevData, enhancementData: data }));
+    localStorage.setItem('userProfile', JSON.stringify({ ...profileData, enhancementData: data }));
+    console.log('Profile enhancement data saved:', data);
+  };
+
   // Add Child Profile handlers
   const handleAddChildProfileClose = () => {
     setIsAddChildProfileModalOpen(false);
@@ -1085,12 +1094,26 @@ const Dashboard: React.FC = () => {
                   <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
                     <div className="py-1">
                       {!(isParentChildFTUE || isParentNonPersonalized) && (
-                        <button
-                          onClick={() => handleSettingsClick('edit-profile')}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        >
-                          Edit Profile
-                        </button>
+                        <>
+                          <button
+                            onClick={() => handleSettingsClick('edit-profile')}
+                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          >
+                            Edit Profile
+                          </button>
+                          <button
+                            onClick={() => {
+                              setIsProfileEnhancementModalOpen(true);
+                              setShowSettingsDropdown(false);
+                            }}
+                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                          >
+                            <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            Enhance Profile
+                          </button>
+                        </>
                       )}
                       <button
                         onClick={() => handleSettingsClick('edit-account')}
@@ -1820,6 +1843,18 @@ const Dashboard: React.FC = () => {
                 <p className="text-gray-600 mb-4">
                   Here's a brief overview of your personalized matches.
                 </p>
+                {/* Enhance Profile CTA - Only show for students */}
+                {!(isParentChildFTUE || isParentNonPersonalized) && (
+                  <button
+                    onClick={() => setIsProfileEnhancementModalOpen(true)}
+                    className="inline-flex items-center px-4 py-2 bg-privacy-teal text-white rounded-md font-semibold hover:bg-opacity-90 transition-all"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Enhance Profile ✨
+                  </button>
+                )}
                 {/* Parent Connection Status for Students */}
                 {connectedParent && !(isParentChildFTUE || isParentNonPersonalized) && (
                   <div className="bg-info-blue bg-opacity-10 border border-info-blue rounded-lg p-3 mb-4 flex items-center justify-between">
@@ -2231,6 +2266,13 @@ const Dashboard: React.FC = () => {
         onClose={() => setIsEditSchoolInfoModalOpen(false)}
         onSave={handleEditSchoolInfoSave}
         currentData={profileData}
+      />
+      
+      <ProfileEnhancementModal
+        isOpen={isProfileEnhancementModalOpen}
+        onClose={() => setIsProfileEnhancementModalOpen(false)}
+        onSave={handleProfileEnhancementSave}
+        initialData={profileData.enhancementData}
       />
       
       <AddChildProfileModal
