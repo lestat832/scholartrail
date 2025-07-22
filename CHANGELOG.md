@@ -5,6 +5,29 @@ All notable changes to ScholarTrail will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2025-07-21]
+
+### Added
+- Data security section to homepage with privacy-focused messaging
+  - Add comprehensive "Why Data Security Matters" section to PersonaTabs component
+  - Include 4-card grid showcasing key privacy benefits (Data Privacy, Nonprofit Status, No Ads/Spam, Family-First Approach)
+  - Add call-to-action buttons for data protection and monetization information
+  - Use brand colors and typography for consistent visual design
+
+- ProfileEnhancementModal with global search functionality
+  - Create comprehensive modal for adding activities, interests, languages, and special information
+  - Implement global search across all parameter categories simultaneously
+  - Add tag-style selection UI with auto-clearing search after parameter selection
+  - Include tabbed interface with item counts and proper validation
+
+### Changed
+- Enhance parent payment page layout and user experience
+  - Restructure credit card information with Stripe-style layout (Name on Card, Card Number, Expiry/CVV side-by-side, ZIP Code)
+  - Move email field to parent account creation section above password field
+  - Remove first name requirement from parent account creation
+  - Add hover tooltip for disabled payment button with user guidance
+  - Fix tooltip positioning and text wrapping to prevent cutoff issues
+
 ## [2025-07-17]
 
 ### Changed
