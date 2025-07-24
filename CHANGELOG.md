@@ -5,6 +5,47 @@ All notable changes to ScholarTrail will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2025-07-24]
+
+### Added
+- Three-tiered parent account system with comprehensive account management
+  - Payment-only accounts: Billing portal access only for parents who pay for student subscriptions
+  - Parent-free accounts: Trial experience with 1 student profile and 3 scholarship limit
+  - Parent-paid accounts: Full premium features with up to 3 students and unlimited scholarships
+  - Account capability matrix defining features, limitations, and upgrade paths for each account type
+  - Helper functions for account type transitions, pricing, and validation
+
+- Enhanced payment service architecture
+  - `ParentAccountType` type with payment-only, parent-free, and parent-paid options
+  - Account-specific pricing functions and upgrade logic
+  - Comprehensive capability matrix for feature access control
+  - Account type validation and transition management
+
+- Specialized parent dashboards for each account type
+  - Payment-only dashboard: Simple billing portal with subscription management and upgrade prompts
+  - Free trial dashboard: Student profile management with scholarship limitations and upgrade incentives
+  - Premium parent dashboard: Full feature access with progress tracking and multi-student management
+
+### Changed
+- Update parent payment page with account type selection
+  - Distinguish between "Pay for Student Only" vs "Get Parent Account + Student" options
+  - Account type-specific pricing display and feature comparisons
+  - Enhanced plan selection with capability-based feature lists
+
+- Improve PaywallModal user experience for parent contexts
+  - Hide "Ask My Parents To Pay" option when user is already in a parent account
+  - Add `hideParentPayOption` prop for context-aware payment option display
+  - Prevent logical inconsistency of parents asking parents to pay
+
+- Enhanced parent account data management
+  - Account type-specific data initialization after payment completion
+  - Proper handling of student associations based on account type
+  - Improved localStorage persistence for parent account information
+
+### Fixed
+- PaywallModal UX issue where parent payment option appeared inappropriately in parent account contexts
+- Account type data consistency between payment flow and dashboard display
+
 ## [2025-07-21]
 
 ### Added
