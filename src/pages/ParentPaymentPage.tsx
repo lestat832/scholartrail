@@ -2,16 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   getPaymentRequestByToken, 
-  getPlanComparison, 
-  getPrice,
   getParentUpgradeOptions,
   createParentAccount,
   SubscriptionType,
   BillingPeriod,
   ParentAccountType,
   getParentAccountTypePrice,
-  getAccountTypeInfo,
-  PRICING_PLANS
+  getAccountTypeInfo
 } from '../utils/paymentService';
 import Logo from '../components/Logo';
 
@@ -38,7 +35,6 @@ const ParentPaymentPage: React.FC = () => {
   // Account type selection
   const [selectedAccountType, setSelectedAccountType] = useState<ParentAccountType>('payment-only');
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>('monthly');
-  const [showUpgradeOptions, setShowUpgradeOptions] = useState(false);
 
   useEffect(() => {
     if (token) {
@@ -53,9 +49,8 @@ const ParentPaymentPage: React.FC = () => {
           setEmail(request.parentEmail);
           
           // Check for existing parent account and upgrade options
-          const upgradeOptions = getParentUpgradeOptions(request.parentEmail, request.studentName);
+          const upgradeOptions = getParentUpgradeOptions(request.parentEmail);
           if (upgradeOptions.hasAccount) {
-            setShowUpgradeOptions(true);
             // If parent needs upgrade, suggest parent-paid
             if (upgradeOptions.needsUpgrade) {
               setSelectedAccountType('parent-paid');

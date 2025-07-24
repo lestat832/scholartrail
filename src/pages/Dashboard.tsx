@@ -48,6 +48,7 @@ interface LocationState {
   studentName?: string;
   subscriptionType?: string;
   billingPeriod?: string;
+  accountType?: string;
   parentAccount?: any;
   fromPaymentSuccess?: boolean;
   profileData?: {
@@ -66,7 +67,6 @@ interface LocationState {
   demoMode?: boolean;
   fromStudent?: boolean;
   fromParent?: boolean;
-  studentName?: string;
   children?: Child[];
 }
 
@@ -230,7 +230,6 @@ const Dashboard: React.FC = () => {
   
   // Parent account state management
   const [parentAccountData, setParentAccountData] = useState<any>(null);
-  const [parentDashboardView, setParentDashboardView] = useState<'overview' | 'students' | 'subscription' | 'settings'>('overview');
   
   // Privacy settings state
   const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);

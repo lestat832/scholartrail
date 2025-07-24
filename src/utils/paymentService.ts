@@ -341,8 +341,9 @@ export const canParentAddMoreStudents = (parentAccount: ParentAccount): boolean 
 
 // Get parent dashboard capabilities
 export const getParentCapabilities = (parentAccount: ParentAccount) => {
+  const accountCapabilities = parentAccount.capabilities;
   return {
-    ...parentAccount.capabilities,
+    ...accountCapabilities,
     currentStudents: parentAccount.linkedStudents.length,
     canAddMoreStudents: canParentAddMoreStudents(parentAccount),
     accountType: parentAccount.accountType,
@@ -352,7 +353,7 @@ export const getParentCapabilities = (parentAccount: ParentAccount) => {
 };
 
 // Check if parent account exists and get upgrade options
-export const getParentUpgradeOptions = (email: string, newStudentName: string) => {
+export const getParentUpgradeOptions = (email: string) => {
   const existingAccount = getParentAccountByEmail(email);
   
   if (!existingAccount) {
