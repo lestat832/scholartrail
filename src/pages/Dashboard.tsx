@@ -42,6 +42,14 @@ interface LocationState {
   };
   isFromInvitation?: boolean;
   skipProfileCreation?: boolean;
+  // New parent account from payment success
+  isNewAccount?: boolean;
+  email?: string;
+  studentName?: string;
+  subscriptionType?: string;
+  billingPeriod?: string;
+  parentAccount?: any;
+  fromPaymentSuccess?: boolean;
   profileData?: {
     firstName: string;
     birthday: string;
@@ -106,6 +114,15 @@ const Dashboard: React.FC = () => {
   const isParentChildFTUE = state?.isParentChildFTUE || false;
   const parentConnection = state?.parentConnection;
   const isFromInvitation = state?.isFromInvitation || false;
+  
+  // New parent account detection
+  const isNewParentAccount = state?.userType === 'parent' && state?.isNewAccount && state?.fromPaymentSuccess;
+  const parentAccountType = state?.accountType || 'payment-only';
+  const parentSubscriptionType = state?.subscriptionType || 'student';
+  const isParentPlan = parentSubscriptionType === 'parent';
+  const parentEmail = state?.email;
+  const linkedStudentName = state?.studentName;
+  const parentAccount = state?.parentAccount;
   // Initialize children array - check localStorage first, then use state
   const [children, setChildren] = useState<Child[]>(() => {
     const savedChildren = localStorage.getItem('childrenProfiles');
@@ -211,6 +228,10 @@ const Dashboard: React.FC = () => {
   // Parent connection state (for students)
   const [connectedParent, setConnectedParent] = useState<{ parentId: string; parentName: string } | null>(null);
   
+  // Parent account state management
+  const [parentAccountData, setParentAccountData] = useState<any>(null);
+  const [parentDashboardView, setParentDashboardView] = useState<'overview' | 'students' | 'subscription' | 'settings'>('overview');
+  
   // Privacy settings state
   const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
   const [privacySettings, setPrivacySettings] = useState<PrivacySettings>(() => {
@@ -263,6 +284,48 @@ const Dashboard: React.FC = () => {
       }
     }
   }, [isFromInvitation, parentConnection, state?.demoMode]);
+
+  // Initialize parent account data from payment success
+  useEffect(() => {
+    if (isNewParentAccount && state?.parentAccount) {
+      // Set up parent account data
+      // Initialize parent account data based on account type
+      const accountData = {
+        ...state.parentAccount,
+        accountType: parentAccountType,
+        subscriptionType: parentSubscriptionType,
+        billingPeriod: state.billingPeriod,
+        linkedStudents: parentAccountType === 'payment-only' ? [] : [linkedStudentName],
+        studentPaidFor: parentAccountType === 'payment-only' ? linkedStudentName : undefined,
+        isParentPlan: isParentPlan,
+        capabilities: parentAccount?.capabilities
+      };
+      
+      setParentAccountData(accountData);
+      
+      // Store parent account in localStorage for persistence
+      localStorage.setItem('parentAccountData', JSON.stringify(accountData));
+      
+      // Update profile data with parent information
+      setProfileData({
+        firstName: state.parentAccount.firstName || 'Parent',
+        birthday: '',
+        email: parentEmail
+      });
+      
+      console.log('Initialized new parent account:', {
+        subscriptionType: parentSubscriptionType,
+        isParentPlan: isParentPlan,
+        linkedStudent: linkedStudentName
+      });
+    } else {
+      // Try to load existing parent account data
+      const savedParentData = localStorage.getItem('parentAccountData');
+      if (savedParentData) {
+        setParentAccountData(JSON.parse(savedParentData));
+      }
+    }
+  }, [isNewParentAccount, parentAccountType, parentSubscriptionType, isParentPlan, linkedStudentName, parentEmail, parentAccount]);
 
   // Load saved and applied scholarships from localStorage on mount
   useEffect(() => {
@@ -1268,7 +1331,292 @@ const Dashboard: React.FC = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {isParentChildFTUE && activeChildTab !== 'browse' && children.find(c => c.id === activeChildTab) ? (
+        {isNewParentAccount || parentAccountData ? (
+          /* New Parent Account Dashboard */
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {parentAccountType === 'payment-only' ? (
+              // Payment-Only Parent Dashboard (Billing Portal)
+              <div className="bg-white rounded-lg shadow-lg p-8">
+                <div className="text-center mb-8">
+                  <h1 className="text-3xl font-serif font-bold text-vault-blue mb-2">
+                    Payment Complete! 🎉
+                  </h1>
+                  <p className="text-gray-600">
+                    You've successfully paid for {linkedStudentName}'s ScholarTrail subscription
+                  </p>
+                </div>
+
+                <div className="max-w-2xl mx-auto space-y-6">
+                  {/* Subscription Overview */}
+                  <div className="bg-gray-50 rounded-lg p-6">
+                    <h2 className="text-xl font-semibold text-gray-900 mb-4">Subscription Details</h2>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-gray-600">Student:</span>
+                        <div className="font-semibold">{linkedStudentName}</div>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Plan:</span>
+                        <div className="font-semibold">Student Plan</div>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Amount:</span>
+                        <div className="font-semibold">$2.99/month</div>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Status:</span>
+                        <div className="font-semibold text-verified-green">Active</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button className="px-6 py-3 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-all">
+                      View Payment History
+                    </button>
+                    <button className="px-6 py-3 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-all">
+                      Update Payment Method
+                    </button>
+                  </div>
+
+                  {/* Upgrade Option */}
+                  <div className="bg-info-blue bg-opacity-10 border border-info-blue rounded-lg p-6">
+                    <h3 className="font-semibold text-gray-900 mb-2">Want to Track Progress?</h3>
+                    <p className="text-gray-600 mb-4">
+                      Upgrade to a Parent Account to view {linkedStudentName}'s scholarship progress, 
+                      add more students, and access the full parent dashboard.
+                    </p>
+                    <button className="px-6 py-2 bg-trust-pink text-white rounded-md hover:bg-opacity-90 transition-all">
+                      Upgrade to Parent Account
+                    </button>
+                  </div>
+
+                  {/* Contact Support */}
+                  <div className="text-center text-sm text-gray-600 pt-4 border-t">
+                    <p>Questions about your subscription? Contact us at support@scholartrail.com</p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              // Full Parent Dashboard (Free or Paid)
+              <div className="space-y-8">
+                {/* Parent Dashboard Header */}
+                <div className="bg-white rounded-lg shadow-lg p-8">
+                  <div className="flex items-center justify-between mb-6">
+                    <div>
+                      <h1 className="text-3xl font-serif font-bold text-vault-blue mb-2">
+                        Welcome to Your {isParentPlan ? 'Parent' : 'Trial'} Dashboard! 🎓
+                      </h1>
+                      <p className="text-gray-600">
+                        {isParentPlan 
+                          ? `Manage up to 3 student profiles and track their scholarship progress`
+                          : `Trial account with limited features - Add ${linkedStudentName || 'your student'} to get started`
+                        }
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <div className="bg-privacy-teal bg-opacity-10 rounded-lg p-4">
+                        <div className="text-2xl font-bold text-privacy-teal">
+                          {parentAccountType === 'parent-free' ? 'Free Trial' : isParentPlan ? 'Parent Plan' : 'Student Plan'}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {parentAccountType === 'parent-free' ? 'Free' : `$${parentAccountData?.subscriptionType === 'parent' ? '4.99' : '2.99'}/month`}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Quick Stats */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div className="bg-gray-50 rounded-lg p-6 text-center">
+                      <div className="text-3xl font-bold text-vault-blue mb-2">
+                        {parentAccountType === 'parent-free' ? '0' : parentAccountData?.linkedStudents?.length || 1}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        Linked Student{(parentAccountData?.linkedStudents?.length || 1) === 1 ? '' : 's'}
+                      </div>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-6 text-center">
+                      <div className="text-3xl font-bold text-vault-blue mb-2">
+                        {parentAccountType === 'parent-free' ? '3' : isParentPlan ? '47' : '0'}
+                      </div>
+                      <div className="text-sm text-gray-600">Scholarship Matches</div>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-6 text-center">
+                      <div className="text-3xl font-bold text-vault-blue mb-2">
+                        {parentAccountType === 'parent-free' ? '$12K' : isParentPlan ? '$124K' : '$0'}
+                      </div>
+                      <div className="text-sm text-gray-600">Total Available</div>
+                    </div>
+                  </div>
+
+                  {/* Student Overview */}
+                  <div className="space-y-4">
+                    <h3 className="text-xl font-semibold text-gray-900">Your Students</h3>
+                    
+                    {parentAccountType === 'parent-free' ? (
+                      // Free Trial - Show add student prompt
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                        <div className="space-y-4">
+                          <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto">
+                            <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-gray-900 mb-2">Add Your First Student</h4>
+                            <p className="text-sm text-gray-600 mb-4">
+                              Start tracking scholarship progress for one student with your free trial
+                            </p>
+                            <button className="px-4 py-2 bg-privacy-teal text-white rounded-md hover:bg-opacity-90 transition-all">
+                              Add Student Profile
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      // Current Student (for paid accounts)
+                      <div className="bg-gray-50 rounded-lg p-6">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4">
+                            <div className="w-12 h-12 bg-privacy-teal rounded-full flex items-center justify-center">
+                              <span className="text-white font-semibold">
+                                {(linkedStudentName || 'S')[0]}
+                              </span>
+                            </div>
+                            <div>
+                              <h4 className="font-semibold text-gray-900">
+                                {linkedStudentName || 'Student'}
+                              </h4>
+                              <p className="text-sm text-gray-600">
+                                {isParentPlan 
+                                  ? 'Active scholarship search • 47 matches'
+                                  : 'Basic tracking • Limited view'
+                                }
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex space-x-2">
+                            {isParentPlan ? (
+                              <>
+                                <button className="px-4 py-2 bg-privacy-teal text-white rounded-md hover:bg-opacity-90 transition-all">
+                                  View Progress
+                                </button>
+                                <button className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-all">
+                                  Manage
+                                </button>
+                              </>
+                            ) : (
+                              <button className="px-4 py-2 bg-trust-pink text-white rounded-md hover:bg-opacity-90 transition-all">
+                                Upgrade to Track Progress
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {isParentPlan && (parentAccountData?.linkedStudents?.length || 1) < 3 && (
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                        <div className="space-y-2">
+                          <div className="text-gray-600">
+                            Add up to {3 - (parentAccountData?.linkedStudents?.length || 1)} more students
+                          </div>
+                          <button className="px-6 py-3 bg-privacy-teal text-white rounded-md hover:bg-opacity-90 transition-all">
+                            + Add Student Profile
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Upgrade Prompt for Trial/Basic Accounts */}
+                  {(parentAccountType === 'parent-free' || !isParentPlan) && (
+                    <div className="mt-8 bg-info-blue bg-opacity-10 border border-info-blue rounded-lg p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-lg font-semibold text-info-blue mb-2">
+                            {parentAccountType === 'parent-free' ? '🚀 Upgrade to Full Parent Account' : '🚀 Upgrade to Parent Plan'}
+                          </h3>
+                          <p className="text-gray-700 mb-2">
+                            {parentAccountType === 'parent-free' 
+                              ? 'Get unlimited scholarships, up to 3 students, and full progress tracking'
+                              : 'Unlock full progress tracking, support for up to 3 students, and comprehensive dashboard features'
+                            }
+                          </p>
+                          <ul className="text-sm text-gray-600 space-y-1">
+                            <li>• Full scholarship application timeline</li>
+                            <li>• Success metrics and insights</li>
+                            <li>• Email notifications for milestones</li>
+                            <li>• Manage up to 3 student profiles</li>
+                          </ul>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-info-blue mb-2">$4.99/month</div>
+                          <button className="px-6 py-3 bg-info-blue text-white rounded-md hover:bg-opacity-90 transition-all">
+                            Upgrade Now
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Subscription Management */}
+                {parentAccountType !== 'parent-free' && (
+                  <div className="bg-white rounded-lg shadow-lg p-8">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-6">Subscription Management</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <div className="flex justify-between py-2">
+                          <span className="text-gray-600">Current Plan:</span>
+                          <span className="font-semibold">
+                            {isParentPlan ? 'Parent Plan' : 'Student Plan'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between py-2">
+                          <span className="text-gray-600">Billing:</span>
+                          <span className="font-semibold capitalize">
+                            {parentAccountData?.billingPeriod || 'Monthly'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between py-2">
+                          <span className="text-gray-600">Next Payment:</span>
+                          <span className="font-semibold">
+                            {new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <div className="flex justify-between py-2">
+                          <span className="text-gray-600">Amount:</span>
+                          <span className="font-semibold">
+                            ${isParentPlan ? '4.99' : '2.99'}/month
+                          </span>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <button className="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-all">
+                          Update Payment Method
+                        </button>
+                        <button className="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-all">
+                          View Payment History
+                        </button>
+                        {!isParentPlan && (
+                          <button className="w-full px-4 py-2 bg-trust-pink text-white rounded-md hover:bg-opacity-90 transition-all">
+                            Upgrade to Parent Plan
+                          </button>
+                        )}
+                        <button className="w-full px-4 py-2 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-all">
+                          Cancel Subscription
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ) : isParentChildFTUE && activeChildTab !== 'browse' && children.find(c => c.id === activeChildTab) ? (
           /* Parent Child Free User State (FTUE) */
           <>
             {/* Parent Child Overview Section */}
@@ -2206,6 +2554,7 @@ const Dashboard: React.FC = () => {
           setIsPaywallModalOpen(false);
           setIsRequestPaymentModalOpen(true);
         }}
+        hideParentPayOption={isNewParentAccount || !!parentAccountData || isParentChildFTUE || isParentNonPersonalized}
       />
       
       <RequestPaymentModal

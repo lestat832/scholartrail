@@ -1,6 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getPaymentRequestByToken } from '../utils/paymentService';
+import { 
+  getPaymentRequestByToken, 
+  getPlanComparison, 
+  getPrice,
+  getParentUpgradeOptions,
+  createParentAccount,
+  SubscriptionType,
+  BillingPeriod,
+  ParentAccountType,
+  getParentAccountTypePrice,
+  getAccountTypeInfo,
+  PRICING_PLANS
+} from '../utils/paymentService';
 import Logo from '../components/Logo';
 
 const ParentPaymentPage: React.FC = () => {
@@ -22,6 +34,11 @@ const ParentPaymentPage: React.FC = () => {
   
   // Parent account fields
   const [password, setPassword] = useState('');
+  
+  // Account type selection
+  const [selectedAccountType, setSelectedAccountType] = useState<ParentAccountType>('payment-only');
+  const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>('monthly');
+  const [showUpgradeOptions, setShowUpgradeOptions] = useState(false);
 
   useEffect(() => {
     if (token) {
@@ -34,6 +51,30 @@ const ParentPaymentPage: React.FC = () => {
         } else {
           setPaymentRequest(request);
           setEmail(request.parentEmail);
+          
+          // Check for existing parent account and upgrade options
+          const upgradeOptions = getParentUpgradeOptions(request.parentEmail, request.studentName);
+          if (upgradeOptions.hasAccount) {
+            setShowUpgradeOptions(true);
+            // If parent needs upgrade, suggest parent-paid
+            if (upgradeOptions.needsUpgrade) {
+              setSelectedAccountType('parent-paid');
+            } else {
+              setSelectedAccountType(upgradeOptions.accountType || 'payment-only');
+            }
+          }
+          
+          // Set default account type based on subscription type from request
+          if (request.subscriptionType === 'parent') {
+            setSelectedAccountType('parent-paid');
+          } else {
+            setSelectedAccountType('payment-only');
+          }
+          
+          // Set billing period from request if available
+          if (request.plan) {
+            setBillingPeriod(request.plan);
+          }
         }
       } else {
         setError('Invalid payment link.');
@@ -62,12 +103,31 @@ const ParentPaymentPage: React.FC = () => {
 
     // Simulate payment processing
     setTimeout(() => {
-      // Store payment success data
+      // Determine subscription type based on account type
+      const subscriptionType: SubscriptionType | undefined = 
+        selectedAccountType === 'parent-paid' ? 'parent' : 
+        selectedAccountType === 'payment-only' ? 'student' : undefined;
+      
+      // Create parent account with selected account type
+      const parentAccount = createParentAccount(
+        email,
+        password,
+        paymentRequest?.studentName || '',
+        selectedAccountType,
+        subscriptionType,
+        billingPeriod
+      );
+
+      // Store payment success data with account details
       const successData = {
         email,
         studentName: paymentRequest?.studentName,
+        accountType: selectedAccountType,
+        subscriptionType,
+        billingPeriod,
+        price: getParentAccountTypePrice(selectedAccountType, billingPeriod),
         createAccount: true,
-        temporaryPassword: Math.random().toString(36).slice(-8)
+        parentAccount
       };
       
       localStorage.setItem('parentPaymentSuccess', JSON.stringify(successData));
@@ -131,11 +191,158 @@ const ParentPaymentPage: React.FC = () => {
           {/* Payment Header */}
           <div className="bg-gray-50 p-6 border-b border-gray-200">
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Complete Payment for {paymentRequest?.studentName}
+              Choose Your ScholarTrail Plan
             </h1>
             <p className="text-gray-600">
-              Secure payment for ScholarTrail annual subscription
+              Supporting {paymentRequest?.studentName}'s scholarship journey
             </p>
+          </div>
+
+          {/* Plan Selection */}
+          <div className="p-6 border-b border-gray-200">
+            {/* Billing Period Toggle */}
+            <div className="flex justify-center mb-6">
+              <div className="bg-gray-100 p-1 rounded-lg inline-flex">
+                <button
+                  type="button"
+                  onClick={() => setBillingPeriod('monthly')}
+                  className={`px-4 py-2 rounded-md font-medium transition-all ${
+                    billingPeriod === 'monthly'
+                      ? 'bg-white text-privacy-teal shadow-sm'
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
+                >
+                  Monthly
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setBillingPeriod('annual')}
+                  className={`px-4 py-2 rounded-md font-medium transition-all ${
+                    billingPeriod === 'annual'
+                      ? 'bg-white text-privacy-teal shadow-sm'
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
+                >
+                  Annual
+                  <span className="ml-1 text-xs bg-verified-green text-white px-1.5 py-0.5 rounded-full">
+                    Save 2 months
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* Account Type Comparison */}
+            <div className="grid md:grid-cols-2 gap-4">
+              {/* Payment Only */}
+              <div className={`border-2 rounded-lg p-6 cursor-pointer transition-all ${
+                selectedAccountType === 'payment-only'
+                  ? 'border-privacy-teal bg-privacy-teal bg-opacity-5'
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+              onClick={() => setSelectedAccountType('payment-only')}>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center">
+                    <div className={`w-4 h-4 rounded-full border-2 mr-3 ${
+                      selectedAccountType === 'payment-only'
+                        ? 'border-privacy-teal bg-privacy-teal'
+                        : 'border-gray-300'
+                    }`}>
+                      {selectedAccountType === 'payment-only' && (
+                        <div className="w-full h-full rounded-full bg-white transform scale-50"></div>
+                      )}
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Pay for {paymentRequest?.studentName} Only
+                    </h3>
+                  </div>
+                </div>
+                
+                <div className="mb-4">
+                  <div className="flex items-baseline">
+                    <span className="text-3xl font-bold text-gray-900">
+                      ${getParentAccountTypePrice('payment-only', billingPeriod).toFixed(2)}
+                    </span>
+                    <span className="ml-1 text-gray-600">
+                      /{billingPeriod === 'monthly' ? 'month' : 'year'}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-600 mt-1">
+                    {getAccountTypeInfo('payment-only').description}
+                  </p>
+                </div>
+
+                <ul className="space-y-2 text-sm text-gray-600">
+                  {getAccountTypeInfo('payment-only').features.map((feature, index) => (
+                    <li key={index} className="flex items-center">
+                      <svg className="w-4 h-4 text-verified-green mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Parent Premium */}
+              <div className={`border-2 rounded-lg p-6 cursor-pointer transition-all relative ${
+                selectedAccountType === 'parent-paid'
+                  ? 'border-privacy-teal bg-privacy-teal bg-opacity-5'
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+              onClick={() => setSelectedAccountType('parent-paid')}>
+                {/* Recommended Badge */}
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-trust-pink text-white px-3 py-1 rounded-full text-xs font-semibold">
+                    RECOMMENDED
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center">
+                    <div className={`w-4 h-4 rounded-full border-2 mr-3 ${
+                      selectedAccountType === 'parent-paid'
+                        ? 'border-privacy-teal bg-privacy-teal'
+                        : 'border-gray-300'
+                    }`}>
+                      {selectedAccountType === 'parent-paid' && (
+                        <div className="w-full h-full rounded-full bg-white transform scale-50"></div>
+                      )}
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Get Parent Account + {paymentRequest?.studentName}
+                    </h3>
+                  </div>
+                </div>
+                
+                <div className="mb-4">
+                  <div className="flex items-baseline">
+                    <span className="text-3xl font-bold text-gray-900">
+                      ${getParentAccountTypePrice('parent-paid', billingPeriod).toFixed(2)}
+                    </span>
+                    <span className="ml-1 text-gray-600">
+                      /{billingPeriod === 'monthly' ? 'month' : 'year'}
+                    </span>
+                  </div>
+                  <p className="text-sm text-trust-pink font-medium mt-1">
+                    {billingPeriod === 'monthly' 
+                      ? 'Only $1.66 per student with 3 students'
+                      : 'Only $19.96 per student with 3 students'
+                    }
+                  </p>
+                </div>
+
+                <ul className="space-y-2 text-sm text-gray-600">
+                  {getAccountTypeInfo('parent-paid').features.map((feature, index) => (
+                    <li key={index} className="flex items-center">
+                      <svg className="w-4 h-4 text-verified-green mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
           </div>
 
           {/* Payment Form */}
@@ -143,8 +350,14 @@ const ParentPaymentPage: React.FC = () => {
             {/* Amount Display */}
             <div className="bg-info-blue bg-opacity-10 rounded-lg p-4 text-center">
               <p className="text-sm text-gray-600 mb-1">Amount to pay</p>
-              <p className="text-3xl font-bold text-vault-blue">$34.00</p>
-              <p className="text-sm text-gray-600 mt-1">Annual subscription</p>
+              <p className="text-3xl font-bold text-vault-blue">
+                ${getParentAccountTypePrice(selectedAccountType, billingPeriod).toFixed(2)}
+              </p>
+              <p className="text-sm text-gray-600 mt-1">
+                {getAccountTypeInfo(selectedAccountType).name} • 
+                {billingPeriod === 'monthly' ? ' Monthly billing' : ' Annual billing'}
+                {billingPeriod === 'annual' && <span className="text-verified-green font-medium"> (Save 2 months)</span>}
+              </p>
             </div>
 
             {/* Credit or Debit Card Section */}

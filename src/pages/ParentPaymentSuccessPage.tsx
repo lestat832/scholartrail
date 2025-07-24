@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Logo from '../components/Logo';
+import { PRICING_PLANS, SubscriptionType } from '../utils/paymentService';
 
 const ParentPaymentSuccessPage: React.FC = () => {
   const navigate = useNavigate();
@@ -22,6 +23,11 @@ const ParentPaymentSuccessPage: React.FC = () => {
     return null;
   }
 
+  const subscriptionType = successData.subscriptionType || 'student';
+  const billingPeriod = successData.billingPeriod || 'monthly';
+  const plan = PRICING_PLANS[subscriptionType as SubscriptionType];
+  const isParentPlan = subscriptionType === 'parent';
+
   const handleGoToDashboard = () => {
     // In a real app, this would log the parent in automatically
     navigate('/dashboard', { 
@@ -29,7 +35,11 @@ const ParentPaymentSuccessPage: React.FC = () => {
         userType: 'parent',
         isNewAccount: true,
         email: successData.email,
-        firstName: successData.firstName
+        studentName: successData.studentName,
+        subscriptionType: successData.subscriptionType || 'student',
+        billingPeriod: successData.billingPeriod || 'monthly',
+        parentAccount: successData.parentAccount,
+        fromPaymentSuccess: true
       } 
     });
   };
@@ -65,11 +75,23 @@ const ParentPaymentSuccessPage: React.FC = () => {
               <dl className="space-y-3">
                 <div className="flex justify-between">
                   <dt className="text-gray-600">Amount Paid:</dt>
-                  <dd className="font-semibold text-gray-900">$34.00</dd>
+                  <dd className="font-semibold text-gray-900">
+                    ${(successData.price || 34).toFixed(2)}
+                  </dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-gray-600">Subscription:</dt>
-                  <dd className="font-semibold text-gray-900">Annual ScholarTrail</dd>
+                  <dt className="text-gray-600">Plan:</dt>
+                  <dd className="font-semibold text-gray-900">
+                    {isParentPlan ? 'Parent Plan' : 'Student Plan'}
+                    {isParentPlan && <span className="ml-1 text-xs bg-trust-pink text-white px-2 py-0.5 rounded-full">PREMIUM</span>}
+                  </dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className="text-gray-600">Billing:</dt>
+                  <dd className="font-semibold text-gray-900 capitalize">
+                    {billingPeriod}
+                    {billingPeriod === 'annual' && <span className="text-xs text-verified-green ml-1">(Save 2 months)</span>}
+                  </dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-gray-600">Student:</dt>
@@ -89,11 +111,38 @@ const ParentPaymentSuccessPage: React.FC = () => {
                   <svg className="w-5 h-5 mr-2 text-privacy-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
-                  Parent Account Created
+                  {isParentPlan ? 'Parent Account Created' : 'Basic Parent Account Created'}
                 </h2>
                 <p className="text-gray-600 mb-3">
-                  We've created a parent account for you to track {successData.studentName}'s scholarship progress.
+                  {isParentPlan 
+                    ? `You now have full parent dashboard access to track progress for up to ${plan.limits.studentProfiles} students, starting with ${successData.studentName}.`
+                    : `We've created a basic parent account for payment management and limited progress tracking for ${successData.studentName}.`
+                  }
                 </p>
+                
+                {/* Plan Features */}
+                <div className="bg-gray-50 rounded p-4 mb-4">
+                  <h3 className="font-medium text-gray-900 mb-2">Your Plan Includes:</h3>
+                  <ul className="space-y-1 text-sm text-gray-600">
+                    {plan.features.slice(0, isParentPlan ? 4 : 3).map((feature, index) => (
+                      <li key={index} className="flex items-center">
+                        <svg className="w-4 h-4 text-verified-green mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  
+                  {!isParentPlan && (
+                    <div className="mt-3 p-3 bg-info-blue bg-opacity-10 rounded border border-info-blue">
+                      <p className="text-sm text-info-blue font-medium">
+                        💡 Upgrade to Parent Plan to unlock full dashboard, progress tracking, and support for up to 3 students!
+                      </p>
+                    </div>
+                  )}
+                </div>
+
                 <div className="bg-gray-50 rounded p-4 space-y-2">
                   <p className="text-sm">
                     <span className="font-medium">Email:</span> {successData.email}
@@ -134,14 +183,29 @@ const ParentPaymentSuccessPage: React.FC = () => {
                     <svg className="w-5 h-5 text-info-blue mt-0.5 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
                     </svg>
-                    <span>You can track scholarship applications and progress</span>
+                    <span>
+                      {isParentPlan 
+                        ? 'Access your full parent dashboard with progress tracking'
+                        : 'View basic scholarship progress and manage your subscription'
+                      }
+                    </span>
+                  </li>
+                )}
+                {isParentPlan && successData.createAccount && (
+                  <li className="flex items-start">
+                    <svg className="w-5 h-5 text-info-blue mt-0.5 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span>Add up to 2 more student profiles to your account</span>
                   </li>
                 )}
                 <li className="flex items-start">
                   <svg className="w-5 h-5 text-info-blue mt-0.5 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>Subscription renews automatically in one year</span>
+                  <span>
+                    Subscription renews automatically in one {billingPeriod === 'monthly' ? 'month' : 'year'}
+                  </span>
                 </li>
               </ul>
             </div>
@@ -153,7 +217,7 @@ const ParentPaymentSuccessPage: React.FC = () => {
                   onClick={handleGoToDashboard}
                   className="w-full py-3 px-6 bg-privacy-teal text-white rounded-md font-semibold hover:bg-opacity-90 transition-all"
                 >
-                  Go to Parent Dashboard
+                  {isParentPlan ? 'Go to Parent Dashboard' : 'Go to Basic Dashboard'}
                 </button>
               )}
               <button

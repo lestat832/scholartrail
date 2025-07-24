@@ -8,9 +8,10 @@ interface PaywallModalProps {
   onClose: () => void;
   onPurchase: () => void;
   onRequestPayment: () => void;
+  hideParentPayOption?: boolean;
 }
 
-const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onPurchase, onRequestPayment }) => {
+const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onPurchase, onRequestPayment, hideParentPayOption = false }) => {
   const { subscription } = usePayment();
   const [isAnnual, setIsAnnual] = useState(true);
   const [showCouponCode, setShowCouponCode] = useState(false);
@@ -304,22 +305,24 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onPurchase
                     )}
                   </div>
 
-                  {/* Ask my parent to pay */}
-                  <div 
-                    className="border-2 rounded-lg p-4 cursor-pointer transition-all border-gray-200 hover:border-privacy-teal"
-                    onClick={onRequestPayment}
-                  >
-                    <div>
-                      <div className="flex items-center mb-2">
-                        <div className="w-5 h-5 rounded-full border-2 mr-3 border-gray-300">
+                  {/* Ask my parent to pay - Only show for student accounts */}
+                  {!hideParentPayOption && (
+                    <div 
+                      className="border-2 rounded-lg p-4 cursor-pointer transition-all border-gray-200 hover:border-privacy-teal"
+                      onClick={onRequestPayment}
+                    >
+                      <div>
+                        <div className="flex items-center mb-2">
+                          <div className="w-5 h-5 rounded-full border-2 mr-3 border-gray-300">
+                          </div>
+                          <span className="font-medium">Ask My Parents To Pay</span>
                         </div>
-                        <span className="font-medium">Ask My Parents To Pay</span>
+                        <p className="text-sm text-gray-600 ml-8">
+                          Send a secure payment request to your parent's email. They'll receive a one-click link to pay for your ScholarTrail subscription.
+                        </p>
                       </div>
-                      <p className="text-sm text-gray-600 ml-8">
-                        Send a secure payment request to your parent's email. They'll receive a one-click link to pay for your ScholarTrail subscription.
-                      </p>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
 
