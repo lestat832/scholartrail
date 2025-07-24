@@ -462,8 +462,6 @@ export const getParentAccountTypePrice = (
 
 // Get account type display information
 export const getAccountTypeInfo = (accountType: ParentAccountType) => {
-  const capabilities = PARENT_ACCOUNT_CAPABILITIES[accountType];
-  
   switch (accountType) {
     case 'payment-only':
       return {
