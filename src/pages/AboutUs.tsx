@@ -15,7 +15,7 @@ const AboutUs: React.FC = () => {
       title: 'Privacy First',
       description: 'Your data belongs to you. We never sell or share your personal information.',
       icon: (
-        <svg className="w-12 h-12 text-privacy-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-12 h-12 text-st-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
         </svg>
       ),
@@ -24,7 +24,7 @@ const AboutUs: React.FC = () => {
       title: 'Equity & Access',
       description: 'Breaking down barriers to ensure every student has equal opportunity to find funding.',
       icon: (
-        <svg className="w-12 h-12 text-privacy-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-12 h-12 text-st-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
       ),
@@ -33,7 +33,7 @@ const AboutUs: React.FC = () => {
       title: 'Transparency',
       description: 'Clear, honest communication about how we operate and protect your information.',
       icon: (
-        <svg className="w-12 h-12 text-privacy-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-12 h-12 text-st-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
         </svg>
       ),
@@ -42,7 +42,7 @@ const AboutUs: React.FC = () => {
       title: 'Community',
       description: 'Supporting students, families, and educators in their journey to higher education.',
       icon: (
-        <svg className="w-12 h-12 text-privacy-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-12 h-12 text-st-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
         </svg>
       ),
@@ -81,12 +81,12 @@ const AboutUs: React.FC = () => {
       />
       
       {/* Hero Section */}
-      <section className="bg-protected-bg py-20">
+      <section className="bg-gray-50 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-5xl font-serif font-bold text-vault-blue mb-6">
+          <h1 className="heading-hero mb-6">
             Empowering Students Without Compromising Privacy
           </h1>
-          <p className="text-xl text-neutral-gray max-w-3xl mx-auto">
+          <p className="text-body text-xl max-w-3xl mx-auto">
             ScholarTrail is a nonprofit platform that believes every student deserves access to scholarships 
             without sacrificing their personal data or being bombarded with spam.
           </p>
@@ -97,17 +97,17 @@ const AboutUs: React.FC = () => {
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-serif font-bold text-vault-blue mb-8">Our Mission</h2>
-            <p className="text-lg text-neutral-gray mb-6">
+            <h2 className="heading-section mb-8">Our Mission</h2>
+            <p className="text-body text-lg mb-6">
               ScholarTrail is a mission-driven, privacy-first nonprofit platform that empowers students, 
               families, and educators to unlock higher-education funding without sacrificing personal data.
             </p>
-            <p className="text-lg text-neutral-gray mb-6">
+            <p className="text-body text-lg mb-6">
               By combining a tailored matching engine with family and teacher collaboration tools, 
               ScholarTrail removes the noise and inequities of today's scholarship landscape while 
               operating under a sustainable 501(c)(3) model.
             </p>
-            <p className="text-lg font-semibold text-vault-blue">
+            <p className="text-lg font-semibold text-st-purple-600">
               No ads. No spam. No data harvesting. Just scholarships.
             </p>
           </div>
@@ -115,7 +115,7 @@ const AboutUs: React.FC = () => {
       </section>
 
       {/* Why We Exist Section */}
-      <section className="py-20 bg-protected-bg">
+      <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-serif font-bold text-vault-blue text-center mb-12">
             The Problem We're Solving

@@ -4,7 +4,7 @@ import Logo from './Logo';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-vault-blue text-white py-12">
+    <footer className="bg-gray-900 text-white py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-center">
           {/* Logo/Brand */}
@@ -41,7 +41,7 @@ const Footer: React.FC = () => {
         {/* Trust Indicators */}
         <div className="mt-8 pt-8 border-t border-gray-600 text-center">
           <div className="flex items-center justify-center space-x-2">
-            <div className="w-4 h-4 bg-verified-green rounded-full"></div>
+            <div className="w-4 h-4 bg-green-500 rounded-full"></div>
             <p className="text-sm text-gray-300">
               Your data is safe with us. No ads. No spam. Just scholarships.
             </p>

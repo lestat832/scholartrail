@@ -6,21 +6,42 @@ import { PRICING_PLANS, SubscriptionType } from '../utils/paymentService';
 const ParentPaymentSuccessPage: React.FC = () => {
   const navigate = useNavigate();
   const [successData, setSuccessData] = useState<any>(null);
+  const [countdown, setCountdown] = useState(5);
 
   useEffect(() => {
     const data = localStorage.getItem('parentPaymentSuccess');
+    console.log('ParentPaymentSuccess - localStorage data:', data);
     if (data) {
-      setSuccessData(JSON.parse(data));
-      // Clear the success data after reading
-      localStorage.removeItem('parentPaymentSuccess');
-    } else {
-      // If no success data, redirect to home
-      navigate('/');
+      const parsedData = JSON.parse(data);
+      console.log('ParentPaymentSuccess - parsed data:', parsedData);
+      setSuccessData(parsedData);
+      // Don't clear immediately - wait for component to fully load
+      // localStorage.removeItem('parentPaymentSuccess');
     }
-  }, [navigate]);
+  }, []);
 
   if (!successData) {
-    return null;
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md text-center">
+          <div className="mb-4">
+            <svg className="w-16 h-16 text-gray-400 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Session Expired</h2>
+          <p className="text-gray-600 mb-6">
+            Your payment session has expired. Please return to the payment page and try again.
+          </p>
+          <button
+            onClick={() => navigate('/')}
+            className="px-6 py-2 bg-privacy-teal text-white rounded-md hover:bg-opacity-90 transition-all"
+          >
+            Return to Home
+          </button>
+        </div>
+      </div>
+    );
   }
 
   const subscriptionType = successData.subscriptionType || 'student';
@@ -29,6 +50,9 @@ const ParentPaymentSuccessPage: React.FC = () => {
   const isParentPlan = subscriptionType === 'parent';
 
   const handleGoToDashboard = () => {
+    // Clear the success data before navigating
+    localStorage.removeItem('parentPaymentSuccess');
+    
     // In a real app, this would log the parent in automatically
     navigate('/dashboard', { 
       state: { 
@@ -36,6 +60,7 @@ const ParentPaymentSuccessPage: React.FC = () => {
         isNewAccount: true,
         email: successData.email,
         studentName: successData.studentName,
+        accountType: successData.accountType, // Added missing accountType
         subscriptionType: successData.subscriptionType || 'student',
         billingPeriod: successData.billingPeriod || 'monthly',
         parentAccount: successData.parentAccount,
@@ -43,6 +68,23 @@ const ParentPaymentSuccessPage: React.FC = () => {
       } 
     });
   };
+
+  // Auto-redirect to dashboard after 5 seconds
+  useEffect(() => {
+    if (successData && successData.createAccount) {
+      const countdownTimer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            handleGoToDashboard();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      
+      return () => clearInterval(countdownTimer);
+    }
+  }, [successData]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -213,12 +255,17 @@ const ParentPaymentSuccessPage: React.FC = () => {
             {/* Action Buttons */}
             <div className="space-y-3">
               {successData.createAccount && (
-                <button
-                  onClick={handleGoToDashboard}
-                  className="w-full py-3 px-6 bg-privacy-teal text-white rounded-md font-semibold hover:bg-opacity-90 transition-all"
-                >
-                  {isParentPlan ? 'Go to Parent Dashboard' : 'Go to Basic Dashboard'}
-                </button>
+                <div className="space-y-2">
+                  <button
+                    onClick={handleGoToDashboard}
+                    className="w-full py-3 px-6 bg-privacy-teal text-white rounded-md font-semibold hover:bg-opacity-90 transition-all"
+                  >
+                    {isParentPlan ? 'Go to Parent Dashboard' : 'Go to Basic Dashboard'}
+                  </button>
+                  <p className="text-sm text-gray-500 text-center">
+                    Redirecting in {countdown} seconds...
+                  </p>
+                </div>
               )}
               <button
                 onClick={() => navigate('/')}

@@ -1,0 +1,371 @@
+/**
+ * ScholarTrail Design Tokens
+ * CSS Custom Properties for the design system
+ * Based on Canva presentation brand guidelines
+ */
+
+:root {
+  /* ================================
+     COLOR PALETTE
+     ================================ */
+  
+  /* Primary Purple Gradient */
+  --st-purple-50: #F3F0FF;
+  --st-purple-100: #E9E5FF;
+  --st-purple-200: #D6CCFF;
+  --st-purple-300: #A78BFA;   /* Light purple */
+  --st-purple-400: #8B5CF6;   /* Main purple */
+  --st-purple-500: #7C3AED;   /* Dark purple */
+  --st-purple-600: #6366F1;   /* Deep purple */
+  --st-purple-700: #5B21B6;
+  --st-purple-800: #4C1D95;
+  --st-purple-900: #3C1361;
+
+  /* Secondary Blue Accents */
+  --st-blue-50: #EFF6FF;
+  --st-blue-100: #DBEAFE;
+  --st-blue-200: #BFDBFE;
+  --st-blue-300: #93C5FD;
+  --st-blue-400: #3B82F6;     /* Light blue */
+  --st-blue-500: #2563EB;     /* Main blue */
+  --st-blue-600: #1E40AF;     /* Dark blue */
+  --st-blue-700: #1E3A8A;
+  --st-blue-800: #1E2A78;
+  --st-blue-900: #1E2A54;
+
+  /* Neutral Colors */
+  --st-white: #FFFFFF;
+  --st-gray-50: #F9FAFB;
+  --st-gray-100: #F3F4F6;
+  --st-gray-200: #E5E7EB;
+  --st-gray-300: #D1D5DB;
+  --st-gray-400: #9CA3AF;
+  --st-gray-500: #6B7280;
+  --st-gray-600: #4B5563;
+  --st-gray-700: #374151;
+  --st-gray-800: #1F2937;
+  --st-gray-900: #111827;
+
+  /* Semantic Colors */
+  --st-success: #10B981;
+  --st-warning: #F59E0B;
+  --st-error: #EF4444;
+  --st-info: #06B6D4;
+
+  /* ================================
+     BACKGROUND COLORS
+     ================================ */
+  --st-bg-primary: var(--st-white);
+  --st-bg-secondary: var(--st-gray-50);
+  --st-bg-accent: var(--st-gray-100);
+  --st-bg-muted: var(--st-gray-200);
+
+  /* ================================
+     TEXT COLORS
+     ================================ */
+  --st-text-primary: var(--st-gray-900);
+  --st-text-secondary: var(--st-gray-600);
+  --st-text-tertiary: var(--st-gray-500);
+  --st-text-quaternary: var(--st-gray-400);
+  --st-text-inverse: var(--st-white);
+
+  /* ================================
+     BORDER COLORS
+     ================================ */
+  --st-border-light: var(--st-gray-200);
+  --st-border-medium: var(--st-gray-300);
+  --st-border-dark: var(--st-gray-400);
+
+  /* ================================
+     TYPOGRAPHY
+     ================================ */
+  
+  /* Font Families */
+  --st-font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --st-font-mono: 'SF Mono', Monaco, Inconsolata, 'Roboto Mono', monospace;
+
+  /* Font Sizes */
+  --st-text-xs: 0.75rem;      /* 12px */
+  --st-text-sm: 0.875rem;     /* 14px */
+  --st-text-base: 1rem;       /* 16px */
+  --st-text-lg: 1.125rem;     /* 18px */
+  --st-text-xl: 1.25rem;      /* 20px */
+  --st-text-2xl: 1.5rem;      /* 24px */
+  --st-text-3xl: 1.875rem;    /* 30px */
+  --st-text-4xl: 2.25rem;     /* 36px */
+  --st-text-5xl: 3rem;        /* 48px */
+  --st-text-6xl: 3.75rem;     /* 60px */
+
+  /* Font Weights */
+  --st-font-thin: 100;
+  --st-font-light: 300;
+  --st-font-normal: 400;
+  --st-font-medium: 500;
+  --st-font-semibold: 600;
+  --st-font-bold: 700;
+  --st-font-extrabold: 800;
+  --st-font-black: 900;
+
+  /* Line Heights */
+  --st-leading-none: 1;
+  --st-leading-tight: 1.25;
+  --st-leading-snug: 1.375;
+  --st-leading-normal: 1.5;
+  --st-leading-relaxed: 1.625;
+  --st-leading-loose: 2;
+
+  /* ================================
+     SPACING SCALE
+     ================================ */
+  --st-space-0: 0;
+  --st-space-1: 0.25rem;      /* 4px */
+  --st-space-2: 0.5rem;       /* 8px */
+  --st-space-3: 0.75rem;      /* 12px */
+  --st-space-4: 1rem;         /* 16px */
+  --st-space-5: 1.25rem;      /* 20px */
+  --st-space-6: 1.5rem;       /* 24px */
+  --st-space-7: 1.75rem;      /* 28px */
+  --st-space-8: 2rem;         /* 32px */
+  --st-space-9: 2.25rem;      /* 36px */
+  --st-space-10: 2.5rem;      /* 40px */
+  --st-space-11: 2.75rem;     /* 44px */
+  --st-space-12: 3rem;        /* 48px */
+  --st-space-14: 3.5rem;      /* 56px */
+  --st-space-16: 4rem;        /* 64px */
+  --st-space-20: 5rem;        /* 80px */
+  --st-space-24: 6rem;        /* 96px */
+  --st-space-28: 7rem;        /* 112px */
+  --st-space-32: 8rem;        /* 128px */
+
+  /* ================================
+     BORDER RADIUS
+     ================================ */
+  --st-radius-none: 0;
+  --st-radius-sm: 0.125rem;    /* 2px */
+  --st-radius-base: 0.25rem;   /* 4px */
+  --st-radius-md: 0.375rem;    /* 6px */
+  --st-radius-lg: 0.5rem;      /* 8px */
+  --st-radius-xl: 0.75rem;     /* 12px */
+  --st-radius-2xl: 1rem;       /* 16px */
+  --st-radius-3xl: 1.5rem;     /* 24px */
+  --st-radius-full: 9999px;
+
+  /* ================================
+     SHADOWS
+     ================================ */
+  --st-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --st-shadow-base: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --st-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --st-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --st-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --st-shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --st-shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+
+  /* Brand-specific shadows */
+  --st-shadow-purple: 0 4px 12px rgba(139, 92, 246, 0.3);
+  --st-shadow-blue: 0 4px 12px rgba(37, 99, 235, 0.3);
+
+  /* ================================
+     TRANSITIONS
+     ================================ */
+  --st-transition-fast: 150ms ease;
+  --st-transition-base: 200ms ease;
+  --st-transition-slow: 300ms ease;
+
+  /* ================================
+     Z-INDEX SCALE
+     ================================ */
+  --st-z-auto: auto;
+  --st-z-0: 0;
+  --st-z-10: 10;
+  --st-z-20: 20;
+  --st-z-30: 30;
+  --st-z-40: 40;
+  --st-z-50: 50;
+  --st-z-dropdown: 1000;
+  --st-z-sticky: 1020;
+  --st-z-fixed: 1030;
+  --st-z-modal-backdrop: 1040;
+  --st-z-modal: 1050;
+  --st-z-popover: 1060;
+  --st-z-tooltip: 1070;
+  --st-z-notification: 1080;
+
+  /* ================================
+     BREAKPOINTS (for reference)
+     ================================ */
+  --st-breakpoint-sm: 640px;
+  --st-breakpoint-md: 768px;
+  --st-breakpoint-lg: 1024px;
+  --st-breakpoint-xl: 1280px;
+  --st-breakpoint-2xl: 1536px;
+}
+
+/* ================================
+   UTILITY CLASSES
+   ================================ */
+
+/* Typography Utilities */
+.st-heading-1 {
+  font-family: var(--st-font-primary);
+  font-size: var(--st-text-5xl);
+  font-weight: var(--st-font-bold);
+  line-height: var(--st-leading-tight);
+  color: var(--st-text-primary);
+}
+
+.st-heading-2 {
+  font-family: var(--st-font-primary);
+  font-size: var(--st-text-4xl);
+  font-weight: var(--st-font-semibold);
+  line-height: var(--st-leading-tight);
+  color: var(--st-text-primary);
+}
+
+.st-heading-3 {
+  font-family: var(--st-font-primary);
+  font-size: var(--st-text-3xl);
+  font-weight: var(--st-font-semibold);
+  line-height: var(--st-leading-snug);
+  color: var(--st-text-primary);
+}
+
+.st-body-large {
+  font-family: var(--st-font-primary);
+  font-size: var(--st-text-lg);
+  font-weight: var(--st-font-normal);
+  line-height: var(--st-leading-relaxed);
+  color: var(--st-text-secondary);
+}
+
+.st-body-base {
+  font-family: var(--st-font-primary);
+  font-size: var(--st-text-base);
+  font-weight: var(--st-font-normal);
+  line-height: var(--st-leading-normal);
+  color: var(--st-text-secondary);
+}
+
+.st-body-small {
+  font-family: var(--st-font-primary);
+  font-size: var(--st-text-sm);
+  font-weight: var(--st-font-normal);
+  line-height: var(--st-leading-normal);
+  color: var(--st-text-tertiary);
+}
+
+/* Button Base Styles */
+.st-button-base {
+  font-family: var(--st-font-primary);
+  font-weight: var(--st-font-medium);
+  border-radius: var(--st-radius-full);
+  transition: all var(--st-transition-base);
+  cursor: pointer;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.st-button-primary {
+  background: linear-gradient(135deg, var(--st-purple-400), var(--st-purple-500));
+  color: var(--st-text-inverse);
+  padding: var(--st-space-3) var(--st-space-6);
+  font-size: var(--st-text-base);
+}
+
+.st-button-primary:hover {
+  background: linear-gradient(135deg, var(--st-purple-500), var(--st-purple-600));
+  transform: translateY(-1px);
+  box-shadow: var(--st-shadow-purple);
+}
+
+.st-button-secondary {
+  background: transparent;
+  color: var(--st-purple-500);
+  border: 2px solid var(--st-purple-500);
+  padding: calc(var(--st-space-3) - 2px) calc(var(--st-space-6) - 2px);
+  font-size: var(--st-text-base);
+}
+
+.st-button-secondary:hover {
+  background: var(--st-purple-500);
+  color: var(--st-text-inverse);
+}
+
+/* Card Styles */
+.st-card {
+  background: var(--st-bg-primary);
+  border-radius: var(--st-radius-2xl);
+  padding: var(--st-space-6);
+  box-shadow: var(--st-shadow-sm);
+  transition: box-shadow var(--st-transition-base);
+}
+
+.st-card:hover {
+  box-shadow: var(--st-shadow-md);
+}
+
+.st-card-feature {
+  background: var(--st-bg-primary);
+  border-radius: var(--st-radius-3xl);
+  padding: var(--st-space-8) var(--st-space-6);
+  text-align: center;
+  box-shadow: var(--st-shadow-base);
+}
+
+/* Container Styles */
+.st-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 var(--st-space-4);
+}
+
+.st-container-narrow {
+  max-width: 768px;
+  margin: 0 auto;
+  padding: 0 var(--st-space-4);
+}
+
+.st-container-wide {
+  max-width: 1536px;
+  margin: 0 auto;
+  padding: 0 var(--st-space-4);
+}
+
+/* Focus States */
+.st-focus-ring {
+  outline: 2px solid var(--st-purple-500);
+  outline-offset: 2px;
+}
+
+/* Animations */
+.st-hover-lift {
+  transition: transform var(--st-transition-base);
+}
+
+.st-hover-lift:hover {
+  transform: translateY(-4px);
+}
+
+.st-hover-grow {
+  transition: transform var(--st-transition-base);
+}
+
+.st-hover-grow:hover {
+  transform: scale(1.05);
+}
+
+/* Gradients */
+.st-gradient-primary {
+  background: linear-gradient(135deg, var(--st-purple-400), var(--st-purple-500));
+}
+
+.st-gradient-hero {
+  background: linear-gradient(135deg, var(--st-purple-300) 0%, var(--st-purple-400) 50%, var(--st-blue-500) 100%);
+}
+
+.st-gradient-accent {
+  background: linear-gradient(135deg, var(--st-purple-500), var(--st-blue-500));
+}

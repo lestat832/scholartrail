@@ -92,7 +92,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onPurchase
             <form onSubmit={handleSubmit} className="p-6 sm:p-8">
               {/* Header */}
               <div className="text-center mb-6">
-                <h2 className="text-3xl font-serif font-bold text-vault-blue mb-2">
+                <h2 className="text-3xl font-serif font-bold text-gray-900 mb-2">
                   {isTrialExpired ? 'Your Free Trial Has Ended' : (isAnnual ? 'A Year of Scholarships!' : 'A Month of Scholarships!')}
                 </h2>
                 {/* Header image placeholder */}
@@ -102,9 +102,9 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onPurchase
               {/* Pricing Options */}
               <div className="mb-6">
                 {/* Single Price Display */}
-                <div className="border-2 border-privacy-teal bg-privacy-teal bg-opacity-5 rounded-lg p-4 mb-4">
+                <div className="border-2 border-st-purple-400 bg-st-purple-400 bg-opacity-5 rounded-lg p-4 mb-4">
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-vault-blue mb-2">
+                    <div className="text-3xl font-bold text-gray-900 mb-2">
                       {isAnnual ? '$34' : '$2.99'}
                     </div>
                     <div className="text-sm text-gray-600">
@@ -121,7 +121,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onPurchase
                   <button
                     type="button"
                     onClick={() => setIsAnnual(!isAnnual)}
-                    className="text-privacy-teal hover:underline text-sm font-medium"
+                    className="text-st-purple-400 hover:underline text-sm font-medium"
                   >
                     {isAnnual ? 'Change to Monthly Plan' : 'Change to Annual Plan'}
                   </button>
@@ -130,7 +130,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onPurchase
 
               {/* Need Financial Assistance */}
               <div className="bg-info-blue bg-opacity-10 rounded-lg p-6 mb-6 text-center">
-                <h3 className="font-semibold text-vault-blue mb-3 text-lg">Need Financial Assistance?</h3>
+                <h3 className="font-semibold text-gray-900 mb-3 text-lg">Need Financial Assistance?</h3>
                 <p className="text-sm text-gray-600 mb-4">
                   Apply for a sponsored membership. Our sponsors help deserving students access scholarships.
                 </p>
@@ -175,20 +175,20 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onPurchase
 
               {/* Payment Options */}
               <div className="mb-6">
-                <h3 className="font-semibold text-vault-blue mb-4">Payment Options</h3>
+                <h3 className="font-semibold text-gray-900 mb-4">Payment Options</h3>
                 
                 {/* Credit Card */}
                 <div className="space-y-4">
                   <div 
                     className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
-                      paymentMethod === 'credit' ? 'border-privacy-teal' : 'border-gray-200'
+                      paymentMethod === 'credit' ? 'border-st-purple-400' : 'border-gray-200'
                     }`}
                     onClick={() => setPaymentMethod('credit')}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
                         <div className={`w-5 h-5 rounded-full border-2 mr-3 ${
-                          paymentMethod === 'credit' ? 'border-privacy-teal bg-privacy-teal' : 'border-gray-300'
+                          paymentMethod === 'credit' ? 'border-st-purple-400 bg-st-purple-400' : 'border-gray-300'
                         }`}>
                           {paymentMethod === 'credit' && (
                             <svg className="w-3 h-3 text-white mx-auto mt-0.5" fill="currentColor" viewBox="0 0 20 20">
@@ -267,13 +267,13 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onPurchase
                   {/* More Payment Options */}
                   <div 
                     className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
-                      paymentMethod === 'more' ? 'border-privacy-teal' : 'border-gray-200'
+                      paymentMethod === 'more' ? 'border-st-purple-400' : 'border-gray-200'
                     }`}
                     onClick={() => setPaymentMethod('more')}
                   >
                     <div className="flex items-center">
                       <div className={`w-5 h-5 rounded-full border-2 mr-3 ${
-                        paymentMethod === 'more' ? 'border-privacy-teal bg-privacy-teal' : 'border-gray-300'
+                        paymentMethod === 'more' ? 'border-st-purple-400 bg-st-purple-400' : 'border-gray-300'
                       }`}>
                         {paymentMethod === 'more' && (
                           <svg className="w-3 h-3 text-white mx-auto mt-0.5" fill="currentColor" viewBox="0 0 20 20">
@@ -308,7 +308,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onPurchase
                   {/* Ask my parent to pay - Only show for student accounts */}
                   {!hideParentPayOption && (
                     <div 
-                      className="border-2 rounded-lg p-4 cursor-pointer transition-all border-gray-200 hover:border-privacy-teal"
+                      className="border-2 rounded-lg p-4 cursor-pointer transition-all border-gray-200 hover:border-st-purple-400"
                       onClick={onRequestPayment}
                     >
                       <div>
@@ -333,7 +333,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onPurchase
                     type="checkbox"
                     checked={agreedToTerms}
                     onChange={(e) => setAgreedToTerms(e.target.checked)}
-                    className="mt-1 mr-3 h-4 w-4 text-privacy-teal focus:ring-privacy-teal border-gray-300 rounded"
+                    className="mt-1 mr-3 h-4 w-4 text-st-purple-400 focus:ring-privacy-teal border-gray-300 rounded"
                   />
                   <span className="text-sm text-gray-600">
                     By purchasing, you authorize us to automatically charge the membership fee to your chosen payment method on a recurring basis and agree to the Terms of Sale. You can cancel or change your membership at any time on your Account page.
@@ -347,7 +347,7 @@ const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onPurchase
                 disabled={!agreedToTerms}
                 className={`w-full py-3 px-6 rounded-md font-semibold transition-all ${
                   agreedToTerms 
-                    ? 'bg-privacy-teal text-white hover:bg-opacity-90' 
+                    ? 'bg-st-purple-400 text-white hover:bg-opacity-90' 
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
               >

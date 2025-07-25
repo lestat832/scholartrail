@@ -24,17 +24,17 @@ const Logo: React.FC<LogoProps> = ({
   const width = typeof size === 'number' ? size : sizeMap[size];
   const iconSize = variant === 'horizontal' ? width * 0.3 : width * 0.5;
   
-  // Color schemes
+  // Color schemes - Updated to use new design system colors
   const colors = {
     default: {
-      book: '#45818E', // Privacy Teal
-      star: '#FFB700', // Bright Gold
-      text: '#34495E', // Vault Blue
+      book: '#8B5CF6', // st-purple-400
+      star: '#F59E0B', // Warm amber/gold accent
+      text: '#111827', // st-text-primary (gray-900)
     },
     monochrome: {
-      book: '#34495E',
-      star: '#34495E',
-      text: '#34495E',
+      book: '#6B7280', // Neutral gray
+      star: '#6B7280',
+      text: '#111827',
     },
     white: {
       book: '#FFFFFF',
@@ -105,7 +105,7 @@ const Logo: React.FC<LogoProps> = ({
           style={{ 
             fontSize: `${iconSize * 0.7}px`,
             color: currentColors.text,
-            fontFamily: 'Playfair Display, serif',
+            fontFamily: 'Inter, sans-serif',
             letterSpacing: '-0.02em'
           }}
         >
@@ -124,7 +124,7 @@ const Logo: React.FC<LogoProps> = ({
         style={{ 
           fontSize: `${iconSize * 0.35}px`,
           color: currentColors.text,
-          fontFamily: 'Playfair Display, serif',
+          fontFamily: 'Inter, sans-serif',
           letterSpacing: '-0.02em'
         }}
       >

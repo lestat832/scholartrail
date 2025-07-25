@@ -579,7 +579,7 @@ const Dashboard: React.FC = () => {
               className={`w-3 ${
                 level <= 2 ? 'h-8' : level <= 4 ? 'h-12' : 'h-16'
               } ${
-                level <= strength ? 'bg-privacy-teal' : 'bg-gray-200'
+                level <= strength ? 'bg-st-purple-400' : 'bg-gray-200'
               } rounded-t`}
             />
           ))}
@@ -1116,7 +1116,7 @@ const Dashboard: React.FC = () => {
     <div className="min-h-screen bg-protected-bg">
       {/* Demo Mode Banner */}
       {state?.demoMode && (
-        <div className="bg-trust-pink text-white py-2 px-4 text-center text-sm">
+        <div className="bg-st-purple-500 text-white py-2 px-4 text-center text-sm">
           <div className="flex items-center justify-center space-x-2">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -1337,7 +1337,7 @@ const Dashboard: React.FC = () => {
               // Payment-Only Parent Dashboard (Billing Portal)
               <div className="bg-white rounded-lg shadow-lg p-8">
                 <div className="text-center mb-8">
-                  <h1 className="text-3xl font-serif font-bold text-vault-blue mb-2">
+                  <h1 className="text-3xl font-serif font-bold text-gray-900 mb-2">
                     Payment Complete! 🎉
                   </h1>
                   <p className="text-gray-600">
@@ -1386,7 +1386,7 @@ const Dashboard: React.FC = () => {
                       Upgrade to a Parent Account to view {linkedStudentName}'s scholarship progress, 
                       add more students, and access the full parent dashboard.
                     </p>
-                    <button className="px-6 py-2 bg-trust-pink text-white rounded-md hover:bg-opacity-90 transition-all">
+                    <button className="px-6 py-2 bg-st-purple-500 text-white rounded-md hover:bg-opacity-90 transition-all">
                       Upgrade to Parent Account
                     </button>
                   </div>
@@ -1404,7 +1404,7 @@ const Dashboard: React.FC = () => {
                 <div className="bg-white rounded-lg shadow-lg p-8">
                   <div className="flex items-center justify-between mb-6">
                     <div>
-                      <h1 className="text-3xl font-serif font-bold text-vault-blue mb-2">
+                      <h1 className="text-3xl font-serif font-bold text-gray-900 mb-2">
                         Welcome to Your {isParentPlan ? 'Parent' : 'Trial'} Dashboard! 🎓
                       </h1>
                       <p className="text-gray-600">
@@ -1415,8 +1415,8 @@ const Dashboard: React.FC = () => {
                       </p>
                     </div>
                     <div className="text-right">
-                      <div className="bg-privacy-teal bg-opacity-10 rounded-lg p-4">
-                        <div className="text-2xl font-bold text-privacy-teal">
+                      <div className="bg-st-purple-400 bg-opacity-10 rounded-lg p-4">
+                        <div className="text-2xl font-bold text-st-purple-400">
                           {parentAccountType === 'parent-free' ? 'Free Trial' : isParentPlan ? 'Parent Plan' : 'Student Plan'}
                         </div>
                         <div className="text-sm text-gray-600">
@@ -1429,7 +1429,7 @@ const Dashboard: React.FC = () => {
                   {/* Quick Stats */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div className="bg-gray-50 rounded-lg p-6 text-center">
-                      <div className="text-3xl font-bold text-vault-blue mb-2">
+                      <div className="text-3xl font-bold text-gray-900 mb-2">
                         {parentAccountType === 'parent-free' ? '0' : parentAccountData?.linkedStudents?.length || 1}
                       </div>
                       <div className="text-sm text-gray-600">
@@ -1437,13 +1437,13 @@ const Dashboard: React.FC = () => {
                       </div>
                     </div>
                     <div className="bg-gray-50 rounded-lg p-6 text-center">
-                      <div className="text-3xl font-bold text-vault-blue mb-2">
+                      <div className="text-3xl font-bold text-gray-900 mb-2">
                         {parentAccountType === 'parent-free' ? '3' : isParentPlan ? '47' : '0'}
                       </div>
                       <div className="text-sm text-gray-600">Scholarship Matches</div>
                     </div>
                     <div className="bg-gray-50 rounded-lg p-6 text-center">
-                      <div className="text-3xl font-bold text-vault-blue mb-2">
+                      <div className="text-3xl font-bold text-gray-900 mb-2">
                         {parentAccountType === 'parent-free' ? '$12K' : isParentPlan ? '$124K' : '$0'}
                       </div>
                       <div className="text-sm text-gray-600">Total Available</div>
@@ -1468,7 +1468,7 @@ const Dashboard: React.FC = () => {
                             <p className="text-sm text-gray-600 mb-4">
                               Start tracking scholarship progress for one student with your free trial
                             </p>
-                            <button className="px-4 py-2 bg-privacy-teal text-white rounded-md hover:bg-opacity-90 transition-all">
+                            <button className="px-4 py-2 bg-st-purple-400 text-white rounded-md hover:bg-opacity-90 transition-all">
                               Add Student Profile
                             </button>
                           </div>
@@ -1479,7 +1479,7 @@ const Dashboard: React.FC = () => {
                       <div className="bg-gray-50 rounded-lg p-6">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-4">
-                            <div className="w-12 h-12 bg-privacy-teal rounded-full flex items-center justify-center">
+                            <div className="w-12 h-12 bg-st-purple-400 rounded-full flex items-center justify-center">
                               <span className="text-white font-semibold">
                                 {(linkedStudentName || 'S')[0]}
                               </span>
@@ -1499,7 +1499,7 @@ const Dashboard: React.FC = () => {
                           <div className="flex space-x-2">
                             {isParentPlan ? (
                               <>
-                                <button className="px-4 py-2 bg-privacy-teal text-white rounded-md hover:bg-opacity-90 transition-all">
+                                <button className="px-4 py-2 bg-st-purple-400 text-white rounded-md hover:bg-opacity-90 transition-all">
                                   View Progress
                                 </button>
                                 <button className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-all">
@@ -1507,7 +1507,7 @@ const Dashboard: React.FC = () => {
                                 </button>
                               </>
                             ) : (
-                              <button className="px-4 py-2 bg-trust-pink text-white rounded-md hover:bg-opacity-90 transition-all">
+                              <button className="px-4 py-2 bg-st-purple-500 text-white rounded-md hover:bg-opacity-90 transition-all">
                                 Upgrade to Track Progress
                               </button>
                             )}
@@ -1522,7 +1522,7 @@ const Dashboard: React.FC = () => {
                           <div className="text-gray-600">
                             Add up to {3 - (parentAccountData?.linkedStudents?.length || 1)} more students
                           </div>
-                          <button className="px-6 py-3 bg-privacy-teal text-white rounded-md hover:bg-opacity-90 transition-all">
+                          <button className="px-6 py-3 bg-st-purple-400 text-white rounded-md hover:bg-opacity-90 transition-all">
                             + Add Student Profile
                           </button>
                         </div>
@@ -1601,7 +1601,7 @@ const Dashboard: React.FC = () => {
                           View Payment History
                         </button>
                         {!isParentPlan && (
-                          <button className="w-full px-4 py-2 bg-trust-pink text-white rounded-md hover:bg-opacity-90 transition-all">
+                          <button className="w-full px-4 py-2 bg-st-purple-500 text-white rounded-md hover:bg-opacity-90 transition-all">
                             Upgrade to Parent Plan
                           </button>
                         )}
@@ -1621,7 +1621,7 @@ const Dashboard: React.FC = () => {
             {/* Parent Child Overview Section */}
             <div className="flex items-center mb-12">
               <div className="flex-1 max-w-md">
-                <h1 className="text-3xl font-serif font-bold text-vault-blue mb-2">
+                <h1 className="text-3xl font-serif font-bold text-gray-900 mb-2">
                   Welcome Parent!
                 </h1>
                 <p className="text-gray-600 mb-4">
@@ -1662,7 +1662,7 @@ const Dashboard: React.FC = () => {
                         });
                       }
                     }}
-                    className="flex items-center space-x-2 px-4 py-2 bg-white border-2 border-trust-pink text-trust-pink rounded-md hover:bg-pink-50 transition-all mt-2"
+                    className="flex items-center space-x-2 px-4 py-2 bg-white border-2 border-st-purple-500 text-st-purple-500 rounded-md hover:bg-pink-50 transition-all mt-2"
                   >
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -1689,11 +1689,11 @@ const Dashboard: React.FC = () => {
                   return (
                     <>
                       <div className="bg-white rounded-full w-40 h-40 flex flex-col items-center justify-center shadow-md">
-                        <div className="text-3xl font-bold text-vault-blue">{visibleCount}</div>
+                        <div className="text-3xl font-bold text-gray-900">{visibleCount}</div>
                         <div className="text-sm text-gray-600 text-center mt-2">Number<br />of<br />Matches</div>
                       </div>
                       <div className="bg-white rounded-full w-40 h-40 flex flex-col items-center justify-center shadow-md">
-                        <div className="text-3xl font-bold text-vault-blue">{stats.amountInMatches}</div>
+                        <div className="text-3xl font-bold text-gray-900">{stats.amountInMatches}</div>
                         <div className="text-sm text-gray-600 text-center mt-2">Amount<br />in<br />Matches</div>
                       </div>
                     </>
@@ -1770,7 +1770,7 @@ const Dashboard: React.FC = () => {
                         >
                           <span>Saved</span>
                           {newSavedCount > 0 && (
-                            <span className="bg-trust-pink text-white text-xs px-2 py-0.5 rounded-full">
+                            <span className="bg-st-purple-500 text-white text-xs px-2 py-0.5 rounded-full">
                               {newSavedCount}
                             </span>
                           )}
@@ -1786,7 +1786,7 @@ const Dashboard: React.FC = () => {
                         >
                           <span>Applied</span>
                           {newAppliedCount > 0 && (
-                            <span className="bg-trust-pink text-white text-xs px-2 py-0.5 rounded-full">
+                            <span className="bg-st-purple-500 text-white text-xs px-2 py-0.5 rounded-full">
                               {newAppliedCount}
                             </span>
                           )}
@@ -1842,7 +1842,7 @@ const Dashboard: React.FC = () => {
                             {/* Scholarship Details */}
                             <div className="flex-grow">
                               <h3 
-                                className="text-xl font-semibold text-vault-blue mb-2 cursor-pointer hover:text-info-blue transition-colors"
+                                className="text-xl font-semibold text-gray-900 mb-2 cursor-pointer hover:text-info-blue transition-colors"
                                 onClick={() => {
                                   const slug = scholarship.name.toLowerCase().replace(/\s+/g, '-');
                                   navigate(`/scholarship/${slug}`);
@@ -1868,7 +1868,7 @@ const Dashboard: React.FC = () => {
                             </div>
                             
                             {/* Amount */}
-                            <div className="text-2xl font-bold text-privacy-teal ml-6">
+                            <div className="text-2xl font-bold text-st-purple-400 ml-6">
                               {scholarship.amount}
                             </div>
                           </div>
@@ -1928,8 +1928,8 @@ const Dashboard: React.FC = () => {
 
                     {/* Subscribe Promo after 3rd scholarship */}
                     {index === 2 && !isPaidMember && (
-                      <div className="bg-trust-pink bg-opacity-10 border-2 border-trust-pink rounded-lg p-8 text-center mb-6">
-                        <h3 className="text-2xl font-serif font-bold text-vault-blue mb-4">
+                      <div className="bg-st-purple-500 bg-opacity-10 border-2 border-st-purple-500 rounded-lg p-8 text-center mb-6">
+                        <h3 className="text-2xl font-serif font-bold text-gray-900 mb-4">
                           Unlock Your Full Potential! 🚀
                         </h3>
                         <p className="text-gray-700 mb-6 max-w-2xl mx-auto">
@@ -1937,7 +1937,7 @@ const Dashboard: React.FC = () => {
                         </p>
                         <button
                           onClick={handleBecomeMember}
-                          className="px-8 py-3 bg-trust-pink text-white rounded-md font-semibold hover:bg-opacity-90 transform hover:scale-105 transition-all"
+                          className="px-8 py-3 bg-st-purple-500 text-white rounded-md font-semibold hover:bg-opacity-90 transform hover:scale-105 transition-all"
                         >
                           Become a Member
                         </button>
@@ -1957,7 +1957,7 @@ const Dashboard: React.FC = () => {
             {/* Parent Overview Section */}
             <div className="flex items-center mb-12">
               <div className="flex-1 max-w-md">
-                <h1 className="text-3xl font-serif font-bold text-vault-blue mb-2">
+                <h1 className="text-3xl font-serif font-bold text-gray-900 mb-2">
                   Welcome Parent!
                 </h1>
                 <p className="text-gray-600">
@@ -1968,11 +1968,11 @@ const Dashboard: React.FC = () => {
               {/* Stats - Centered */}
               <div className="flex-1 flex justify-center space-x-8">
                 <div className="bg-white rounded-full w-40 h-40 flex flex-col items-center justify-center shadow-md">
-                  <div className="text-3xl font-bold text-vault-blue">{allScholarships.length > 3 ? 3 : allScholarships.length}</div>
+                  <div className="text-3xl font-bold text-gray-900">{allScholarships.length > 3 ? 3 : allScholarships.length}</div>
                   <div className="text-sm text-gray-600 text-center mt-2">Number<br />of<br />Matches</div>
                 </div>
                 <div className="bg-white rounded-full w-40 h-40 flex flex-col items-center justify-center shadow-md">
-                  <div className="text-3xl font-bold text-vault-blue">$150K</div>
+                  <div className="text-3xl font-bold text-gray-900">$150K</div>
                   <div className="text-sm text-gray-600 text-center mt-2">Amount<br />in<br />Matches</div>
                 </div>
               </div>
@@ -2019,7 +2019,7 @@ const Dashboard: React.FC = () => {
                         >
                           <span>Saved</span>
                           {newSavedCount > 0 && (
-                            <span className="bg-trust-pink text-white text-xs px-2 py-0.5 rounded-full">
+                            <span className="bg-st-purple-500 text-white text-xs px-2 py-0.5 rounded-full">
                               {newSavedCount}
                             </span>
                           )}
@@ -2035,7 +2035,7 @@ const Dashboard: React.FC = () => {
                         >
                           <span>Applied</span>
                           {newAppliedCount > 0 && (
-                            <span className="bg-trust-pink text-white text-xs px-2 py-0.5 rounded-full">
+                            <span className="bg-st-purple-500 text-white text-xs px-2 py-0.5 rounded-full">
                               {newAppliedCount}
                             </span>
                           )}
@@ -2067,7 +2067,7 @@ const Dashboard: React.FC = () => {
                         <div className="flex justify-between items-start">
                           <div className="flex-grow">
                             <h3 
-                              className="text-xl font-semibold text-vault-blue mb-2 cursor-pointer hover:text-info-blue transition-colors"
+                              className="text-xl font-semibold text-gray-900 mb-2 cursor-pointer hover:text-info-blue transition-colors"
                               onClick={() => {
                                 const slug = scholarship.name.toLowerCase().replace(/\s+/g, '-');
                                 navigate(`/scholarship/${slug}`);
@@ -2093,7 +2093,7 @@ const Dashboard: React.FC = () => {
                           </div>
                           
                           {/* Amount */}
-                          <div className="text-2xl font-bold text-privacy-teal ml-6">
+                          <div className="text-2xl font-bold text-st-purple-400 ml-6">
                             {scholarship.amount}
                           </div>
                         </div>
@@ -2141,7 +2141,7 @@ const Dashboard: React.FC = () => {
                           ) : (
                             <button
                               onClick={() => handleApplyScholarship(scholarship)}
-                              className="bg-trust-pink text-white px-6 py-2 rounded-md hover:bg-opacity-90 transition-all"
+                              className="bg-st-purple-500 text-white px-6 py-2 rounded-md hover:bg-opacity-90 transition-all"
                             >
                               Apply
                             </button>
@@ -2182,7 +2182,7 @@ const Dashboard: React.FC = () => {
             {/* Overview Section */}
             <div className="flex items-center mb-12">
               <div className="flex-1 max-w-md">
-                <h1 className="text-3xl font-serif font-bold text-vault-blue mb-2">
+                <h1 className="text-3xl font-serif font-bold text-gray-900 mb-2">
                   Hi {(isParentChildFTUE || isParentNonPersonalized) && activeChildTab !== 'browse' ? 
                       children.find(c => c.id === activeChildTab)?.firstName || 'Student' : 
                       profileData.firstName || 'Student'}! 🎓
@@ -2194,7 +2194,7 @@ const Dashboard: React.FC = () => {
                 {!(isParentChildFTUE || isParentNonPersonalized) && (
                   <button
                     onClick={() => setIsProfileEnhancementModalOpen(true)}
-                    className="inline-flex items-center px-4 py-2 bg-privacy-teal text-white rounded-md font-semibold hover:bg-opacity-90 transition-all"
+                    className="inline-flex items-center px-4 py-2 bg-st-purple-400 text-white rounded-md font-semibold hover:bg-opacity-90 transition-all"
                   >
                     <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -2248,7 +2248,7 @@ const Dashboard: React.FC = () => {
                             } 
                           });
                         }}
-                        className="text-xs text-trust-pink hover:underline flex items-center space-x-1"
+                        className="text-xs text-st-purple-500 hover:underline flex items-center space-x-1"
                       >
                         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -2278,11 +2278,11 @@ const Dashboard: React.FC = () => {
               {/* Stats - Centered */}
               <div className="flex-1 flex justify-center space-x-8">
                 <div className="bg-white rounded-full w-40 h-40 flex flex-col items-center justify-center shadow-md">
-                  <div className="text-3xl font-bold text-vault-blue">{stats.numberOfMatches}</div>
+                  <div className="text-3xl font-bold text-gray-900">{stats.numberOfMatches}</div>
                   <div className="text-sm text-gray-600 text-center mt-2">Number<br />of<br />Matches</div>
                 </div>
                 <div className="bg-white rounded-full w-40 h-40 flex flex-col items-center justify-center shadow-md">
-                  <div className="text-3xl font-bold text-vault-blue">{stats.amountInMatches}</div>
+                  <div className="text-3xl font-bold text-gray-900">{stats.amountInMatches}</div>
                   <div className="text-sm text-gray-600 text-center mt-2">Amount<br />in<br />Matches</div>
                 </div>
               </div>
@@ -2330,7 +2330,7 @@ const Dashboard: React.FC = () => {
                     >
                       <span>Saved</span>
                       {newSavedCount > 0 && (
-                        <span className="bg-trust-pink text-white text-xs px-2 py-0.5 rounded-full">
+                        <span className="bg-st-purple-500 text-white text-xs px-2 py-0.5 rounded-full">
                           {newSavedCount}
                         </span>
                       )}
@@ -2347,7 +2347,7 @@ const Dashboard: React.FC = () => {
                     >
                       <span>Applied</span>
                       {newAppliedCount > 0 && (
-                        <span className="bg-trust-pink text-white text-xs px-2 py-0.5 rounded-full">
+                        <span className="bg-st-purple-500 text-white text-xs px-2 py-0.5 rounded-full">
                           {newAppliedCount}
                         </span>
                       )}
@@ -2393,7 +2393,7 @@ const Dashboard: React.FC = () => {
                     <div className="flex justify-between items-start">
                       <div className="flex-grow">
                         <h3 
-                          className="text-xl font-semibold text-vault-blue mb-2 cursor-pointer hover:text-info-blue transition-colors"
+                          className="text-xl font-semibold text-gray-900 mb-2 cursor-pointer hover:text-info-blue transition-colors"
                           onClick={() => {
                             const slug = scholarship.name.toLowerCase().replace(/\s+/g, '-');
                             navigate(`/scholarship/${slug}`);
@@ -2419,7 +2419,7 @@ const Dashboard: React.FC = () => {
                       </div>
                       
                       {/* Amount */}
-                      <div className="text-2xl font-bold text-privacy-teal ml-6">
+                      <div className="text-2xl font-bold text-st-purple-400 ml-6">
                         {scholarship.amount}
                       </div>
                     </div>
@@ -2461,7 +2461,7 @@ const Dashboard: React.FC = () => {
                         ) : (
                           <button 
                             onClick={() => handleApplyScholarship(scholarship)}
-                            className="px-6 py-2 bg-trust-pink text-white rounded-md hover:bg-opacity-90"
+                            className="px-6 py-2 bg-st-purple-500 text-white rounded-md hover:bg-opacity-90"
                           >
                             Apply
                           </button>
@@ -2475,8 +2475,8 @@ const Dashboard: React.FC = () => {
             
             {/* Subscription Promo - Only show for non-paid members */}
             {!isPaidMember && (
-              <div className="bg-trust-pink bg-opacity-10 border-2 border-trust-pink rounded-lg p-8 text-center">
-                <h3 className="text-2xl font-serif font-bold text-vault-blue mb-4">
+              <div className="bg-st-purple-500 bg-opacity-10 border-2 border-st-purple-500 rounded-lg p-8 text-center">
+                <h3 className="text-2xl font-serif font-bold text-gray-900 mb-4">
                   Unlock Your Full Potential! 🚀
                 </h3>
                 <p className="text-gray-700 mb-6 max-w-2xl mx-auto">
@@ -2485,7 +2485,7 @@ const Dashboard: React.FC = () => {
                 </p>
                 <button 
                   onClick={handleBecomeMember}
-                  className="px-8 py-3 bg-trust-pink text-white rounded-md font-semibold hover:bg-opacity-90 transform hover:scale-105 transition-all"
+                  className="px-8 py-3 bg-st-purple-500 text-white rounded-md font-semibold hover:bg-opacity-90 transform hover:scale-105 transition-all"
                 >
                   Become a Member
                 </button>

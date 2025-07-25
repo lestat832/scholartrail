@@ -57,26 +57,26 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onContinue }
     if (userType === 'student') {
       return (
         <svg viewBox="0 0 80 80" className="w-full h-full">
-          <circle cx="40" cy="30" r="15" fill="#45818E"/>
-          <path d="M40 10 L25 20 L40 25 L55 20 Z" fill="#34495E"/>
-          <path d="M25 50 Q25 45 30 45 L50 45 Q55 45 55 50 L55 70 L25 70 Z" fill="#45818E"/>
+          <circle cx="40" cy="30" r="15" fill="#8B5CF6"/>
+          <path d="M40 10 L25 20 L40 25 L55 20 Z" fill="#6366F1"/>
+          <path d="M25 50 Q25 45 30 45 L50 45 Q55 45 55 50 L55 70 L25 70 Z" fill="#8B5CF6"/>
         </svg>
       );
     } else if (userType === 'parent') {
       return (
         <svg viewBox="0 0 80 80" className="w-full h-full">
-          <circle cx="30" cy="25" r="10" fill="#45818E"/>
-          <circle cx="50" cy="30" r="8" fill="#45818E"/>
-          <path d="M20 45 Q20 40 25 40 L35 40 Q40 40 40 45 L40 70 L20 70 Z" fill="#45818E"/>
-          <path d="M40 50 Q40 45 45 45 L55 45 Q60 45 60 50 L60 70 L40 70 Z" fill="#45818E"/>
+          <circle cx="30" cy="25" r="10" fill="#8B5CF6"/>
+          <circle cx="50" cy="30" r="8" fill="#8B5CF6"/>
+          <path d="M20 45 Q20 40 25 40 L35 40 Q40 40 40 45 L40 70 L20 70 Z" fill="#8B5CF6"/>
+          <path d="M40 50 Q40 45 45 45 L55 45 Q60 45 60 50 L60 70 L40 70 Z" fill="#8B5CF6"/>
         </svg>
       );
     } else {
       return (
         <svg viewBox="0 0 80 80" className="w-full h-full">
-          <circle cx="40" cy="25" r="12" fill="#45818E"/>
-          <path d="M25 45 Q25 40 30 40 L50 40 Q55 40 55 45 L55 60 Q55 65 50 65 L30 65 Q25 65 25 60 Z" fill="#45818E"/>
-          <rect x="35" y="55" width="10" height="15" fill="#34495E"/>
+          <circle cx="40" cy="25" r="12" fill="#8B5CF6"/>
+          <path d="M25 45 Q25 40 30 40 L50 40 Q55 40 55 45 L55 60 Q55 65 50 65 L30 65 Q25 65 25 60 Z" fill="#8B5CF6"/>
+          <rect x="35" y="55" width="10" height="15" fill="#6366F1"/>
         </svg>
       );
     }
@@ -104,7 +104,7 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onContinue }
           </button>
 
           {/* Header */}
-          <h2 className="text-2xl font-semibold text-center text-gray-900 mb-10">
+          <h2 className="heading-section text-center mb-10">
             Who are you signing up as?
           </h2>
 
@@ -114,9 +114,9 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onContinue }
               <button
                 key={type.id}
                 onClick={() => setSelectedType(type.id)}
-                className={`p-4 rounded-lg border-2 transition-all ${
+                className={`p-4 rounded-2xl border-2 transition-all hover-lift ${
                   selectedType === type.id
-                    ? 'border-privacy-teal bg-privacy-teal bg-opacity-5'
+                    ? 'border-st-purple-400 bg-st-purple-50'
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
@@ -137,10 +137,10 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onContinue }
           <button
             onClick={handleContinue}
             disabled={!selectedType}
-            className={`w-full py-3 px-6 rounded-lg font-semibold transition-all ${
-              selectedType
-                ? 'bg-privacy-teal text-white hover:bg-opacity-90'
-                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+            className={`w-full btn-primary ${
+              !selectedType
+                ? 'opacity-50 cursor-not-allowed'
+                : ''
             }`}
           >
             Continue

@@ -125,7 +125,9 @@ const ParentPaymentPage: React.FC = () => {
         parentAccount
       };
       
+      console.log('ParentPaymentPage - Setting success data:', successData);
       localStorage.setItem('parentPaymentSuccess', JSON.stringify(successData));
+      console.log('ParentPaymentPage - Navigating to success page');
       navigate('/parent-payment-success');
     }, 2000);
   };

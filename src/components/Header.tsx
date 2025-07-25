@@ -21,13 +21,13 @@ const Header: React.FC<HeaderProps> = ({ onSignUpClick, onLoginClick }) => {
 
           {/* Navigation */}
           <nav className="hidden md:flex space-x-8">
-            <Link to="/preview" className="text-neutral-gray hover:text-privacy-teal font-medium transition-colors">
+            <Link to="/preview" className="text-gray-600 hover:text-st-purple-500 font-medium transition-colors">
               Home
             </Link>
-            <Link to="/about" className="text-neutral-gray hover:text-privacy-teal font-medium transition-colors">
+            <Link to="/about" className="text-gray-600 hover:text-st-purple-500 font-medium transition-colors">
               About Us
             </Link>
-            <Link to="/contact" className="text-neutral-gray hover:text-privacy-teal font-medium transition-colors">
+            <Link to="/contact" className="text-gray-600 hover:text-st-purple-500 font-medium transition-colors">
               Contact Us
             </Link>
           </nav>
@@ -36,13 +36,13 @@ const Header: React.FC<HeaderProps> = ({ onSignUpClick, onLoginClick }) => {
           <div className="flex items-center space-x-4">
             <button 
               onClick={onLoginClick}
-              className="text-privacy-teal hover:text-opacity-80 font-medium border border-privacy-teal px-4 py-2 rounded-md transition-all hover:bg-privacy-teal hover:bg-opacity-10"
+              className="btn-secondary"
             >
               Login
             </button>
             <button 
               onClick={onSignUpClick}
-              className="bg-privacy-teal text-white font-medium px-4 py-2 rounded-md hover:bg-opacity-90 transition-all"
+              className="btn-primary"
             >
               Sign Up
             </button>
