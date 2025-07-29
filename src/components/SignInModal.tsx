@@ -64,12 +64,12 @@ const SignInModal: React.FC<SignInModalProps> = ({ isOpen, onClose, onSignIn, on
           </button>
 
           {/* Header */}
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-serif font-bold text-vault-blue mb-3">
+          <div className="text-center mb-8 pt-4">
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">
               Welcome Back
             </h2>
-            <p className="text-neutral-gray">
-              Continue Matching with Scholarships
+            <p className="text-gray-600">
+              Keep matching with scholarships built just for you
             </p>
           </div>
 
@@ -119,7 +119,7 @@ const SignInModal: React.FC<SignInModalProps> = ({ isOpen, onClose, onSignIn, on
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@email.com"
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-privacy-teal focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-st-purple-400 focus:border-transparent"
                 required
               />
               <input
@@ -127,27 +127,27 @@ const SignInModal: React.FC<SignInModalProps> = ({ isOpen, onClose, onSignIn, on
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-privacy-teal focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-st-purple-400 focus:border-transparent"
                 required
               />
             </div>
 
-            {/* Continue Button */}
+            {/* Sign In Button */}
             <button
               type="submit"
-              className="w-full py-3 px-6 bg-trust-pink text-white rounded-md font-medium hover:bg-opacity-90 transition-all"
+              className="w-full py-3 px-6 btn-primary"
             >
-              Continue
+              Sign In
             </button>
           </form>
 
           {/* Register Link */}
           <div className="text-center mt-6">
-            <span className="text-sm text-neutral-gray">
+            <span className="text-sm text-gray-600">
               Not Yet A Member?{' '}
               <button
                 onClick={onRegister}
-                className="text-info-blue hover:underline font-medium"
+                className="text-st-purple-500 hover:underline font-medium"
               >
                 Register
               </button>

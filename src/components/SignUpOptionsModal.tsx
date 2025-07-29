@@ -29,7 +29,7 @@ const SignUpOptionsModal: React.FC<SignUpOptionsModalProps> = ({ isOpen, onClose
   const handleSocialSignUp = (provider: 'apple' | 'google') => {
     // In a real app, this would handle OAuth
     console.log(`${provider} signup for ${userType}`);
-    onClose();
+    onEmailContinue(); // SSO buttons work without consent checkbox
   };
 
   // Close modal on Escape key
@@ -72,8 +72,8 @@ const SignUpOptionsModal: React.FC<SignUpOptionsModalProps> = ({ isOpen, onClose
 
           {/* Connection Banner */}
           {isFromInvitation && (
-            <div className="bg-info-blue bg-opacity-10 border-2 border-info-blue rounded-lg p-4 mb-6 text-center">
-              <p className="text-info-blue font-semibold">
+            <div className="bg-st-purple-50 border-2 border-st-purple-300 rounded-lg p-4 mb-6 text-center">
+              <p className="text-st-purple-600 font-semibold">
                 Connecting with {parentName}
               </p>
               <p className="text-sm text-gray-600 mt-1">
@@ -83,13 +83,12 @@ const SignUpOptionsModal: React.FC<SignUpOptionsModalProps> = ({ isOpen, onClose
           )}
 
           {/* Header */}
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-serif font-bold text-vault-blue mb-3">
-              Create Free Account
+          <div className="text-center mb-8 pt-4">
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">
+              Find Scholarships Just For You
             </h2>
-            <p className="text-neutral-gray">
-              Start matching with scholarships in minutes.<br />
-              No ads. No spam. Ever.
+            <p className="text-gray-600">
+              No ads. No spam. Your data stays private.
             </p>
           </div>
 
@@ -139,33 +138,38 @@ const SignUpOptionsModal: React.FC<SignUpOptionsModalProps> = ({ isOpen, onClose
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@email.com"
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-privacy-teal focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-st-purple-400 focus:border-transparent"
                 required
               />
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-privacy-teal focus:border-transparent"
-                required
-              />
+              <div>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-st-purple-400 focus:border-transparent"
+                  required
+                />
+                <p className="text-xs text-gray-500 mt-1">8+ characters, no special characters needed</p>
+              </div>
             </div>
 
-            {/* Consent Checkbox */}
+            {/* Explicit Consent Checkbox */}
             <div className="mb-6">
               <label className="flex items-start space-x-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={hasConsented}
                   onChange={(e) => setHasConsented(e.target.checked)}
-                  className="mt-1 w-4 h-4 text-privacy-teal bg-white border-gray-300 rounded focus:ring-privacy-teal focus:ring-2 cursor-pointer"
+                  className="mt-1 w-4 h-4 text-st-purple-400 bg-white border-gray-300 rounded focus:ring-st-purple-400 focus:ring-2 cursor-pointer"
                 />
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-700">
                   I agree to ScholarTrail's{' '}
                   <Link
                     to="/terms"
-                    className="text-info-blue hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-st-purple-500 hover:underline"
                     onClick={(e) => e.stopPropagation()}
                   >
                     Terms of Service
@@ -173,7 +177,9 @@ const SignUpOptionsModal: React.FC<SignUpOptionsModalProps> = ({ isOpen, onClose
                   {' '}and{' '}
                   <Link
                     to="/privacy"
-                    className="text-info-blue hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-st-purple-500 hover:underline"
                     onClick={(e) => e.stopPropagation()}
                   >
                     Privacy Policy
@@ -196,25 +202,33 @@ const SignUpOptionsModal: React.FC<SignUpOptionsModalProps> = ({ isOpen, onClose
                 disabled={!email || !password || !hasConsented}
                 className={`flex-1 py-3 px-6 rounded-md font-medium transition-all ${
                   email && password && hasConsented
-                    ? 'bg-trust-pink text-white hover:bg-opacity-90'
+                    ? 'btn-primary'
                     : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                 }`}
               >
-                Continue
+                Join for Free
               </button>
             </div>
           </form>
 
+          {/* Privacy Trust Badge */}
+          <div className="text-center mt-6 mb-4">
+            <div className="inline-flex items-center space-x-2 text-sm text-gray-600 bg-gray-50 px-4 py-2 rounded-lg">
+              <span>🔒</span>
+              <span>ScholarTrail is a 501(c)(3) nonprofit and will never sell your data.</span>
+            </div>
+          </div>
+
           {/* Login Link */}
-          <div className="text-center mt-6">
-            <span className="text-sm text-neutral-gray">
+          <div className="text-center mt-4">
+            <span className="text-sm text-gray-600">
               Already A Member?{' '}
               <button
                 onClick={() => {
                   onClose();
                   if (onLogin) onLogin();
                 }}
-                className="text-info-blue hover:underline font-medium"
+                className="text-st-purple-500 hover:underline font-medium"
               >
                 Login
               </button>
