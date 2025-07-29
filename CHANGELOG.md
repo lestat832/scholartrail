@@ -5,6 +5,36 @@ All notable changes to ScholarTrail will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2025-07-28]
+
+### Added
+- Enhanced registration modal (SignUpOptionsModal) for better conversion:
+  - Added password helper text: "8+ characters, no special characters needed"
+  - Implemented privacy trust badge: "ScholarTrail is a 501(c)(3) nonprofit and will never sell your data"
+  - Added explicit consent checkbox for GDPR compliance
+  - Fixed header spacing from close button for better visual hierarchy
+
+### Changed
+- Improved registration modal copy for clarity and conversion:
+  - Header: "Find Scholarships Just For You" (more personal and direct)
+  - Subheader: "No ads. No spam. Your data stays private." (simplified)
+  - CTA button: "Join for Free" (clearer call-to-action)
+  - Consolidated legal text into single consent checkbox
+- Updated login modal (SignInModal) for consistency:
+  - Subheader: "Keep matching with scholarships built just for you"
+  - CTA button: Changed from "Continue" to "Sign In"
+  - Added consistent header spacing from close button
+- Applied new design system colors to both modals:
+  - Replaced privacy-teal, trust-pink, vault-blue with st-purple palette
+  - Updated focus states and hover effects
+  - Used btn-primary class for consistent CTAs
+
+### Technical
+- Maintained all existing authentication flows and functionality
+- SSO buttons (Apple/Google) work independently of consent checkbox
+- All links properly open in new tabs with security attributes
+- Forms maintain proper validation and error handling
+
 ## [2025-07-25]
 
 ### Added
