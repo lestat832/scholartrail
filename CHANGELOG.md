@@ -5,6 +5,28 @@ All notable changes to ScholarTrail will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2025-08-15]
+
+### Added
+- Financial need preference to onboarding Step 2 (Personal Info):
+  - New "Scholarship Type Preference" dropdown field for better scholarship matching
+  - Options: Merit-based scholarships, Need-based scholarships, Both merit and need-based, Not sure/Show all
+  - Added to both AddPersonalInfoModal (student flow) and AddChildPersonalInfoModal (parent flow)
+  - Field strategically placed after City/State for logical demographic grouping
+  - Updated modal subheader: "helps find scholarships that match your background, location, and financial situation"
+
+### Changed
+- Updated personal info modals with new design system:
+  - Applied st-purple-400 color palette throughout
+  - Replaced vault-blue headers with gray-900
+  - Updated all focus states to use st-purple-400
+  - Removed serif fonts in favor of Inter typography
+
+### Technical
+- Maintained existing form validation and data flow
+- Field data integrated into onContinue callbacks for parent components
+- No additional onboarding steps required - leverages existing Step 2
+
 ## [2025-07-28]
 
 ### Added
