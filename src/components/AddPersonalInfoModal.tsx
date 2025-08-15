@@ -5,7 +5,7 @@ import { searchCities } from '../utils/cityData';
 interface AddPersonalInfoModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onContinue: (data: { gender?: string; nationality?: string; cityState?: string }) => void;
+  onContinue: (data: { gender?: string; nationality?: string; cityState?: string; scholarshipPreference?: string }) => void;
   onPrevious: () => void;
   currentStep?: number;
   totalSteps?: number;
@@ -22,11 +22,12 @@ const AddPersonalInfoModal: React.FC<AddPersonalInfoModalProps> = ({
   const [gender, setGender] = useState('');
   const [nationality, setNationality] = useState('');
   const [cityState, setCityState] = useState('');
+  const [scholarshipPreference, setScholarshipPreference] = useState('');
   const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   const handleContinue = () => {
-    onContinue({ gender, nationality, cityState });
+    onContinue({ gender, nationality, cityState, scholarshipPreference });
   };
 
   const handleCityStateChange = (value: string) => {
@@ -94,11 +95,11 @@ const AddPersonalInfoModal: React.FC<AddPersonalInfoModalProps> = ({
 
           {/* Header */}
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-serif font-bold text-vault-blue mb-4">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
               Add Personal Info
             </h2>
             <p className="text-sm text-gray-500">
-              This information helps us find scholarships that match your background and location.
+              This information helps us find scholarships that match your background, location, and financial situation.
             </p>
           </div>
 
@@ -117,7 +118,7 @@ const AddPersonalInfoModal: React.FC<AddPersonalInfoModalProps> = ({
                   id="gender"
                   value={gender}
                   onChange={(e) => setGender(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-privacy-teal focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-st-purple-400 focus:border-transparent"
                 >
                   <option value="">Select gender</option>
                   <option value="male">Male</option>
@@ -140,7 +141,7 @@ const AddPersonalInfoModal: React.FC<AddPersonalInfoModalProps> = ({
                   id="nationality"
                   value={nationality}
                   onChange={(e) => setNationality(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-privacy-teal focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-st-purple-400 focus:border-transparent"
                 >
                   <option value="">Select nationality</option>
                   {nationalities.map((nat) => (
@@ -166,7 +167,7 @@ const AddPersonalInfoModal: React.FC<AddPersonalInfoModalProps> = ({
                   onChange={(e) => handleCityStateChange(e.target.value)}
                   onClick={(e) => e.stopPropagation()}
                   placeholder="Start typing city name..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-privacy-teal focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-st-purple-400 focus:border-transparent"
                 />
                 
                 {/* Autocomplete suggestions */}
@@ -185,6 +186,28 @@ const AddPersonalInfoModal: React.FC<AddPersonalInfoModalProps> = ({
                   </div>
                 )}
               </div>
+
+              {/* Scholarship Type Preference */}
+              <div>
+                <label 
+                  htmlFor="scholarshipPreference" 
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Scholarship Type Preference
+                </label>
+                <select
+                  id="scholarshipPreference"
+                  value={scholarshipPreference}
+                  onChange={(e) => setScholarshipPreference(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-st-purple-400 focus:border-transparent"
+                >
+                  <option value="">Select scholarship type</option>
+                  <option value="merit">Merit-based scholarships</option>
+                  <option value="need">Need-based scholarships</option>
+                  <option value="both">Both merit and need-based</option>
+                  <option value="all">Not sure / Show all</option>
+                </select>
+              </div>
             </div>
 
             {/* Progress dots */}
@@ -194,7 +217,7 @@ const AddPersonalInfoModal: React.FC<AddPersonalInfoModalProps> = ({
                   key={index}
                   className={`w-2 h-2 rounded-full transition-all ${
                     index < currentStep
-                      ? 'bg-privacy-teal'
+                      ? 'bg-st-purple-400'
                       : 'bg-gray-300'
                   }`}
                 />
@@ -206,7 +229,7 @@ const AddPersonalInfoModal: React.FC<AddPersonalInfoModalProps> = ({
               {/* Continue Button */}
               <button
                 type="submit"
-                className="w-full py-3 px-6 bg-privacy-teal text-white rounded-md font-semibold hover:bg-opacity-90 transition-all"
+                className="w-full py-3 px-6 bg-st-purple-400 text-white rounded-md font-semibold hover:bg-opacity-90 transition-all"
               >
                 Continue
               </button>
@@ -215,7 +238,7 @@ const AddPersonalInfoModal: React.FC<AddPersonalInfoModalProps> = ({
               <button
                 type="button"
                 onClick={onPrevious}
-                className="w-full text-privacy-teal hover:text-opacity-80 font-medium transition-colors"
+                className="w-full text-st-purple-400 hover:text-opacity-80 font-medium transition-colors"
               >
                 Previous
               </button>
