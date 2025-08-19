@@ -5,7 +5,7 @@ import { searchCities } from '../utils/cityData';
 interface AddPersonalInfoModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onContinue: (data: { gender?: string; nationality?: string; cityState?: string; scholarshipPreference?: string }) => void;
+  onContinue: (data: { gender?: string; nationality?: string; cityState?: string; hasFinancialNeed?: boolean }) => void;
   onPrevious: () => void;
   currentStep?: number;
   totalSteps?: number;
@@ -22,12 +22,13 @@ const AddPersonalInfoModal: React.FC<AddPersonalInfoModalProps> = ({
   const [gender, setGender] = useState('');
   const [nationality, setNationality] = useState('');
   const [cityState, setCityState] = useState('');
-  const [scholarshipPreference, setScholarshipPreference] = useState('');
+  const [hasFinancialNeed, setHasFinancialNeed] = useState(false);
   const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   const handleContinue = () => {
-    onContinue({ gender, nationality, cityState, scholarshipPreference });
+    onContinue({ gender, nationality, cityState, hasFinancialNeed });
   };
 
   const handleCityStateChange = (value: string) => {
@@ -54,6 +55,20 @@ const AddPersonalInfoModal: React.FC<AddPersonalInfoModalProps> = ({
       return () => document.removeEventListener('click', handleClickOutside);
     }
   }, [showSuggestions]);
+
+  // Close tooltip when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.tooltip-container')) {
+        setShowTooltip(false);
+      }
+    };
+    if (showTooltip) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [showTooltip]);
 
   // Close modal on Escape key
   useEffect(() => {
@@ -188,25 +203,47 @@ const AddPersonalInfoModal: React.FC<AddPersonalInfoModalProps> = ({
               </div>
 
               {/* Scholarship Type Preference */}
-              <div>
-                <label 
-                  htmlFor="scholarshipPreference" 
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Scholarship Type Preference
+              <div className="relative tooltip-container">
+                <div className="flex items-center gap-2 mb-3">
+                  <label 
+                    htmlFor="hasFinancialNeed" 
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Scholarship Type Preference
+                  </label>
+                  <button
+                    type="button"
+                    onMouseEnter={() => setShowTooltip(true)}
+                    onMouseLeave={() => setShowTooltip(false)}
+                    onClick={() => setShowTooltip(!showTooltip)}
+                    className="w-4 h-4 rounded-full border border-gray-400 text-gray-500 hover:text-gray-700 hover:border-gray-600 flex items-center justify-center text-xs font-medium transition-colors"
+                  >
+                    ?
+                  </button>
+                </div>
+                
+                {/* Tooltip */}
+                {showTooltip && (
+                  <div className="absolute top-0 left-0 right-0 bg-gray-900 text-white text-xs rounded-lg p-3 shadow-xl z-20 transform -translate-y-full -translate-y-2">
+                    <div className="relative">
+                      Check this box if you have financial need. When checked, you'll see both need-based and merit-based scholarships. When unchecked, you'll see only merit-based scholarships. You can change this anytime in your profile settings.
+                      <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                    </div>
+                  </div>
+                )}
+
+                <label className="flex items-start space-x-3 cursor-pointer p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  <input
+                    type="checkbox"
+                    id="hasFinancialNeed"
+                    checked={hasFinancialNeed}
+                    onChange={(e) => setHasFinancialNeed(e.target.checked)}
+                    className="mt-1 w-4 h-4 text-st-purple-400 bg-white border-gray-300 rounded focus:ring-st-purple-400 focus:ring-2 cursor-pointer"
+                  />
+                  <span className="text-sm text-gray-700 leading-relaxed">
+                    I have financial need and want to see need-based scholarships
+                  </span>
                 </label>
-                <select
-                  id="scholarshipPreference"
-                  value={scholarshipPreference}
-                  onChange={(e) => setScholarshipPreference(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-st-purple-400 focus:border-transparent"
-                >
-                  <option value="">Select scholarship type</option>
-                  <option value="merit">Merit-based scholarships</option>
-                  <option value="need">Need-based scholarships</option>
-                  <option value="both">Both merit and need-based</option>
-                  <option value="all">Not sure / Show all</option>
-                </select>
               </div>
             </div>
 

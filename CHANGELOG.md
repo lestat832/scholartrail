@@ -5,12 +5,22 @@ All notable changes to ScholarTrail will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2025-08-19]
+
+### Changed
+- Improved financial need field tooltip copy for clarity:
+  - Updated tooltip messaging to clearly explain checkbox behavior
+  - Checked: Shows both need-based and merit-based scholarships
+  - Unchecked: Shows only merit-based scholarships
+  - Enhanced user understanding of scholarship filtering options
+
 ## [2025-08-15]
 
 ### Added
 - Financial need preference to onboarding Step 2 (Personal Info):
-  - New "Scholarship Type Preference" dropdown field for better scholarship matching
-  - Options: Merit-based scholarships, Need-based scholarships, Both merit and need-based, Not sure/Show all
+  - New "Scholarship Type Preference" checkbox field for better scholarship matching
+  - Converted from dropdown to checkbox for improved UX and accessibility
+  - Added tooltip with question mark icon for user guidance
   - Added to both AddPersonalInfoModal (student flow) and AddChildPersonalInfoModal (parent flow)
   - Field strategically placed after City/State for logical demographic grouping
   - Updated modal subheader: "helps find scholarships that match your background, location, and financial situation"
